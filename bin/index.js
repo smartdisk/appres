@@ -140,6 +140,12 @@ const icon = async() => {
                     } else {
                         console.log(res.body);
                     }
+
+
+                    if(argv.resize) {
+                        
+                    }
+
                 }
             } else {
                 console.log(JSON.stringify(err));
