@@ -48,7 +48,20 @@ If successful, you can find the appres.json file in the current working director
 
 ```
 
-<br />
-<br />
+## $ appres string
+```
+```
+
+## $ appres dict
+```
+```
+
+## $ appres icon
+```
+```
+
+## $ appres image
+```
+```
 
 # To be continue...
