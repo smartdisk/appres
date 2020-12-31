@@ -1,12 +1,9 @@
-# Under Developing
-## Now is under developing.
-## Thank you
----
+# Now is under developing. Thank you.
 <br/>
 
 # Install
 
-## Install for appres command line interface (CLI)
+## Install for CLI
 ```
 $ npm install appres -g
 ```
@@ -17,8 +14,9 @@ $ npm install appres -save
 <br/>
 
 # Usage for CLI
-## # Init to the appres.json
+## $ appres init
 ```
+
 Direct input is available for each CLI command. However, the appres.json file is much more convenient to use.
 
 You can easily create an appres.json file using the init command.
@@ -47,6 +45,7 @@ $ appres init
 Hint : Not use arguments will use default or already setting value.
 
 If successful, you can find the appres.json file in the current working directory.
+
 ```
 
 <br />
