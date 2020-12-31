@@ -19,6 +19,7 @@
     "boxen": "^4.2.0",
     "chalk": "^4.1.0",
     "needle": "^2.5.2",
+    "sharp": "^0.27.0",
     "yargs": "^16.2.0"
   },
   "repository": {

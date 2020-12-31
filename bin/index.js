@@ -5,6 +5,7 @@ const path = require("path");
 const chalk = require("chalk");
 const boxen = require("boxen");
 const needle = require('needle');
+const sharp = require('sharp');
 
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -92,15 +93,13 @@ const load = (resolve) => {
     });
 }
 
-const init = async() => {
-    load((json) => {
-        fs.writeFile(jsonFile, JSON.stringify(json, null, 2), (err) => {
-            if(err) {
-                console.log(err);
-            } else {
-                console.log(chalk.blueBright("Successfully initialize %s file."), chalk.greenBright(jsonFile));
-            }
-        });
+const init = async(json) => {
+    fs.writeFile(jsonFile, JSON.stringify(json, null, 2), (err) => {
+        if(err) {
+            console.log(chalk.red(err));
+        } else {
+            console.log(chalk.blueBright("Initialize %s"), chalk.greenBright(jsonFile));
+        }
     });
 }
 
@@ -129,26 +128,57 @@ const icon = async() => {
                         argv.save = true;
                     }
 
-                    if(argv.save===true && saveFile) {                        
-                        fs.writeFile(saveFile, res.body, (err) => {
-                            if(err) {
-                                console.log(err);
-                            } else {
-                                console.log(chalk.blueBright("Successfully saved %s file."), chalk.greenBright(saveFile));
-                            }
-                        });
+                    if(argv.resize==null) {
+                        if(argv.save===true && saveFile) {                        
+                            console.log(chalk.blueBright("Save : %s"), chalk.greenBright(saveFile));
+                            fs.writeFile(saveFile, res.body, (err) => {
+                                if(err) {
+                                    console.log(chalk.red(err));
+                                }
+                            });
+                        } else {
+                            console.log(chalk.red(res.body));
+                        }    
                     } else {
-                        console.log(res.body);
-                    }
+                        if(fs.existsSync(argv.resize + ".json")){
+                                                        
+                        } else 
+                        if(argv.resize=="android") {
+                            // type : "drawable", "mipmap"
+                            let type = argv.type || "mipmap";
+                            let resdpi = ['', 'ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
+                            for(let dpi in resdpi){
+                                let dir = resdpi[dpi];
+                                if(dir!='') {
+                                    dir = type + "-" + dir;
+                                } else {
+                                    dir = type;
+                                }
+                                if(!fs.existsSync(dir)) {
+                                    fs.mkdirSync(dir);
+                                }
+                                console.log(chalk.blueBright("Save : %s"), chalk.greenBright(dir+'/'+saveFile));
+                                sharp(res.body)
+                                    .resize(100, 100)
+                                    .toFile(dir+'/'+saveFile, (err, info) => {
+                                        if(err) {
+                                            console.log(chalk.red(err));
+                                        }
+                                    });
+                            }
+                        }
+                        else 
+                        if(argv.resize=="ios") {
 
-
-                    if(argv.resize) {
-                        
+                        }                        
+                        if(argv.resize=="android") {
+                            
+                        }
                     }
 
                 }
             } else {
-                console.log(JSON.stringify(err));
+                console.log(chalk.red(JSON.stringify(err)));
             }
         });
     }
@@ -164,15 +194,15 @@ const string = async() => {
             key: argv.key,
         };
         needle.post(HOST, data, function(err, res) {
-            if(!err) {
+            if(err) {
+                console.log(chalk.red(JSON.stringify(err)));
+            } else {
                 if(res.body.r=="s" && res.body.d) {
                     // Success
                     console.log(JSON.stringify(res.body.d));
                 } else {
-                    console.log(JSON.stringify(res.body));
+                    console.log(chalk.red(JSON.stringify(res.body)));
                 }
-            } else {
-                console.log(JSON.stringify(err));
             }
         });
     }
@@ -188,7 +218,9 @@ const setenv = (json) => {
 const main = async() => {
     switch(argv._[0]) {
         case 'init':
-            init();
+            load((json) => {
+                init(json);
+            });
             break;
         case 'icon':
             load((json) => {
