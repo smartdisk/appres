@@ -19,11 +19,11 @@ $ npm install appres -save
 
 Direct input is available for each CLI command. However, the appres.json file is much more convenient to use.
 
-You can easily create an [appres.org](https://appres.json "appres.json") file using the init command.
+You can easily create an appres.json file using the init command.
 
 $ appres init [--pkey PKEY] [--akey AKEY] [--host HOST]
 
-PKEY and AKEY is required. You can get your PKEY and AKEY from the appres.org site.
+PKEY and AKEY is required. You can get your PKEY and AKEY from the https://appres.org site.
 
 HOST is not for required. If you own the appres server, use the server address. Otherwise, Do not enter to use the default value.
 
