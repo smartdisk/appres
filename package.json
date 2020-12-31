@@ -1,12 +1,12 @@
 {
   "name": "appres",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "App Resource",
   "main": "bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["appres", "app", "resource", "resources", "resource manager", "strings", "images", "icons"],
   "author": "appres.org",
   "license": "GPL-3.0",
   "devDependencies": {
@@ -29,5 +29,5 @@
   "bugs": {
     "url": "https://github.com/smartdisk/appres/issues"
   },
-  "homepage": "https://github.com/smartdisk/appres#readme"
+  "homepage": "https://appres.org"
 }
