@@ -14,6 +14,19 @@ $ npm install appres -save
 <br/>
 
 # Usage for CLI
+
+## $ appres version
+```
+$ appres version
+
+You can show version of appres package.
+
+Example :
+# appres version
+0.0.15
+
+```
+
 ## $ appres init
 ```
 
@@ -90,9 +103,9 @@ Save : top_menu_dark.png
 If successful, You can find top_menu_dark.png in your working directory.
 
 
-=======================================
-### Icon save to local another file ###
-=======================================
+============================================
+### Icon save to local another file name ###
+============================================
 
 $ appres icon --file {icon filename} --save {save filename}
 

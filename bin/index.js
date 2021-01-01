@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const pkg = require('../package.json');
 const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
@@ -494,6 +495,9 @@ const _main = async() => {
             _load((json) => {
                 _init(json);
             });
+            break;
+        case 'version':
+            console.log(pkg.version);
             break;
         case 'icon':
             _load((json) => {
