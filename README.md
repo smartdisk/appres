@@ -6,6 +6,13 @@
 ## Install for CLI
 ```
 $ npm install appres -g
+
+If you have "ERR! sharp EACCES: permission denied", please install with --unsafe-perm option.
+
+$ npm i appres -g --unsafe-perm
+or 
+$ sudo npm i appres -g --unsafe-perm
+
 ```
 ## Install for node_modules
 ```

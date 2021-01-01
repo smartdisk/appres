@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-const pkg = require('../package.json');
 const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
 const boxen = require("boxen");
 const needle = require('needle');
-const sharp = require('sharp');
 const mkdirp = require('mkdirp');
+const sharp = require('sharp');
 
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
-const { rejects } = require("assert");
 const argv = yargs(hideBin(process.argv)).argv;
+
+const pkg = require('../package.json');
 
 const jsonFile = "appres.json";
 
