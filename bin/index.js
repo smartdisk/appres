@@ -259,7 +259,7 @@ const _saveicon = (_icon, _file, _scale, _width, _height) => {
             }
             _sharp.resize(newsize).toFile(_file, (err, info) => {
                 if(err) reject(err);
-                else resolve(info);
+                    else resolve(info);
             });
         });    
     });
