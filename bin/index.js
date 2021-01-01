@@ -6,7 +6,7 @@ const chalk = require("chalk");
 const boxen = require("boxen");
 const needle = require('needle');
 const mkdirp = require('mkdirp');
-const sharp = require('sharp');
+const jimp = require('jimp');
 
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -99,6 +99,8 @@ const _scale = (tag) => {
     return 1.0;
 }
 const _fit = (tag) => {
+    return tag;
+    /*
     if(tag) tag = tag.toLowerCase();
     switch(tag) {
         case 'contain':
@@ -113,6 +115,7 @@ const _fit = (tag) => {
             return sharp.fit.outside;
     }
     return sharp.fit.contain;
+    */
 }
 const _rgba = (r, g, b, a) => {
     return { r: r, g: g, b: b, alpha: a };
@@ -247,6 +250,26 @@ const _newsize = (width, height, _scale, _width, _height) => {
 const _saveicon = (_icon, _file, _scale, _width, _height) => {
     return new Promise((resolve, reject) => {
         let _fileext = path.extname(_file);
+        jimp.read(_icon).then((jimp, err) => {
+            if(jimp) {
+                let width = jimp.getWidth();
+                let height = jimp.getHeight();
+                let newsize = _newsize(width, height, _scale, _width, _height);
+                jimp.resize(newsize.width, newsize.height).writeAsync(_file).then((res, err) => {
+                    if(res) {
+                        resolve(res);
+                    }
+                    if(err) {
+                        reject(err);
+                    }
+                });
+            }
+            if(err) {
+                reject(err);
+            }
+        });
+
+        /*
         sharp(_icon).metadata().then(({width, height}) => {
             let newsize = _newsize(width, height, _scale, _width, _height);
             newsize.fit = _fit(argv.fit);
@@ -262,6 +285,7 @@ const _saveicon = (_icon, _file, _scale, _width, _height) => {
                     else resolve(info);
             });
         });    
+        */
     });
 }
 
