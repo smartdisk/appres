@@ -6,6 +6,7 @@ const chalk = require("chalk");
 const boxen = require("boxen");
 const needle = require('needle');
 const sharp = require('sharp');
+const mkdirp = require('mkdirp');
 
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -30,28 +31,257 @@ const boxenOptions = {
  backgroundColor: "#555555"
 };
 
-const sleep = (ms) => {
+
+const _sleep = (ms) => {
     return new Promise(resolve=>{
         setTimeout(resolve,ms)
     })
 }
 
-const hello = async() => {
+const _hello = async() => {
     for(let i=0;i<1000;i++) {
         process.stdout.write("\r"+chalk.blue("hello") + ": " + i);
-        await sleep(1);
+        await _sleep(1);
     }
     process.stdout.write("\n");
 }
 
-const helper = () => {
+const _helper = () => {
     let helperMsg = chalk.white.bold("Hello AppRes!!!");
     let helperBox = boxen( helperMsg, boxenOptions );
     console.log(helperBox);
 }
 
+const _getcwd = () => {
+    return process.cwd();
+}
 
-const load = (resolve) => {
+const _forcedir = (dir) => {
+    let dirok = true;
+    if(!fs.existsSync(dir)) {
+        dirok = false;
+        try {
+            mkdirp.sync(dir);
+            dirok = true;
+        } catch(err) {
+            console.log(chalk.red(err));
+        }
+    }
+    return dirok;    
+}
+const _forcefiledir = (filepath) => {
+    let dir = path.dirname(filepath);
+    return _forcedir(dir);
+}
+
+// ['', 'ldpi', 'mdpi', 'tvdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
+const _scale = (tag) => {
+    if(tag) tag = tag.toLowerCase();
+    switch(tag) {
+        case 'ldpi':
+            return 0.75;
+        case 'mdpi':
+            return 1.0;
+        case 'tvdpi':
+            return 1.33;
+        case 'hdpi':
+            return 1.5;
+        case '@2x':
+        case 'xhdpi':
+            return 2.0;
+        case '@3x':
+            case 'xxhdpi':
+            return 3.0;
+        case 'xxxhdpi':
+            return 4.0;
+    }
+    return 1.0;
+}
+const _fit = (tag) => {
+    if(tag) tag = tag.toLowerCase();
+    switch(tag) {
+        case 'contain':
+            return sharp.fit.contain;
+        case 'cover':
+            return sharp.fit.cover;
+        case 'fill':
+            return sharp.fit.fill;
+        case 'inside':
+            return sharp.fit.inside;
+        case 'outside':
+            return sharp.fit.outside;
+    }
+    return sharp.fit.contain;
+}
+const _rgba = (r, g, b, a) => {
+    return { r: r, g: g, b: b, alpha: a };
+}
+const _rgb = (r, g, b) => {
+    return _rgba(r, g, b, 1.0);
+}
+const _hex2rgb = (hex) => {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+}
+const _rgb2hex = (r, g, b) => {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+const _color = (tag, ext) => {
+    if(tag) tag = tag.toLowerCase();
+    if(ext) ext = ext.toLowerCase();
+    switch(tag) {
+
+        case 'lightred':
+            return { r: 255, g: 0, b: 0, alpha: 1.0 };
+        case 'lightgreen':
+            return { r: 0, g: 255, b: 0, alpha: 1.0 };
+        case 'lightblue':
+            return { r: 0, g: 0, b: 255, alpha: 1.0 };
+
+        case 'darkred':
+            return { r: 100, g: 0, b: 0, alpha: 1.0 };
+        case 'darkgreen':
+            return { r: 0, g: 100, b: 0, alpha: 1.0 };
+        case 'darkblue':
+            return { r: 0, g: 0, b: 100, alpha: 1.0 };
+
+        case 'white': 
+            return _rgb(255, 255, 255);
+        case 'black':	
+            return _rgb(0, 0, 0);
+
+        case 'silver':	
+            return _hex2rgb('#d6d6d6');
+
+        case 'lightgray':	
+            return _rgb(172, 172, 172);
+        case 'gray':	
+            return _rgb(128, 128, 128);
+        case 'darkgray':	
+            return _rgb(66, 66, 66);
+
+        case 'red':	
+            return _rgb(172, 0, 0);
+
+        case 'maroon':	
+            return _rgb(128, 0, 0);
+
+        case 'lightyellow':	
+            return _rgb(255, 255, 0);
+        case 'yellow':	
+            return _rgb(192, 192, 0);
+        case 'darkyellow':	
+            return _rgb(100, 100, 0);
+
+        case 'olive':	
+            return _rgb(128, 128, 0);
+        case 'lime':
+            return _rgb(0, 255, 0);
+
+        case 'green':
+            return _rgb(0, 172, 0);
+
+        case 'aqua':	
+            return _rgb(0, 255, 255);
+        case 'teal':	
+            return _rgb(0, 128, 128);
+
+        case 'blue':	
+            return _rgb(0, 0, 172);
+
+        case 'navy':	
+            return _rgb(0, 0, 66);
+        case 'fuchsia':	
+            return _rgb(255, 0, 255);
+        case 'purple':	
+            return _rgb(128, 0, 128);
+    }
+    if(ext=='.png' || ext=='.gif')
+        return { r: 0, g: 0, b: 0, alpha: 0.0 };
+    return { r: 255, g: 255, b: 255, alpha: 1.0 };    
+}
+const _flatten = (tag, ext) => {
+    let flatten = _color(tag, ext);
+    return flatten;
+}
+
+const _newsize = (width, height, _scale, _width, _height) => {
+    let __width = _scale ? width * _scale : width;
+    let __height = _scale ? height * _scale : height;
+
+    if(_width=='auto' && _height && _height!='auto') {
+        let ah = _height / height;
+        _width = width * ah;
+    }
+    if(_height=='auto' && _width && _width!='auto') {
+        let aw = _width / width;
+        _height = height * aw;
+    }
+
+    if(_width=='auto') {
+        __width = _scale ? width * _scale : width;
+    } else 
+    if(_width) {
+        __width = _scale ? _width * _scale : _width;
+    }
+
+    if(_height=='auto') {
+        __height = _scale ? height * _scale : height;
+    } else 
+    if(_height) {
+        __height = _scale ? _height * _scale : _height;
+    }
+
+    __width = Math.round(__width);
+    __height = Math.round(__height);
+
+    return {width: __width, height: __height};
+}
+
+
+const _saveicon = (_icon, _file, _scale, _width, _height) => {
+    return new Promise((resolve, reject) => {
+        let _fileext = path.extname(_file);
+        sharp(_icon).metadata().then(({width, height}) => {
+            let newsize = _newsize(width, height, _scale, _width, _height);
+            newsize.fit = _fit(argv.fit);
+            newsize.background = _color(argv.bgc || argv.background, _fileext);
+            
+            let flatten = _flatten(argv.bgc || argv.background, _fileext) || {r:0, g:0, b:0};                                    
+            let _sharp = sharp(_icon);
+            if(flatten.alpha==null || flatten.alpha!=0) {
+                _sharp = _sharp.flatten({background: flatten});
+            }
+            _sharp.resize(newsize).toFile(_file, (err, info) => {
+                if(err) reject(err);
+                else resolve(info);
+            });
+        });    
+    });
+}
+
+const _writeicon = (_icon, _savefilepath, _scale, _width, _height, _subdir, _dirname, _savefile) => {
+    return new Promise((resolve, reject) => {
+        if(_forcefiledir(_savefilepath)) {
+            _saveicon(_icon, _savefilepath, _scale, _width, _height).then((res, err) => {
+                if(res) {
+                    resolve(res);
+                } 
+                if(err) {
+                    reject(err);
+                }
+            });
+        } else {
+            reject("Error: Cannot make directory.");
+        }
+    });
+}
+
+const _load = (resolve) => {
     let json = null;
     fs.readFile(jsonFile, (err, data) => {
         if(err) {
@@ -93,7 +323,7 @@ const load = (resolve) => {
     });
 }
 
-const init = async(json) => {
+const _init = async(json) => {
     fs.writeFile(jsonFile, JSON.stringify(json, null, 2), (err) => {
         if(err) {
             console.log(chalk.red(err));
@@ -103,7 +333,7 @@ const init = async(json) => {
     });
 }
 
-const icon = async() => {
+const _icon = async() => {
     if(argv.file) {
         let data = {
             pkey: PKEY,
@@ -118,9 +348,9 @@ const icon = async() => {
                     console.log(JSON.stringify(res.body));
                 } else {
                     // success
-                    let saveFile = argv.file;
+                    let savefile = argv.file;
                     if(argv.save && argv.save!==true) {
-                        saveFile = argv.save;
+                        savefile = argv.save;
                         argv.save = true;
                     }
                     else
@@ -128,51 +358,94 @@ const icon = async() => {
                         argv.save = true;
                     }
 
-                    if(argv.resize==null) {
-                        if(argv.save===true && saveFile) {                        
-                            console.log(chalk.blueBright("Save : %s"), chalk.greenBright(saveFile));
-                            fs.writeFile(saveFile, res.body, (err) => {
+                    let subdir = null;
+                    let dir = _getcwd();
+                    if(argv.dir && argv.dir!==true) {
+                        subdir = argv.dir;
+                        argv.save = true;
+                        if(path.isAbsolute(argv.dir)) {
+                            dir = argv.dir;
+                        } else {
+                            dir = path.join(dir, argv.dir);
+                        }
+                    }
+
+                    let size = ((argv.size!==true) && argv.size) || 'auto';
+                    let width = ((argv.width!==true) && argv.width) || size;
+                    let height = ((argv.height!==true) && argv.height) || size;
+
+                    if(argv.target==null) {
+                        if(argv.save===true && savefile) {                        
+                            let dirname = null;
+                            let savefilepath = path.join(dir, savefile);
+                            let scale = 1;
+                            _writeicon(res.body, savefilepath, scale, width, height, subdir, dirname, savefile).then((res, err) => {
+                                if(res) {
+                                    console.log(chalk.blueBright("Save : %s"), 
+                                        chalk.greenBright(
+                                            dirname ? (subdir==null ? path.join(dirname, savefile) : path.join(subdir, dirname, savefile)) : (subdir==null ? path.join(savefile) : path.join(subdir, savefile))
+                                        )
+                                    );
+                                } 
                                 if(err) {
                                     console.log(chalk.red(err));
                                 }
                             });
                         } else {
-                            console.log(chalk.red(res.body));
+                            console.log(res.body);
                         }    
                     } else {
-                        if(fs.existsSync(argv.resize + ".json")){
+                        if(fs.existsSync(argv.target + ".json")){
                                                         
                         } else 
-                        if(argv.resize=="android") {
-                            // type : "drawable", "mipmap"
-                            let type = argv.type || "mipmap";
-                            let resdpi = ['', 'ldpi', 'mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
-                            for(let dpi in resdpi){
-                                let dir = resdpi[dpi];
-                                if(dir!='') {
-                                    dir = type + "-" + dir;
-                                } else {
-                                    dir = type;
-                                }
-                                if(!fs.existsSync(dir)) {
-                                    fs.mkdirSync(dir);
-                                }
-                                console.log(chalk.blueBright("Save : %s"), chalk.greenBright(dir+'/'+saveFile));
-                                sharp(res.body)
-                                    .resize(100, 100)
-                                    .toFile(dir+'/'+saveFile, (err, info) => {
-                                        if(err) {
-                                            console.log(chalk.red(err));
-                                        }
-                                    });
+                        if(argv.target=="android" || argv.target=="ios") {
+                            // android type : "drawable", "mipmap"
+                            let type = (argv.type!==true ? argv.type : null) || "mipmap";
+                            let dpis = ['', 'ldpi', 'mdpi', 'tvdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
+                            if(argv.target=='ios') {
+                                type = argv.type || null;
+                                dpis = ['', '@2x', '@3x'];
                             }
-                        }
-                        else 
-                        if(argv.resize=="ios") {
+                            for(let dpi in dpis){
+                                let dpitag = dpis[dpi];                                
+                                let dirname = type;
+                                if(dpitag!='' && argv.target=="android") {
+                                    if(type) {
+                                        dirname = type + "-" + dpitag;
+                                    } else {
+                                        dirname = dpitag;
+                                    }
+                                }
+                                let _savefile = savefile;
+                                let savefilepath;
+                                if(dirname) {
+                                    savefilepath = path.join(dir, dirname, _savefile);
+                                } else {
+                                    savefilepath = path.join(dir, _savefile);
+                                }
+                                if(dpitag!='' && argv.target=='ios') {
+                                    let fileext = path.extname(savefilepath);
+                                    savefilepath = savefilepath.replace(/\.[^/.]+$/, "") + dpitag;
+                                    if(fileext!=null && fileext!="") {
+                                        savefilepath = savefilepath + fileext;
+                                        _savefile = path.join(path.dirname(_savefile), path.basename(savefilepath));
+                                    }
+                                }
 
-                        }                        
-                        if(argv.resize=="android") {
-                            
+                                let scale = _scale(dpitag);
+                                _writeicon(res.body, savefilepath, scale, width, height, subdir, dirname, _savefile).then((res, err) => {
+                                    if(res) {
+                                        console.log(chalk.blueBright("Save : %s"), 
+                                            chalk.greenBright(
+                                                dirname ? (subdir==null ? path.join(dirname, _savefile) : path.join(subdir, dirname, _savefile)) : (subdir==null ? path.join(_savefile) : path.join(subdir, _savefile))
+                                            )
+                                        );
+                                    } 
+                                    if(err) {
+                                        console.log(chalk.red(err));
+                                    }
+                                });
+                            }
                         }
                     }
 
@@ -184,7 +457,7 @@ const icon = async() => {
     }
 }
 
-const string = async() => {
+const _string = async() => {
     if(argv.key) {
         let data = {
             pkey: PKEY,
@@ -208,44 +481,44 @@ const string = async() => {
     }
 }
 
-const setenv = (json) => {
+const _setenv = (json) => {
     HOST = json.host;
     PKEY = json.pkey;
     AKEY = json.akey;
     LANG = json.lang;
 }
 
-const main = async() => {
+const _main = async() => {
     switch(argv._[0]) {
         case 'init':
-            load((json) => {
-                init(json);
+            _load((json) => {
+                _init(json);
             });
             break;
         case 'icon':
-            load((json) => {
-                setenv(json);
-                icon();
+            _load((json) => {
+                _setenv(json);
+                _icon();
             });
             break;
         case 'string':
-            load((json) => {
-                setenv(json);
-                string();
+            _load((json) => {
+                _setenv(json);
+                _string();
             });
             break;
     }
 }
 
 if(argv._.length>0) {
-    main();
+    _main();
 } else {
     switch(argv.func) {
         case "help":
-            helper();
+            _helper();
             break;
         case "hello":
-            hello();
+            _hello();
             break;
     }    
 }
