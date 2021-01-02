@@ -13,7 +13,6 @@ const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv;
 
 const pkg = require('../package.json');
-const { number } = require("yargs");
 
 const jsonFile = "appres.json";
 const quiet = argv.quiet===true;
@@ -100,11 +99,58 @@ const _scale = (tag) => {
     }
     return 1.0;
 }
+
+function isInt(n) {
+    return Number(n) === n && n % 1 === 0;
+}
+function isFloat(n) {
+    return Number(n) === n && n % 1 !== 0;
+}
+function isString(s) {
+    return (typeof s === 'string' || s instanceof String);
+}
+function isObject(s) {
+    return (typeof s === 'object' || s instanceof Object);
+}
+function isNumber(value) {
+    if (typeof value !== 'number') {
+      return false
+    }
+    if (value !== Number(value)) {
+      return false
+    }
+    if (value === Infinity || value === !Infinity) {
+      return false
+    }
+    return true
+}
+function fillChar(str, width, ch) {
+    if(ch==null) ch = '0';
+    return str.length >= width ? str:new Array(width-str.length+1).join(ch)+str; //남는 길이만큼 ch 으로 채움
+}
+
 const _rgba = (r, g, b, alpha) => {
     return { r: r, g: g, b: b, alpha: alpha };
 }
 const _rgb = (r, g, b) => {
     return _rgba(r, g, b, 1.0);
+}
+const _shex2rgb = (hex) => {
+    var result = /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i.exec(hex);
+    return result ? {
+      r: parseInt(""+result[1]+result[1], 16),
+      g: parseInt(""+result[2]+result[2], 16),
+      b: parseInt(""+result[3]+result[3], 16)
+    } : null;
+}
+const _shex2rgba = (hex) => {
+    var result = /^#?([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})([a-f\d]{1})$/i.exec(hex);
+    return result ? {
+      r: parseInt(""+result[1]+result[1], 16),
+      g: parseInt(""+result[2]+result[2], 16),
+      b: parseInt(""+result[3]+result[3], 16),
+      a: parseInt(""+result[4]+result[4], 16)
+    } : null;
 }
 const _hex2rgb = (hex) => {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -114,28 +160,143 @@ const _hex2rgb = (hex) => {
       b: parseInt(result[3], 16)
     } : null;
 }
-const _hex2rgba = (hex, alpha) => {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+const _hex2rgba = (hex) => {    
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
       r: parseInt(result[1], 16),
       g: parseInt(result[2], 16),
       b: parseInt(result[3], 16),
-      alpha: alpha
+      a: parseInt(result[4], 16)
     } : null;
 }
 const _rgb2hex = (r, g, b) => {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
-//_rgba2hex(0xFF00FF7F)
-//_rgba2hex(0xFF00FF,0.5)
-//_rgba2hex(255,0,255,127)
-//_rgba2hex(255,0,255)  => a set to 255
-const _rgba2hex = (r, g, b, a) => {
-    if(r instanceof Object) {   // json r.g.b with alpha
-        a = Math.round(r.alpha*255) || 0;
-        b = r.b || 0;
-        g = r.g || 0;
-        r = r.r || 0;
+const _rgba2val = (r, g, b, a) => {
+    if(a==null) a = 0xFF;
+    else
+    if(isFloat(a)) {
+        a = Math.round(a*255) || 0x00;
+    }
+    if(a<0) a = 0;
+    if(a>0xFF) a = 0xFF;
+    return r*0x1000000 + g*0x10000 + b*0x100 + a;
+}
+//_color("#RGB")
+//_color("#RGB", 0.5)
+//_color("#RRGGBB")
+//_color("#RRGGBB", 0.5)
+//_color("#RRGGBBAA")
+//_color(0xFF00FF7F)
+//_color(0xFF00FF, 0.5)
+//_color(255,0,255,127)
+//_color(255,0,255)  => a set to 255
+const _color = (r, g, b, a) => {
+    if(r===null) return null;
+
+    let color = r;
+    if(isString(color)) {
+        switch(color.toLowerCase()) {
+
+            case 'lightred':
+                return _color({ r: 255, g: 0, b: 0, alpha: 1.0 });
+            case 'lightgreen':
+                return _color({ r: 0, g: 255, b: 0, alpha: 1.0 });
+            case 'lightblue':
+                return _color({ r: 0, g: 0, b: 255, alpha: 1.0 });
+    
+            case 'darkred':
+                return _color({ r: 100, g: 0, b: 0, alpha: 1.0 });
+            case 'darkgreen':
+                return _color({ r: 0, g: 100, b: 0, alpha: 1.0 });
+            case 'darkblue':
+                return _color({ r: 0, g: 0, b: 100, alpha: 1.0 });
+    
+            case 'white': 
+                return _color(255, 255, 255);
+            case 'black':	
+                return _color(0, 0, 0);
+    
+            case 'silver':	
+                return _color('#d6d6d6');
+    
+            case 'lightgray':	
+                return _color(172, 172, 172);
+            case 'gray':	
+                return _color(128, 128, 128);
+            case 'darkgray':	
+                return _color(66, 66, 66);
+    
+            case 'red':	
+                return _color(172, 0, 0);
+    
+            case 'maroon':	
+                return _color(128, 0, 0);
+    
+            case 'lightyellow':	
+                return _color(255, 255, 0);
+            case 'yellow':	
+                return _color(192, 192, 0);
+            case 'darkyellow':	
+                return _color(100, 100, 0);
+    
+            case 'olive':	
+                return _color(128, 128, 0);
+            case 'lime':
+                return _color(0, 255, 0);
+    
+            case 'green':
+                return _color(0, 172, 0);
+    
+            case 'aqua':	
+                return _color(0, 255, 255);
+            case 'teal':	
+                return _color(0, 128, 128);
+    
+            case 'blue':	
+                return _color(0, 0, 172);
+    
+            case 'navy':	
+                return _color(0, 0, 66);
+            case 'fuchsia':	
+                return _color(255, 0, 255);
+            case 'purple':	
+                return _color(128, 0, 128);
+        }    
+    }
+
+    if(r instanceof Object || isString(r)) {   // json r.g.b with alpha
+        if(r.toString().charAt(0)=='#') {
+            if(g==null) {
+                if(r.length==4) {
+                    let c = _shex2rgb(r);
+                    if(g!=null) {
+                        c.a = g;
+                    }
+                    return _rgba2val(c.r, c.g, c.b, c.a);
+                }
+                if(r.length==5) {
+                    let c = _shex2rgba(r);
+                    return _rgba2val(c.r, c.g, c.b, c.a);
+                }
+                if(r.length==7) {
+                    let c = _hex2rgb(r);
+                    if(g!=null) {
+                        c.a = g;
+                    }
+                    return _rgba2val(c.r, c.g, c.b, c.a);
+                }
+                if(r.length==9) {
+                    let c = _hex2rgba(r);
+                    return _rgba2val(c.r, c.g, c.b, c.a);
+                }
+            }
+        } else {
+            r = r.r || 0;    
+            g = r.g || 0;
+            b = r.b || 0;
+            a = r.a || r.alpha || 0xFF;
+        }
     }
     else
     if(r!=null && g==null) {    // 0xRRGGBBAA
@@ -143,97 +304,14 @@ const _rgba2hex = (r, g, b, a) => {
     }
     else
     if(r!=null && g!=null && b==null) {    // 0xRRGGBB, alpha
-        a = Math.round(g*255) || 0;
+        if(isFloat(g)) {
+            a = Math.round(g*255) || 0x00;
+        }
+        if(a>0xFF) a = 0xFF;
+        if(a<0) a = 0;
         return r*0x100 + a;
     }
-    else
-    if(r!=null && g!=null && b!=null && a==null) {
-        a = 0xFF;
-    }
-    return r*0x1000000 + g*0x10000 + b*0x100 + a;
-}
-
-const _color = (tag) => {
-    let color = tag;
-    if(color!=null) {
-        if(Number.isInteger(color)) {
-            if(color<0x1000000) {
-                return tag * 0x100 + 0xFF;
-            }
-            return color;
-        }
-        color = color.toLowerCase();
-    }
-
-    switch(color) {
-
-        case 'lightred':
-            return { r: 255, g: 0, b: 0, alpha: 1.0 };
-        case 'lightgreen':
-            return { r: 0, g: 255, b: 0, alpha: 1.0 };
-        case 'lightblue':
-            return { r: 0, g: 0, b: 255, alpha: 1.0 };
-
-        case 'darkred':
-            return { r: 100, g: 0, b: 0, alpha: 1.0 };
-        case 'darkgreen':
-            return { r: 0, g: 100, b: 0, alpha: 1.0 };
-        case 'darkblue':
-            return { r: 0, g: 0, b: 100, alpha: 1.0 };
-
-        case 'white': 
-            return _rgb(255, 255, 255);
-        case 'black':	
-            return _rgb(0, 0, 0);
-
-        case 'silver':	
-            return _hex2rgb('#d6d6d6');
-
-        case 'lightgray':	
-            return _rgb(172, 172, 172);
-        case 'gray':	
-            return _rgb(128, 128, 128);
-        case 'darkgray':	
-            return _rgb(66, 66, 66);
-
-        case 'red':	
-            return _rgb(172, 0, 0);
-
-        case 'maroon':	
-            return _rgb(128, 0, 0);
-
-        case 'lightyellow':	
-            return _rgb(255, 255, 0);
-        case 'yellow':	
-            return _rgb(192, 192, 0);
-        case 'darkyellow':	
-            return _rgb(100, 100, 0);
-
-        case 'olive':	
-            return _rgb(128, 128, 0);
-        case 'lime':
-            return _rgb(0, 255, 0);
-
-        case 'green':
-            return _rgb(0, 172, 0);
-
-        case 'aqua':	
-            return _rgb(0, 255, 255);
-        case 'teal':	
-            return _rgb(0, 128, 128);
-
-        case 'blue':	
-            return _rgb(0, 0, 172);
-
-        case 'navy':	
-            return _rgb(0, 0, 66);
-        case 'fuchsia':	
-            return _rgb(255, 0, 255);
-        case 'purple':	
-            return _rgb(128, 0, 128);
-    }
-
-    return color;    
+    return _rgba2val(r, g, b, a);
 }
 
 const _console_proc = (msg) => {
@@ -273,7 +351,6 @@ const _newsize = (width, height, _scale, _width, _height) => {
     return {width: __width, height: __height};
 }
 
-
 const _saveicon = (_icon, _file, _scale, _width, _height) => {
     return new Promise((resolve, reject) => {
         jimp.read(_icon).then((jimp, err) => {
@@ -282,11 +359,42 @@ const _saveicon = (_icon, _file, _scale, _width, _height) => {
                 let height = jimp.getHeight();
                 let newsize = _newsize(width, height, _scale, _width, _height);
                 let background = _color(argv.background);
+                let overlay = _color(argv.overlay);
 
+                if(overlay && overlay!==true) {
+                    if(jimp.hasAlpha()) {
+                        let _overlay = fillChar(overlay.toString(16), 8);
+                        _console_proc("overlay: 0x" + _overlay);
+                        overlay = _hex2rgba("#" + _overlay);
+                        if(overlay!=null) {
+                            jimp.scan(0, 0, jimp.bitmap.width, jimp.bitmap.height, (x, y, idx) => {
+                                if(jimp.bitmap.data[idx+3]!==0) {
+                                    jimp.bitmap.data[idx] = overlay.r;
+                                    jimp.bitmap.data[idx+1] = overlay.g;
+                                    jimp.bitmap.data[idx+2] = overlay.b;
+                                    jimp.bitmap.data[idx+3] = overlay.a;                            
+                                }
+                            });    
+                        } else {
+                            _console_proc("overlay: " + chalk.red("Was canceled. Color is invalid."));
+                        }
+                    } else {
+                        _console_proc("overlay: " + chalk.red("Was canceled. No alpha channel."));
+                    }
+                }
+                
                 if(background!=null) {
-                    background = _rgba2hex(background);
-                    _console_proc("background: 0x" + background.toString(16));
-                    jimp = jimp.background(background);
+                    let _background = fillChar(background.toString(16), 8);
+                    _console_proc("background: 0x" + _background);
+                    if(jimp.hasAlpha()) {
+                        if(_hex2rgba("#" + _background)!=null) {
+                            jimp = jimp.background(background);
+                        } else {
+                            _console_proc("background: " + chalk.red("Was canceled. Color is invalid."));
+                        }
+                    } else {
+                        _console_proc("background: " + chalk.red("Was canceled. No alpha channel."));
+                    }
                 }
                 if(argv.crop) {
                     _console_proc("crop");
@@ -430,7 +538,7 @@ const _iconSaveProc = (icon, dir, subdir, savefile, width, height, target, type,
         }
     }
 
-    if(!quiet) console.log(chalk.magentaBright("Save") + " : %s", 
+    if(!quiet) console.log(chalk.cyanBright("Save") + " : %s", 
         chalk.greenBright(
             dirname ? (subdir==null ? path.join(dirname, _savefile) : path.join(subdir, dirname, _savefile)) : (subdir==null ? path.join(_savefile) : path.join(subdir, _savefile))
         ));
@@ -550,7 +658,7 @@ const _icon = async() => {
                             let dirname = null;
                             let savefilepath = path.join(dir, savefile);
                             let scale = 1;
-                            if(!quiet) console.log(chalk.magentaBright("Save") + " : %s",
+                            if(!quiet) console.log(chalk.cyanBright("Save") + " : %s",
                                 chalk.greenBright(
                                     dirname ? (subdir==null ? path.join(dirname, savefile) : path.join(subdir, dirname, savefile)) : (subdir==null ? path.join(savefile) : path.join(subdir, savefile))
                                 ));

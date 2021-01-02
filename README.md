@@ -199,6 +199,39 @@ Hint: You can use multiple effects in combination.
 ### icon : save directory ###
 =============================
 
+$ appres icon --file sample.png --save --dir {save directory path}
+
+By default, the location of the saved file is the current working directory. The dir option allows you to specify where it is stored.
+
+Example :
+$ appres icon --file sample.png --save --dir icons
+$ appres icon --file sample.png --save --dir app/src/main/res
+$ appres icon --file sample.png --save --dir /Users/me/dev/app/resource
+
+Hint: The directory with the dir option can be either absolute or relative.
+
+
+
+=================================
+### icon : predefined target  ###
+=================================
+
+$ appres icon --file sample.png --save --target {target name} [--type {resource type}]
+
+Some development platforms require several standard sized image resources.
+
+Example :
+$ appres icon --file sample.png --save --target android --dir app/src/main/res --type mipmap
+$ appres icon --file sample.png --save --target ios --dir app/assets/icons
+
+Hint: If target is android, you can use it with type. type is something like mipmap or drawable.
+
+android:
+['', 'ldpi', 'mdpi', 'tvdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
+
+ios:
+['', '@2x', '@3x'];
+
 
 
 ```
