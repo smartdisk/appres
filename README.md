@@ -24,7 +24,7 @@ You can show version of appres package.
 
 Example :
 $ appres version
-0.0.24
+0.0.25
 
 ```
 
@@ -35,31 +35,24 @@ Direct input is available for each CLI command. However, the appres.json file is
 
 You can easily create an appres.json file using the init command.
 
-$ appres init [--pkey {PKEY}] [--akey {AKEY}] [--host {HOST}]
+- Usage
+  $ appres init [--pkey {PKEY}] [--akey {AKEY}]
 
-PKEY and AKEY is required. You can get your PKEY and AKEY from the https://appres.org site.
+- Example
+  $ appres init
+  $ appres init --pkey ry7EdO2TLLVr9JkSqqe2
+  $ appres init --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
+  $ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
 
-HOST is not for required. If you own the appres server, use the server address. Otherwise, Do not enter to use the default value.
+- Result
+  Initialize appres.json
 
-- Result :
-    Initialize appres.json
-
-Example 1 :
-$ appres init
-
-Example 2 :
-$ appres init --pkey ry7EdO2TLLVr9JkSqqe2
-
-Example 3 :
-$ appres init --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
-
-Example 4 :
-$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
+- Hint
+  You can get your PKEY and AKEY from the https://appres.org site.
+  Not use arguments will use default or already setting value.
+  If successful, You can find the appres.json file in your working directory.
 
 
-Hint : Not use arguments will use default or already setting value.
-
-If successful, You can find the appres.json file in your working directory.
 
 ```
 
@@ -79,13 +72,14 @@ You can get an icon from a project on appres.org.
 ### Get Icon ###
 ================
 
-$ appres icon --file {icon filename}
+- Usage
+  $ appres icon --file {icon filename}
 
-Example :
-$ appres icon --file sample.png
+- Example
+  $ appres icon --file sample.png
 
-- Result:
-<Buffer 89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 00 00 01 00 00 00 01 00 08 06 00 00 00 5c 72 a8 66 00 00 00 01 73 52 47 42 00 ae ce 1c e9 00 00 00 a6 ... >
+- Result
+  <Buffer 89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 00 00 01 00 00 00 01 00 08 06 00 00 00 5c 72 a8 66 00 00 00 01 73 52 47 42 00 ae ce 1c e9 00 00 00 a6 ... >
 
 
 
@@ -93,105 +87,120 @@ $ appres icon --file sample.png
 ### icon : save to local file ###
 =================================
 
-$ appres icon --file {icon filename} -save
+- Usage
+  $ appres icon --file {icon filename} --save
 
-Example :
-$ appres icon --file sample.png -save
+- Example
+  $ appres icon --file sample.png --save
 
 - Result
-Save : sample.png
+  Save : sample.png
 
-If successful, You can find sample.png in your working directory.
+- Hint
+  If successful, You can find sample.png in your working directory.
 
 
 ==============================================
 ### icon : save to local another file name ###
 ==============================================
 
-$ appres icon --file {icon filename} --save {save filename}
+- Usage
+  $ appres icon --file {icon filename} --save {save filename}
 
-Example :
-$ appres icon --file sample.png --save another.png
+- Example
+  $ appres icon --file sample.png --save another.png
 
 - Result
-Save : top_menu.png
+  Save : another.png
 
-If successful, You can find another.png in your working directory.
+- Hint
+  If successful, You can find another.png in your working directory.
 
 
 =====================
 ### icon : resize ###
 =====================
 
-$ appres icon --file sample.png --save --size 120
-$ appres icon --file sample.png --save --width 120
-$ appres icon --file sample.png --save --height 120
-$ appres icon --file sample.png --save --width 120 --height 120
-$ appres icon --file sample.png --save --scale 2
-$ appres icon --file sample.png --save --width 120 --height 120 --scale 1.2
+- Usage
+  $ appres icon --file sample.png --save [--size {size}] [--width {width}] [--height {height}] [--scale {scale}]
 
-Options :
+- Example
+  $ appres icon --file sample.png --save --size 120
+  $ appres icon --file sample.png --save --width 120
+  $ appres icon --file sample.png --save --height 120
+  $ appres icon --file sample.png --save --width 120 --height 120
+  $ appres icon --file sample.png --save --scale 2
+  $ appres icon --file sample.png --save --width 120 --height 120 --scale 1.2
+
+- Hint
   --size      : Set same size to icon width and height
   --width     : Set to icon width
   --height    : Set to icon height
   --scale     : Set to icon scale
 
-If do not use size options, The icon size will be original dimension.
-If use only width, The icon height will be same ratio as width.
-If use only height, The icon width will be same ratio as height.
-If use width and height, The icon size will your fix.
-If use width and height, The icon size will be your fixed values.
-If use scale, The icon size is a multiple of the scale.
+  If do not use size options, The icon size will be original dimension.
+  If use only width, The icon height will be same ratio as width.
+  If use only height, The icon width will be same ratio as height.
+  If use width and height, The icon size will your fix.
+  If use width and height, The icon size will be your fixed values.
+  If use scale, The icon size is a multiple of the scale.
+
 
 
 ============================
 ### icon : image effects ###
 ============================
 
-- Crop
-$ appres icon --file sample.png --save --crop
+- Usage
+  $ appres icon --file sample.png --save --{effect} [--effect] ... [--effect]
 
-- Flip
-$ appres icon --file sample.png --save --flip
+- Effect Examples
 
-- Mirror
-$ appres icon --file sample.png --save --mirror
+  - Crop
+  $ appres icon --file sample.png --save --crop
 
-- Grayscale
-$ appres icon --file sample.png --save --grayscale
+  - Flip
+  $ appres icon --file sample.png --save --flip
 
-- Sepia
-$ appres icon --file sample.png --save --sepia
+  - Mirror
+  $ appres icon --file sample.png --save --mirror
 
-- Contrast
-$ appres icon --file sample.png --save --contrast [value]
-  default value : 0.2 , range : -1.0 ~ 1.0
+  - Grayscale
+  $ appres icon --file sample.png --save --grayscale
 
-- Brightness
-$ appres icon --file sample.png --save --brightness [value]
-  default value : 0.2 , range : -1.0 ~ 1.0
+  - Sepia
+  $ appres icon --file sample.png --save --sepia
 
-- Invert
-$ appres icon --file sample.png --save --invert
+  - Contrast
+  $ appres icon --file sample.png --save --contrast [value]
+    default value : 0.2 , range : -1.0 ~ 1.0
 
-- Blur
-$ appres icon --file sample.png --save --blur [value]
-  default value : 5 , range : 1 ~
+  - Brightness
+  $ appres icon --file sample.png --save --brightness [value]
+    default value : 0.2 , range : -1.0 ~ 1.0
 
-- Gaussian
-$ appres icon --file sample.png --save --gaussian [value]
-  default value : 1 , range : 1 ~
+  - Invert
+  $ appres icon --file sample.png --save --invert
 
-- Opacity
-$ appres icon --file sample.png --save --opacity [value]
-  default value : 0.5 , range : 0.0 ~ 1.0
+  - Blur
+  $ appres icon --file sample.png --save --blur [value]
+    default value : 5 , range : 1 ~
 
-- Rotate
-$ appres icon --file sample.png --save --rotate value
-  range : -360 ~ 360
+  - Gaussian
+  $ appres icon --file sample.png --save --gaussian [value]
+    default value : 1 , range : 1 ~
+
+  - Opacity
+  $ appres icon --file sample.png --save --opacity [value]
+    default value : 0.5 , range : 0.0 ~ 1.0
+
+  - Rotate
+  $ appres icon --file sample.png --save --rotate value
+    range : -360 ~ 360
 
 
-Hint: You can use multiple effects in combination.
+- Hint
+  You can use multiple effects in combination.
 
 
 
@@ -199,16 +208,17 @@ Hint: You can use multiple effects in combination.
 ### icon : save directory ###
 =============================
 
-$ appres icon --file sample.png --save --dir {save directory path}
+- Usage
+  $ appres icon --file sample.png --save --dir {save directory path}
 
-By default, the location of the saved file is the current working directory. The dir option allows you to specify where it is stored.
+- Example
+  $ appres icon --file sample.png --save --dir icons
+  $ appres icon --file sample.png --save --dir app/src/main/res
+  $ appres icon --file sample.png --save --dir /Users/me/dev/app/resource
 
-Example :
-$ appres icon --file sample.png --save --dir icons
-$ appres icon --file sample.png --save --dir app/src/main/res
-$ appres icon --file sample.png --save --dir /Users/me/dev/app/resource
-
-Hint: The directory with the dir option can be either absolute or relative.
+- Hint
+  The directory with the dir option can be either absolute or relative.
+  By default, the location of the saved file is the current working directory. The dir option allows you to specify where it is stored.
 
 
 
@@ -216,21 +226,23 @@ Hint: The directory with the dir option can be either absolute or relative.
 ### icon : predefined target  ###
 =================================
 
-$ appres icon --file sample.png --save --target {target name} [--type {resource type}]
+- Usage
+  $ appres icon --file sample.png --save --target {target name} [--type {resource type}]
 
-Some development platforms require several standard sized image resources.
+- Example
+  $ appres icon --file sample.png --save --target android --dir app/src/main/res --type mipmap
+  $ appres icon --file sample.png --save --target ios --dir app/assets/icons
 
-Example :
-$ appres icon --file sample.png --save --target android --dir app/src/main/res --type mipmap
-$ appres icon --file sample.png --save --target ios --dir app/assets/icons
+- Hint
+  If target is android, you can use it with type. type is something like mipmap or drawable.
 
-Hint: If target is android, you can use it with type. type is something like mipmap or drawable.
+  Some development platforms require several standard sized image resources.
 
-android:
-['', 'ldpi', 'mdpi', 'tvdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
+  android
+  ['', 'ldpi', 'mdpi', 'tvdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
 
-ios:
-['', '@2x', '@3x'];
+  ios
+  ['', '@2x', '@3x'];
 
 
 

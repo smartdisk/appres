@@ -47,11 +47,19 @@ const _hello = async() => {
     }
     process.stdout.write("\n");
 }
+const _version = () => {
+    if(!quiet) console.log(pkg.version);
+}
 
-const _helper = () => {
-    let helperMsg = chalk.white.bold("Hello AppRes!!!");
-    let helperBox = boxen( helperMsg, boxenOptions );
-    if(!quiet) console.log(helperBox);
+const _welcome = () => {
+    let welcomeMsg = chalk.white.bold("Welcome appres!!!") + 
+        "\n" + 
+        chalk.green(pkg.version) +
+        "\n" + 
+        chalk.cyan("This package use with the appres.org");
+
+    let welcomeBox = boxen( welcomeMsg, boxenOptions );
+    if(!quiet) console.log(welcomeBox);
 }
 
 const _getcwd = () => {
@@ -574,9 +582,6 @@ const _load = (resolve) => {
 
         if(argv.host!=null) {
             json.host = argv.host;
-        } else
-        if(json.host==null) {
-            json.host = HOST;
         }
 
         if(argv.pkey!=null) {
@@ -723,7 +728,7 @@ const _string = async() => {
 }
 
 const _setenv = (json) => {
-    HOST = json.host;
+    HOST = json.host || HOST;
     PKEY = json.pkey;
     AKEY = json.akey;
     LANG = json.lang;
@@ -737,7 +742,10 @@ const _main = async() => {
             });
             break;
         case 'version':
-            if(!quiet) console.log(pkg.version);
+            _version();
+            break;
+        case 'help':
+            _welcome();
             break;
         case 'icon':
             _load((json) => {
@@ -757,14 +765,14 @@ const _main = async() => {
 if(argv._.length>0) {
     _main();
 } else {
-    switch(argv.func) {
-        case "help":
-            _helper();
-            break;
-        case "hello":
-            _hello();
-            break;
-    }    
+    if(argv.version) {
+        _version();
+    } else
+    if(argv.help) {
+        _welcome();
+    } else {
+        _welcome();
+    }
 }
 
 
