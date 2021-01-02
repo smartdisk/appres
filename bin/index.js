@@ -13,6 +13,7 @@ const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv;
 
 const pkg = require('../package.json');
+const { number } = require("yargs");
 
 const jsonFile = "appres.json";
 const quiet = argv.quiet===true;
@@ -152,10 +153,19 @@ const _rgba2hex = (r, g, b, a) => {
     return r*0x1000000 + g*0x10000 + b*0x100 + a;
 }
 
-const _color = (tag, ext) => {
-    if(tag) tag = tag.toLowerCase();
-    if(ext) ext = ext.toLowerCase();
-    switch(tag) {
+const _color = (tag) => {
+    let color = tag;
+    if(color!=null) {
+        if(Number.isInteger(color)) {
+            if(color<0x1000000) {
+                return tag * 0x100 + 0xFF;
+            }
+            return color;
+        }
+        color = color.toLowerCase();
+    }
+
+    switch(color) {
 
         case 'lightred':
             return { r: 255, g: 0, b: 0, alpha: 1.0 };
@@ -222,7 +232,8 @@ const _color = (tag, ext) => {
         case 'purple':	
             return _rgb(128, 0, 128);
     }
-    return null;    
+
+    return color;    
 }
 
 const _console_proc = (msg) => {
@@ -265,17 +276,16 @@ const _newsize = (width, height, _scale, _width, _height) => {
 
 const _saveicon = (_icon, _file, _scale, _width, _height) => {
     return new Promise((resolve, reject) => {
-        let _fileext = path.extname(_file);
         jimp.read(_icon).then((jimp, err) => {
             if(jimp) {
                 let width = jimp.getWidth();
                 let height = jimp.getHeight();
                 let newsize = _newsize(width, height, _scale, _width, _height);
-                let background = _color(argv.bgc || argv.background, _fileext);
+                let background = _color(argv.background);
 
                 if(background!=null) {
                     background = _rgba2hex(background);
-                    _console_proc("background: 0x" + background);
+                    _console_proc("background: 0x" + background.toString(16));
                     jimp = jimp.background(background);
                 }
                 if(argv.crop) {
