@@ -15,6 +15,7 @@ const argv = yargs(hideBin(process.argv)).argv;
 const pkg = require('../package.json');
 
 const jsonFile = "appres.json";
+const quiet = argv.quiet===true;
 
 // let HOST = "http://127.0.0.1:5001/appres-org/us-central1/api";
 let HOST = "https://us-central1-appres-org.cloudfunctions.net/api";
@@ -50,7 +51,7 @@ const _hello = async() => {
 const _helper = () => {
     let helperMsg = chalk.white.bold("Hello AppRes!!!");
     let helperBox = boxen( helperMsg, boxenOptions );
-    console.log(helperBox);
+    if(!quiet) console.log(helperBox);
 }
 
 const _getcwd = () => {
@@ -65,7 +66,7 @@ const _forcedir = (dir) => {
             mkdirp.sync(dir);
             dirok = true;
         } catch(err) {
-            console.log(chalk.red(err));
+            if(!quiet) console.log(chalk.red(err));
         }
     }
     return dirok;    
@@ -98,27 +99,8 @@ const _scale = (tag) => {
     }
     return 1.0;
 }
-const _fit = (tag) => {
-    return tag;
-    /*
-    if(tag) tag = tag.toLowerCase();
-    switch(tag) {
-        case 'contain':
-            return sharp.fit.contain;
-        case 'cover':
-            return sharp.fit.cover;
-        case 'fill':
-            return sharp.fit.fill;
-        case 'inside':
-            return sharp.fit.inside;
-        case 'outside':
-            return sharp.fit.outside;
-    }
-    return sharp.fit.contain;
-    */
-}
-const _rgba = (r, g, b, a) => {
-    return { r: r, g: g, b: b, alpha: a };
+const _rgba = (r, g, b, alpha) => {
+    return { r: r, g: g, b: b, alpha: alpha };
 }
 const _rgb = (r, g, b) => {
     return _rgba(r, g, b, 1.0);
@@ -131,9 +113,45 @@ const _hex2rgb = (hex) => {
       b: parseInt(result[3], 16)
     } : null;
 }
+const _hex2rgba = (hex, alpha) => {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+      alpha: alpha
+    } : null;
+}
 const _rgb2hex = (r, g, b) => {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
+//_rgba2hex(0xFF00FF7F)
+//_rgba2hex(0xFF00FF,0.5)
+//_rgba2hex(255,0,255,127)
+//_rgba2hex(255,0,255)  => a set to 255
+const _rgba2hex = (r, g, b, a) => {
+    if(r instanceof Object) {   // json r.g.b with alpha
+        a = Math.round(r.alpha*255) || 0;
+        b = r.b || 0;
+        g = r.g || 0;
+        r = r.r || 0;
+    }
+    else
+    if(r!=null && g==null) {    // 0xRRGGBBAA
+        return r;
+    }
+    else
+    if(r!=null && g!=null && b==null) {    // 0xRRGGBB, alpha
+        a = Math.round(g*255) || 0;
+        return r*0x100 + a;
+    }
+    else
+    if(r!=null && g!=null && b!=null && a==null) {
+        a = 0xFF;
+    }
+    return r*0x1000000 + g*0x10000 + b*0x100 + a;
+}
+
 const _color = (tag, ext) => {
     if(tag) tag = tag.toLowerCase();
     if(ext) ext = ext.toLowerCase();
@@ -204,13 +222,11 @@ const _color = (tag, ext) => {
         case 'purple':	
             return _rgb(128, 0, 128);
     }
-    if(ext=='.png' || ext=='.gif')
-        return { r: 0, g: 0, b: 0, alpha: 0.0 };
-    return { r: 255, g: 255, b: 255, alpha: 1.0 };    
+    return null;    
 }
-const _flatten = (tag, ext) => {
-    let flatten = _color(tag, ext);
-    return flatten;
+
+const _console_proc = (msg) => {
+    if(!quiet) console.log(chalk.cyan(" > " + msg));
 }
 
 const _newsize = (width, height, _scale, _width, _height) => {
@@ -255,7 +271,94 @@ const _saveicon = (_icon, _file, _scale, _width, _height) => {
                 let width = jimp.getWidth();
                 let height = jimp.getHeight();
                 let newsize = _newsize(width, height, _scale, _width, _height);
-                jimp.resize(newsize.width, newsize.height).writeAsync(_file).then((res, err) => {
+                let background = _color(argv.bgc || argv.background, _fileext);
+
+                if(background!=null) {
+                    background = _rgba2hex(background);
+                    _console_proc("background: 0x" + background);
+                    jimp = jimp.background(background);
+                }
+                if(argv.crop) {
+                    _console_proc("crop");
+                    jimp = jimp.autocrop();
+                }
+                if(argv.flip || argv.mirror) {
+                    if(!quiet) {
+                        if(argv.flip===true) _console_proc("flip");
+                        if(argv.mirror===true) _console_proc("mirror");
+                    }
+                    jimp = jimp.flip(argv.mirror===true, argv.flip===true);
+                }
+                if(argv.grayscale) {
+                    _console_proc("grayscale");
+                    jimp = jimp.grayscale();
+                }
+                if(argv.sepia) {
+                    _console_proc("sepia");
+                    jimp = jimp.sepia();
+                }
+
+                if(argv.contrast) {
+                    argv.contrast = argv.contrast===true ? 0.2 : 1.0 * argv.contrast;
+                    if(argv.contrast>=-1.0 && argv.contrast<=1.0) {
+                        _console_proc("contrast: " + argv.contrast);
+                        jimp = jimp.contrast(argv.contrast);
+                    }
+                }
+                if(argv.brightness) {
+                    argv.brightness = argv.brightness===true ? 0.2 : 1.0 * argv.brightness;
+                    if(argv.brightness>=-1.0 && argv.brightness<=1.0) {
+                        _console_proc("brightness: " + argv.brightness);
+                        jimp = jimp.brightness(argv.brightness);
+                    }
+                }
+                
+                if(argv.invert) {
+                    _console_proc("invert");
+                    jimp = jimp.invert();
+                }
+                if(argv.blur) {
+                    argv.blur = argv.blur===true ? 5 : 1 * argv.blur;
+                    if(argv.blur>0) {
+                        _console_proc("blur: " + argv.blur);
+                        jimp = jimp.blur(argv.blur);    
+                    }
+                }
+                if(argv.gaussian) {
+                    argv.gaussian = argv.gaussian===true ? 1 : 1 * argv.gaussian;
+                    if(argv.gaussian>0) {
+                        _console_proc("gaussian: " + argv.gaussian);
+                        jimp = jimp.gaussian(argv.gaussian);    
+                    }
+                }
+                if(argv.opacity) {
+                    argv.opacity = argv.opacity===true ? 0.5 : 1.0 * argv.opacity;
+                    if(argv.opacity>=0 && argv.opacity<1.0) {
+                        _console_proc("opacity: " + argv.opacity);
+                        jimp = jimp.opacity(argv.opacity);    
+                    }
+                }
+                if(argv.rotate && argv.rotate!==true && argv.rotate!=0) {
+                    _console_proc("rotate: " + argv.rotate);
+                    jimp = jimp.rotate(argv.rotate);
+                }
+
+                if((width!=newsize.width || height!=newsize.height) && newsize.width>0 && newsize.height>0) {
+                    _console_proc("resize: " + newsize.width + "," + newsize.height);
+                    jimp = jimp.contain(newsize.width, newsize.height);
+                }
+
+                if(argv.scale) {
+                    if(argv.scale===true) argv.scale = 1.0;
+                    else argv.scale *= 1.0;
+
+                    if(argv.scale>0) {
+                        _console_proc("scale: " + argv.scale);
+                        jimp = jimp.scale(argv.scale);
+                    }
+                }
+
+                jimp.writeAsync(_file).then((res, err) => {
                     if(res) {
                         resolve(res);
                     }
@@ -268,24 +371,6 @@ const _saveicon = (_icon, _file, _scale, _width, _height) => {
                 reject(err);
             }
         });
-
-        /*
-        sharp(_icon).metadata().then(({width, height}) => {
-            let newsize = _newsize(width, height, _scale, _width, _height);
-            newsize.fit = _fit(argv.fit);
-            newsize.background = _color(argv.bgc || argv.background, _fileext);
-            
-            let flatten = _flatten(argv.bgc || argv.background, _fileext) || {r:0, g:0, b:0};                                    
-            let _sharp = sharp(_icon);
-            if(flatten.alpha==null || flatten.alpha!=0) {
-                _sharp = _sharp.flatten({background: flatten});
-            }
-            _sharp.resize(newsize).toFile(_file, (err, info) => {
-                if(err) reject(err);
-                    else resolve(info);
-            });
-        });    
-        */
     });
 }
 
@@ -305,6 +390,56 @@ const _writeicon = (_icon, _savefilepath, _scale, _width, _height, _subdir, _dir
         }
     });
 }
+
+
+const _iconSaveProc = (icon, dir, subdir, savefile, width, height, target, type, dpis, dpi) => {
+    if(dpis.length<=dpi) return;
+
+    let dpitag = dpis[dpi];                                
+    let dirname = type;
+    if(dpitag!='' && target=="android") {
+        if(type) {
+            dirname = type + "-" + dpitag;
+        } else {
+            dirname = dpitag;
+        }
+    }
+    let _savefile = savefile;
+    let savefilepath;
+    if(dirname) {
+        savefilepath = path.join(dir, dirname, _savefile);
+    } else {
+        savefilepath = path.join(dir, _savefile);
+    }
+    if(dpitag!='' && target=='ios') {
+        let fileext = path.extname(savefilepath);
+        savefilepath = savefilepath.replace(/\.[^/.]+$/, "") + dpitag;
+        if(fileext!=null && fileext!="") {
+            savefilepath = savefilepath + fileext;
+            _savefile = path.join(path.dirname(_savefile), path.basename(savefilepath));
+        }
+    }
+
+    if(!quiet) console.log(chalk.magentaBright("Save") + " : %s", 
+        chalk.greenBright(
+            dirname ? (subdir==null ? path.join(dirname, _savefile) : path.join(subdir, dirname, _savefile)) : (subdir==null ? path.join(_savefile) : path.join(subdir, _savefile))
+        ));
+
+    let scale = _scale(dpitag);
+    _writeicon(icon, savefilepath, scale, width, height, subdir, dirname, _savefile).then((res, err) => {
+        if(res) {
+            if(!quiet) console.log(chalk.cyanBright(" OK!"));
+            setTimeout(()=>{
+                _iconSaveProc(icon, dir, subdir, savefile, width, height, target, type, dpis, dpi+1);            
+            },1);    
+        }
+        if(err) {
+            if(!quiet) console.log(chalk.red(err));
+        }
+    });
+}
+
+
 
 const _load = (resolve) => {
     let json = null;
@@ -351,9 +486,9 @@ const _load = (resolve) => {
 const _init = async(json) => {
     fs.writeFile(jsonFile, JSON.stringify(json, null, 2), (err) => {
         if(err) {
-            console.log(chalk.red(err));
+            if(!quiet) console.log(chalk.red(err));
         } else {
-            console.log(chalk.blueBright("Initialize %s"), chalk.greenBright(jsonFile));
+            if(!quiet) console.log(chalk.blueBright("Initialize %s"), chalk.greenBright(jsonFile));
         }
     });
 }
@@ -367,10 +502,11 @@ const _icon = async() => {
             file: argv.file
         };
 
+        if(!quiet) console.log(chalk.cyanBright("Fatch") + " : " + chalk.greenBright(data.file));
         needle.post(HOST, data, function(err, res) {
             if(!err) {
                 if(res.body.r) {
-                    console.log(JSON.stringify(res.body));
+                    if(!quiet) console.log(JSON.stringify(res.body));
                 } else {
                     // success
                     let savefile = argv.file;
@@ -404,20 +540,20 @@ const _icon = async() => {
                             let dirname = null;
                             let savefilepath = path.join(dir, savefile);
                             let scale = 1;
+                            if(!quiet) console.log(chalk.magentaBright("Save") + " : %s",
+                                chalk.greenBright(
+                                    dirname ? (subdir==null ? path.join(dirname, savefile) : path.join(subdir, dirname, savefile)) : (subdir==null ? path.join(savefile) : path.join(subdir, savefile))
+                                ));
                             _writeicon(res.body, savefilepath, scale, width, height, subdir, dirname, savefile).then((res, err) => {
                                 if(res) {
-                                    console.log(chalk.blueBright("Save : %s"), 
-                                        chalk.greenBright(
-                                            dirname ? (subdir==null ? path.join(dirname, savefile) : path.join(subdir, dirname, savefile)) : (subdir==null ? path.join(savefile) : path.join(subdir, savefile))
-                                        )
-                                    );
+                                    if(!quiet) console.log(chalk.cyanBright(" OK!"));
                                 } 
                                 if(err) {
-                                    console.log(chalk.red(err));
+                                    if(!quiet) console.log(chalk.red(err));
                                 }
                             });
                         } else {
-                            console.log(res.body);
+                            if(!quiet) console.log(res.body);
                         }    
                     } else {
                         if(fs.existsSync(argv.target + ".json")){
@@ -431,52 +567,14 @@ const _icon = async() => {
                                 type = argv.type || null;
                                 dpis = ['', '@2x', '@3x'];
                             }
-                            for(let dpi in dpis){
-                                let dpitag = dpis[dpi];                                
-                                let dirname = type;
-                                if(dpitag!='' && argv.target=="android") {
-                                    if(type) {
-                                        dirname = type + "-" + dpitag;
-                                    } else {
-                                        dirname = dpitag;
-                                    }
-                                }
-                                let _savefile = savefile;
-                                let savefilepath;
-                                if(dirname) {
-                                    savefilepath = path.join(dir, dirname, _savefile);
-                                } else {
-                                    savefilepath = path.join(dir, _savefile);
-                                }
-                                if(dpitag!='' && argv.target=='ios') {
-                                    let fileext = path.extname(savefilepath);
-                                    savefilepath = savefilepath.replace(/\.[^/.]+$/, "") + dpitag;
-                                    if(fileext!=null && fileext!="") {
-                                        savefilepath = savefilepath + fileext;
-                                        _savefile = path.join(path.dirname(_savefile), path.basename(savefilepath));
-                                    }
-                                }
-
-                                let scale = _scale(dpitag);
-                                _writeicon(res.body, savefilepath, scale, width, height, subdir, dirname, _savefile).then((res, err) => {
-                                    if(res) {
-                                        console.log(chalk.blueBright("Save : %s"), 
-                                            chalk.greenBright(
-                                                dirname ? (subdir==null ? path.join(dirname, _savefile) : path.join(subdir, dirname, _savefile)) : (subdir==null ? path.join(_savefile) : path.join(subdir, _savefile))
-                                            )
-                                        );
-                                    } 
-                                    if(err) {
-                                        console.log(chalk.red(err));
-                                    }
-                                });
-                            }
+                            let dpi = 0;
+                            let target = argv.target;
+                            _iconSaveProc(res.body, dir, subdir, savefile, width, height, target, type, dpis, dpi);
                         }
                     }
-
                 }
             } else {
-                console.log(chalk.red(JSON.stringify(err)));
+                if(!quiet) console.log(chalk.red(JSON.stringify(err)));
             }
         });
     }
@@ -493,13 +591,13 @@ const _string = async() => {
         };
         needle.post(HOST, data, function(err, res) {
             if(err) {
-                console.log(chalk.red(JSON.stringify(err)));
+                if(!quiet) console.log(chalk.red(JSON.stringify(err)));
             } else {
                 if(res.body.r=="s" && res.body.d) {
                     // Success
-                    console.log(JSON.stringify(res.body.d));
+                    if(!quiet) console.log(JSON.stringify(res.body.d));
                 } else {
-                    console.log(chalk.red(JSON.stringify(res.body)));
+                    if(!quiet) console.log(chalk.red(JSON.stringify(res.body)));
                 }
             }
         });
@@ -521,7 +619,7 @@ const _main = async() => {
             });
             break;
         case 'version':
-            console.log(pkg.version);
+            if(!quiet) console.log(pkg.version);
             break;
         case 'icon':
             _load((json) => {

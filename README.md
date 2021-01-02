@@ -24,7 +24,7 @@ You can show version of appres package.
 
 Example :
 $ appres version
-0.0.23
+0.0.24
 
 ```
 
