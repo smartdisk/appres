@@ -36,6 +36,16 @@ const _welcome = () => {
         chalk.cyan("This package use with the appres.org");
     if(!quiet) console.log(welcomeMsg);
 }
+const _first = () => {
+    let msg = "Are you trying to test? First, Initialize the test key using the following command.";
+    if(!quiet) console.log(chalk.greenBright(msg));
+
+    msg = "$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7";
+    if(!quiet) console.log(chalk.greenBright(msg));
+
+    msg = "Or, Your project key can be create for free at appres.org.";
+    if(!quiet) console.log(chalk.whiteBright(msg));
+}
 
 const _getcwd = () => {
     return process.cwd();
@@ -600,23 +610,13 @@ const _init = async(json) => {
     });
 }
 
-const _firstTimeMessage = () => {
-    let msg = "Are you trying to test? First, Please initialize the our test keys with the following command.";
-    if(!quiet) console.log(chalk.greenBright(msg));
-
-    msg = "$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7";
-    if(!quiet) console.log(chalk.greenBright(msg));
-
-    msg = "Or, Your project key can be create for free at appres.org.";
-    if(!quiet) console.log(chalk.blueBright(msg));
-}
 
 const _icon = async() => {
     if(PKEY=="YOUR_PKEY" || AKEY=="YOUR_AKEY") {
         let msg = "You haven't initialize an access key yet.";
         if(!quiet) console.log(chalk.redBright(msg));
         if(!quiet) console.log("\n");
-        _firstTimeMessage();
+        _first();
         return;
     }
 
@@ -807,7 +807,7 @@ if(argv._.length>0) {
         _welcome();
     } else {
         _welcome();
-        _firstTimeMessage();
+        _first();
     }
 }
 
