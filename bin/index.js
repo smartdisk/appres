@@ -8,6 +8,7 @@ const needle = require('needle');
 const mkdirp = require('mkdirp');
 const jimp = require('jimp');
 const open = require('open');
+const progress = require('progress');
 
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -632,8 +633,8 @@ const _icon = async() => {
     else
     if(argv.file && argv.file!==true) {
         data.file = argv.file;
-        if(!quiet) console.log(chalk.cyanBright("Fatch") + " : " + chalk.greenBright(data.file));
-        needle.post(HOST, data, function(err, res) {
+        if(!quiet) console.log(chalk.cyanBright("Fetch") + " : " + chalk.greenBright(data.file));
+        let readable = needle.post(HOST, data, function(err, res) {
             if(!err) {
                 if(res.body.r) {
                     if(!quiet) {
@@ -731,6 +732,25 @@ const _icon = async() => {
                 if(!quiet) console.log(chalk.red(JSON.stringify(err)));
             }
         });
+        if(!quiet) {
+            readable.on('response', (res) => {
+                var len = parseInt(res.headers['content-length'], 10);             
+                console.log();
+                var bar = new progress(' fetching [:bar] :rate/bps :percent :etas', {
+                    complete: '=',
+                    incomplete: ' ',
+                    width: 40,
+                    total: len
+                    });
+                readable.on('data', (chunk) => {
+                    bar.tick(chunk.length);
+                });
+                readable.on('end', () => {
+                    console.log();
+                });        
+            });
+    
+        }
     } else {
         if(!quiet) {
             console.log(chalk.magentaBright("Invalid command."));
