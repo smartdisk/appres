@@ -628,6 +628,24 @@ const _init = async(json) => {
 }
 
 const _icon = async() => {
+    if(PKEY=="YOUR_PKEY" || AKEY=="YOUR_AKEY") {
+        let msg = "You haven't initialize an access key yet.";
+        if(!quiet) console.log(chalk.red(msg));
+        if(!quiet) console.log("\n");
+
+        msg = "Are you trying to test? First, Please initialize the our test keys with the following command.";
+        if(!quiet) console.log(chalk.greenBright(msg));
+
+        msg = "$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7";
+        if(!quiet) console.log(chalk.greenBright(msg));
+        if(!quiet) console.log("\n");
+
+        msg = "And, Your project key can be create for free at https://appres.org.";
+        if(!quiet) console.log(chalk.blueBright(msg));
+
+        return;
+    }
+
     let data = {
         pkey: PKEY,
         akey: AKEY,
