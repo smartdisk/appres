@@ -23,8 +23,8 @@ $ appres version
 You can show version of appres package.
 
 Example :
-$ appres version
-0.0.28
+  $ appres version
+  0.0.28
 
 ```
 
@@ -55,7 +55,7 @@ You can easily create an appres.json file using the init command.
   You can use our test project and access keys.
     --pkey ry7EdO2TLLVr9JkSqqe2
     --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
-    
+
   And, Sample icon file.
     --file sample.png
 
