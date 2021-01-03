@@ -3,7 +3,6 @@
 const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
-const boxen = require("boxen");
 const filesize = require("filesize");
 const needle = require('needle');
 const mkdirp = require('mkdirp');
@@ -25,43 +24,17 @@ let PKEY = argv.pkey ? argv.pkey : "YOUR_PKEY";
 let AKEY = argv.akey ? argv.akey : "YOUR_AKEY";
 let LANG = argv.lang ? argv.lang : null;
 
-
-
-const boxenOptions = {
- padding: 1,
- margin: 1,
- borderStyle: "round",
- borderColor: "green",
- backgroundColor: "#555555"
-};
-
-
-const _sleep = (ms) => {
-    return new Promise(resolve=>{
-        setTimeout(resolve,ms)
-    })
-}
-
-const _hello = async() => {
-    for(let i=0;i<1000;i++) {
-        process.stdout.write("\r"+chalk.blue("hello") + ": " + i);
-        await _sleep(1);
-    }
-    process.stdout.write("\n");
-}
 const _version = () => {
     if(!quiet) console.log(pkg.version);
 }
 
 const _welcome = () => {
-    let welcomeMsg = chalk.white.bold("Welcome appres!!!") + 
+    let welcomeMsg = chalk.white.bold("Welcome to App Resource !!!") + 
         "\n" + 
-        chalk.green(pkg.version) +
+        chalk.green("v" + pkg.version) +
         "\n" + 
         chalk.cyan("This package use with the appres.org");
-
-    let welcomeBox = boxen( welcomeMsg, boxenOptions );
-    if(!quiet) console.log(welcomeBox);
+    if(!quiet) console.log(welcomeMsg);
 }
 
 const _getcwd = () => {
@@ -627,22 +600,23 @@ const _init = async(json) => {
     });
 }
 
+const _firstTimeMessage = () => {
+    let msg = "Are you trying to test? First, Please initialize the our test keys with the following command.";
+    if(!quiet) console.log(chalk.greenBright(msg));
+
+    msg = "$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7";
+    if(!quiet) console.log(chalk.greenBright(msg));
+
+    msg = "Or, Your project key can be create for free at appres.org.";
+    if(!quiet) console.log(chalk.blueBright(msg));
+}
+
 const _icon = async() => {
     if(PKEY=="YOUR_PKEY" || AKEY=="YOUR_AKEY") {
         let msg = "You haven't initialize an access key yet.";
-        if(!quiet) console.log(chalk.red(msg));
+        if(!quiet) console.log(chalk.redBright(msg));
         if(!quiet) console.log("\n");
-
-        msg = "Are you trying to test? First, Please initialize the our test keys with the following command.";
-        if(!quiet) console.log(chalk.greenBright(msg));
-
-        msg = "$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7";
-        if(!quiet) console.log(chalk.greenBright(msg));
-        if(!quiet) console.log("\n");
-
-        msg = "And, Your project key can be create for free at https://appres.org.";
-        if(!quiet) console.log(chalk.blueBright(msg));
-
+        _firstTimeMessage();
         return;
     }
 
@@ -833,6 +807,7 @@ if(argv._.length>0) {
         _welcome();
     } else {
         _welcome();
+        _firstTimeMessage();
     }
 }
 
