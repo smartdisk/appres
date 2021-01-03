@@ -1,5 +1,28 @@
-# Now is under developing. Coming soon... Thank you.
+## Notice : Now is under developing... Coming soon.
 <br/>
+
+
+# For the first time
+```
+
+Please try the following for test:
+
+  $ npm install appres -g
+
+
+  $ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
+
+  $ appres icon --file sample.png --save
+  or
+  $ appres icon --file sample.png --open
+
+If successful, You can find sample.png file in the your current working directory.
+
+```
+
+## And, Your project key can be create for free at [appres.org](https://appres.org)
+<br><br><br>
+
 
 # Install
 
@@ -16,6 +39,7 @@ $ npm install appres -save
 
 # Usage for CLI
 
+
 ## $ appres version
 ```
 $ appres version
@@ -27,6 +51,7 @@ Example :
   0.0.28
 
 ```
+
 
 ## $ appres init
 ```
