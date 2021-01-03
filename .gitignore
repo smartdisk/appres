@@ -3,6 +3,9 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=osx,node,angular
 
 appres.json
+icons/
+images/
+strings/
 
 ### Angular ###
 ## Angular ##
