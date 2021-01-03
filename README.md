@@ -24,7 +24,7 @@ You can show version of appres package.
 
 Example :
 $ appres version
-0.0.25
+0.0.28
 
 ```
 
@@ -52,6 +52,12 @@ You can easily create an appres.json file using the init command.
   Not use arguments will use default or already setting value.
   If successful, You can find the appres.json file in your working directory.
 
+  You can use our test project and access keys.
+    --pkey ry7EdO2TLLVr9JkSqqe2
+    --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
+    
+  And, Sample icon file.
+    --file sample.png
 
 
 ```
@@ -152,55 +158,105 @@ You can get an icon from a project on appres.org.
 ============================
 
 - Usage
-  $ appres icon --file sample.png --save --{effect} [--effect] ... [--effect]
+  $ appres icon --file sample.png --save --{effect} [--effect value] ... [--effect]
 
 - Effect Examples
 
-  - Crop
+  --crop
   $ appres icon --file sample.png --save --crop
 
-  - Flip
-  $ appres icon --file sample.png --save --flip
+  --rotate
+  $ appres icon --file sample.png --save --rotate 90
+    range : -360 ~ 360
 
-  - Mirror
+  --mirror
   $ appres icon --file sample.png --save --mirror
 
-  - Grayscale
+  --flip
+  $ appres icon --file sample.png --save --flip
+
+  --grayscale
   $ appres icon --file sample.png --save --grayscale
 
-  - Sepia
+  --sepia
   $ appres icon --file sample.png --save --sepia
 
-  - Contrast
-  $ appres icon --file sample.png --save --contrast [value]
+  --contrast
+  $ appres icon --file sample.png --save --contrast 0.2
     default value : 0.2 , range : -1.0 ~ 1.0
 
-  - Brightness
-  $ appres icon --file sample.png --save --brightness [value]
+  --brightness
+  $ appres icon --file sample.png --save --brightness 0.2
     default value : 0.2 , range : -1.0 ~ 1.0
 
-  - Invert
-  $ appres icon --file sample.png --save --invert
-
-  - Blur
-  $ appres icon --file sample.png --save --blur [value]
+  --blur
+  $ appres icon --file sample.png --save --blur 5
     default value : 5 , range : 1 ~
 
-  - Gaussian
-  $ appres icon --file sample.png --save --gaussian [value]
+  --gaussian
+  $ appres icon --file sample.png --save --gaussian 1
     default value : 1 , range : 1 ~
 
-  - Opacity
-  $ appres icon --file sample.png --save --opacity [value]
+  --opacity
+  $ appres icon --file sample.png --save --opacity 0.5
     default value : 0.5 , range : 0.0 ~ 1.0
 
-  - Rotate
-  $ appres icon --file sample.png --save --rotate value
-    range : -360 ~ 360
+  --invert
+  $ appres icon --file sample.png --save --invert
 
 
 - Hint
   You can use multiple effects in combination.
+
+
+
+====================================================
+### icon : overlay (use for alpha channel image) ###
+====================================================
+
+- Usage
+  $ appres icon --file sample.png --save --overlay {color}
+
+- Example
+  $ appres icon --file sample.png --save --overlay white
+  $ appres icon --file sample.png --save --overlay 0xFF0000
+  $ appres icon --file sample.png --save --overlay 0xFF0000FF
+  $ appres icon --file sample.png --save --overlay "#F00"
+  $ appres icon --file sample.png --save --overlay "#FF0000"
+  $ appres icon --file sample.png --save --overlay "#F00F"
+  $ appres icon --file sample.png --save --overlay "#FF0000FF"
+
+
+- Hint
+  This option is available for images that contain transparent channels.
+  Converts non-transparent pixels in an image to the color value.
+  No effect for non-transparent image.
+  See the description of the color representation for color values.
+
+
+
+=======================================================
+### icon : background (use for alpha channel image) ###
+=======================================================
+
+- Usage
+  $ appres icon --file sample.png --save --background {color}
+
+- Example
+  $ appres icon --file sample.png --save --background white
+  $ appres icon --file sample.png --save --background 0xFF0000
+  $ appres icon --file sample.png --save --background 0xFF0000FF
+  $ appres icon --file sample.png --save --background "#F00"
+  $ appres icon --file sample.png --save --background "#FF0000"
+  $ appres icon --file sample.png --save --background "#F00F"
+  $ appres icon --file sample.png --save --background "#FF0000FF"
+
+
+- Hint
+  This option is available for images that contain transparent channels.
+  Converts transparent pixels in an image to the color value.
+  No effect for non-transparent image.
+  See the description of the color representation for color values.
 
 
 
@@ -243,6 +299,19 @@ You can get an icon from a project on appres.org.
 
   ios
   ['', '@2x', '@3x'];
+
+
+
+====================================
+### icon : open after local save ###
+====================================
+
+- Usage
+  $ appres icon --file sample.png --open [{app name}]
+
+- Example
+  $ appres icon --file sample.png --open
+  $ appres icon --file sample.png --open 'google chrome'
 
 
 

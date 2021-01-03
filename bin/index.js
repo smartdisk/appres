@@ -4,9 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
 const boxen = require("boxen");
+const filesize = require("filesize");
 const needle = require('needle');
 const mkdirp = require('mkdirp');
 const jimp = require('jimp');
+const open = require('open');
 
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
@@ -17,8 +19,8 @@ const pkg = require('../package.json');
 const jsonFile = "appres.json";
 const quiet = argv.quiet===true;
 
-// let HOST = "http://127.0.0.1:5001/appres-org/us-central1/api";
-let HOST = "https://us-central1-appres-org.cloudfunctions.net/api";
+let HOST = "http://127.0.0.1:5001/appres-org/us-central1/api";
+//let HOST = "https://us-central1-appres-org.cloudfunctions.net/api";
 let PKEY = argv.pkey ? argv.pkey : "YOUR_PKEY";
 let AKEY = argv.akey ? argv.akey : "YOUR_AKEY";
 let LANG = argv.lang ? argv.lang : null;
@@ -200,7 +202,7 @@ const _rgba2val = (r, g, b, a) => {
 //_color(255,0,255,127)
 //_color(255,0,255)  => a set to 255
 const _color = (r, g, b, a) => {
-    if(r===null) return null;
+    if(r==null) return null;
 
     let color = r;
     if(isString(color)) {
@@ -554,7 +556,16 @@ const _iconSaveProc = (icon, dir, subdir, savefile, width, height, target, type,
     let scale = _scale(dpitag);
     _writeicon(icon, savefilepath, scale, width, height, subdir, dirname, _savefile).then((res, err) => {
         if(res) {
-            if(!quiet) console.log(chalk.cyanBright(" OK!"));
+            if(argv.open) {
+                if(argv.open===true) {
+                    if(!quiet) console.log(chalk.cyanBright("Open it."));
+                    open(savefilepath);
+                } else {
+                    if(!quiet) console.log(chalk.cyanBright("Open it as " + argv.open));
+                    open(savefilepath, {app: argv.open});
+                }
+            }
+            if(!quiet) console.log(chalk.cyanBright("OK!"));
             setTimeout(()=>{
                 _iconSaveProc(icon, dir, subdir, savefile, width, height, target, type, dpis, dpi+1);            
             },1);    
@@ -617,19 +628,29 @@ const _init = async(json) => {
 }
 
 const _icon = async() => {
-    if(argv.file) {
-        let data = {
-            pkey: PKEY,
-            akey: AKEY,
-            cmd: argv._[0],
-            file: argv.file
-        };
-
+    let data = {
+        pkey: PKEY,
+        akey: AKEY,
+        cmd: argv._[0]
+    };
+    if(argv.find && argv.find!==true) {
+        data.find = argv.find;
+        if(!quiet) console.log(chalk.cyanBright("Find") + " : " + chalk.greenBright(data.find));
+    }
+    else
+    if(argv.file && argv.file!==true) {
+        data.file = argv.file;
         if(!quiet) console.log(chalk.cyanBright("Fatch") + " : " + chalk.greenBright(data.file));
         needle.post(HOST, data, function(err, res) {
             if(!err) {
                 if(res.body.r) {
-                    if(!quiet) console.log(JSON.stringify(res.body));
+                    if(!quiet) {
+                        if(res.body.r=="e") {
+                            console.log(chalk.redBright("Invalid command."));
+                        } else {
+                            console.log(chalk.red(JSON.stringify(res.body)));
+                        }
+                    }
                 } else {
                     // success
                     let savefile = argv.file;
@@ -638,7 +659,11 @@ const _icon = async() => {
                         argv.save = true;
                     }
                     else
-                    if(argv.s && argv.a && argv.v && argv.e) {
+                    if(argv.s===true && argv.a===true && argv.v===true && argv.e===true) {
+                        argv.save = true;
+                    }
+
+                    if(argv.open) {
                         argv.save = true;
                     }
 
@@ -669,17 +694,31 @@ const _icon = async() => {
                                 ));
                             _writeicon(res.body, savefilepath, scale, width, height, subdir, dirname, savefile).then((res, err) => {
                                 if(res) {
-                                    if(!quiet) console.log(chalk.cyanBright(" OK!"));
+                                    if(argv.open) {
+                                        if(argv.open===true) {
+                                            if(!quiet) console.log(chalk.cyanBright("Open it."));
+                                            open(savefilepath);
+                                        } else {
+                                            if(!quiet) console.log(chalk.cyanBright("Open it as " + argv.open));
+                                            open(savefilepath, {app: argv.open});
+                                        }
+                                    }
+                                    if(!quiet) console.log(chalk.cyanBright("OK!"));
                                 } 
                                 if(err) {
                                     if(!quiet) console.log(chalk.red(err));
                                 }
                             });
                         } else {
-                            if(!quiet) console.log(res.body);
+                            if(!quiet) {
+                                console.log(res.body);
+                                console.log(chalk.greenBright(filesize(res.body.length)) + chalk.green(" (" + res.body.length + ")"));
+                            }
                         }    
                     } else {
                         if(fs.existsSync(argv.target + ".json")){
+                            // TODO : pre-defined target json file.
+
                                                         
                         } else 
                         if(argv.target=="android" || argv.target=="ios") {
@@ -700,6 +739,10 @@ const _icon = async() => {
                 if(!quiet) console.log(chalk.red(JSON.stringify(err)));
             }
         });
+    } else {
+        if(!quiet) {
+            console.log(chalk.magentaBright("Invalid command."));
+        }
     }
 }
 
