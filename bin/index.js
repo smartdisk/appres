@@ -38,14 +38,27 @@ const _welcome = () => {
     if(!quiet) console.log(welcomeMsg);
 }
 const _first = () => {
+
+    if(!quiet) console.log();
+
     let msg = "Are you trying to test? First, Initialize the test key using the following command.";
-    if(!quiet) console.log(chalk.greenBright(msg));
+    if(!quiet) console.log(chalk.whiteBright(msg));
 
     msg = "$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7";
     if(!quiet) console.log(chalk.greenBright(msg));
 
-    msg = "Or, Your project key can be create for free at appres.org.";
+    msg = "In addition, you can obtain a sample icon file with the command.";
     if(!quiet) console.log(chalk.whiteBright(msg));
+
+    msg = "$ appres icon --file sample.png --save";
+    if(!quiet) console.log(chalk.greenBright(msg));
+
+    if(!quiet) console.log();
+
+    msg = "Project keys can be created at appres.org";
+    if(!quiet) console.log(chalk.whiteBright(msg));
+
+    if(!quiet) console.log();
 }
 
 const _getcwd = () => {
@@ -626,11 +639,7 @@ const _icon = async() => {
         akey: AKEY,
         cmd: argv._[0]
     };
-    if(argv.find && argv.find!==true) {
-        data.find = argv.find;
-        if(!quiet) console.log(chalk.cyanBright("Find") + " : " + chalk.greenBright(data.find));
-    }
-    else
+
     if(argv.file && argv.file!==true) {
         data.file = argv.file;
         if(!quiet) console.log(chalk.cyanBright("Fetch") + " : " + chalk.greenBright(data.file));
@@ -681,10 +690,12 @@ const _icon = async() => {
                             let dirname = null;
                             let savefilepath = path.join(dir, savefile);
                             let scale = 1;
-                            if(!quiet) console.log(chalk.cyanBright("Save") + " : %s",
-                                chalk.greenBright(
-                                    dirname ? (subdir==null ? path.join(dirname, savefile) : path.join(subdir, dirname, savefile)) : (subdir==null ? path.join(savefile) : path.join(subdir, savefile))
-                                ));
+                            if(!quiet) {
+                                console.log(chalk.cyanBright("Save") + " : %s",
+                                    chalk.greenBright(
+                                        dirname ? (subdir==null ? path.join(dirname, savefile) : path.join(subdir, dirname, savefile)) : (subdir==null ? path.join(savefile) : path.join(subdir, savefile))
+                                    ));
+                            }
                             _writeicon(res.body, savefilepath, scale, width, height, subdir, dirname, savefile).then((res, err) => {
                                 if(res) {
                                     if(argv.open) {
@@ -705,7 +716,6 @@ const _icon = async() => {
                         } else {
                             if(!quiet) {
                                 console.log(res.body);
-                                console.log(chalk.greenBright(filesize(res.body.length)) + chalk.green(" (" + res.body.length + ")"));
                             }
                         }    
                     } else {
@@ -736,7 +746,8 @@ const _icon = async() => {
             readable.on('response', (res) => {
                 var len = parseInt(res.headers['content-length'], 10);             
                 console.log();
-                var bar = new progress(' fetching [:bar] :rate/bps :percent :etas', {
+                console.log("  " + chalk.greenBright(filesize(len)) + chalk.green(" (" + len + ")"));
+                var bar = new progress(' [:bar] :rate/bps :percent :etas', {
                     complete: '=',
                     incomplete: ' ',
                     width: 40,
