@@ -1,17 +1,18 @@
 {
   "name": "appres",
   "version": "0.0.38",
-  "description": "App Resource",
+  "description": "App Resource Organization",
   "main": "bin/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "appres",
     "app",
+    "appres",
+    "app resource",
     "resource",
-    "resources",
     "resource manager",
+    "resource organization",
     "strings",
     "images",
     "icons"
