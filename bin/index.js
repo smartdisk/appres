@@ -159,8 +159,8 @@ const _saveicon = (_icon, _file, _scale, _width, _height) => {
                 let width = jimp.getWidth();
                 let height = jimp.getHeight();
                 let newsize = _newsize(width, height, _scale, _width, _height);
-                let background = color.hex(argv.background);
-                let overlay = color.hex(argv.overlay);
+                let background = color.val ? color.val(argv.background) : color.hex(argv.background);
+                let overlay = color.val ? color.val(argv.overlay) : color.hex(argv.overlay);
 
                 if(overlay && overlay!==true) {
                     if(jimp.hasAlpha()) {
