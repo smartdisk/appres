@@ -1,1 +1,1 @@
-appres docs
+appres documents
