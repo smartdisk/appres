@@ -10,7 +10,7 @@ Please try the following for test:
   $ npm install appres -g
 
 
-  $ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
+  $ appres init --pkey GXYqIgrafjTRatwTB96d --akey 39f031e6-94a0-4e14-b600-82779ec899d7
 
   $ appres icon --file sample.png --save
   or
@@ -65,9 +65,9 @@ You can easily create an appres.json file using the init command.
 
 - Example
   $ appres init
-  $ appres init --pkey ry7EdO2TLLVr9JkSqqe2
-  $ appres init --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
-  $ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
+  $ appres init --pkey GXYqIgrafjTRatwTB96d
+  $ appres init --akey 39f031e6-94a0-4e14-b600-82779ec899d7
+  $ appres init --pkey GXYqIgrafjTRatwTB96d --akey 39f031e6-94a0-4e14-b600-82779ec899d7
 
 - Result
   Initialize appres.json
@@ -78,8 +78,8 @@ You can easily create an appres.json file using the init command.
   If successful, You can find the appres.json file in your working directory.
 
   You can use our test project and access keys.
-    --pkey ry7EdO2TLLVr9JkSqqe2
-    --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7
+    --pkey GXYqIgrafjTRatwTB96d
+    --akey 39f031e6-94a0-4e14-b600-82779ec899d7
 
   And, Sample icon file.
     --file sample.png
