@@ -22,7 +22,8 @@ const jsonFile = "appres.json";
 const quiet = argv.quiet===true;
 
 //let HOST = "http://127.0.0.1:5001/appres-org/us-central1/api";
-let HOST = "https://us-central1-appres-org.cloudfunctions.net/api";
+//let HOST = "https://us-central1-appres-org.cloudfunctions.net/api";
+let HOST = "https://appres.org/functions/api";
 let PKEY = argv.pkey ? argv.pkey : "YOUR_PKEY";
 let AKEY = argv.akey ? argv.akey : "YOUR_AKEY";
 let LANG = argv.lang ? argv.lang : null;
@@ -46,7 +47,7 @@ const _first = () => {
     let msg = "Are you trying to test? First, Initialize the test key using the following command.";
     if(!quiet) console.log(chalk.whiteBright(msg));
 
-    msg = "$ appres init --pkey ry7EdO2TLLVr9JkSqqe2 --akey 8b938bec-42ad-4dcf-848f-713dea09fbb7";
+    msg = "$ appres init --pkey GXYqIgrafjTRatwTB96d --akey 39f031e6-94a0-4e14-b600-82779ec899d7";
     if(!quiet) console.log(chalk.greenBright(msg));
 
     msg = "In addition, you can obtain a sample icon file with the command.";
