@@ -34,6 +34,7 @@
     "needle": "^2.5.2",
     "open": "^7.3.0",
     "progress": "^2.0.3",
+    "tiny-json-http": "^7.3.0",
     "yargs": "^16.2.0"
   },
   "repository": {
@@ -42,6 +43,9 @@
   },
   "bugs": {
     "url": "https://github.com/smartdisk/appres/issues"
+  },
+  "api": {
+    "host": "https://appres.org/functions/api"
   },
   "homepage": "https://appres.org"
 }

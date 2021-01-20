@@ -21,9 +21,8 @@ const pkg = require('../package.json');
 const jsonFile = "appres.json";
 const quiet = argv.quiet===true;
 
+let HOST = pkg.api.host;
 //let HOST = "http://127.0.0.1:5001/appres-org/us-central1/api";
-//let HOST = "https://us-central1-appres-org.cloudfunctions.net/api";
-let HOST = "https://appres.org/functions/api";
 let PKEY = argv.pkey ? argv.pkey : "YOUR_PKEY";
 let AKEY = argv.akey ? argv.akey : "YOUR_AKEY";
 let LANG = argv.lang ? argv.lang : null;
