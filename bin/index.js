@@ -616,6 +616,7 @@ const _main = async() => {
         case 'help':
             _welcome();
             break;
+        case 'image':
         case 'icon':
             _load((json) => {
                 _setenv(json);
