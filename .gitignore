@@ -4,9 +4,14 @@
 
 appres.json
 sample.png
+*.png
+*.jpg
+*.gif
 icons/
 images/
 strings/
+assets/
+app/
 
 ### Angular ###
 ## Angular ##
