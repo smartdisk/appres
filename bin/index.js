@@ -570,13 +570,14 @@ const _asset = async() => {
 }
 
 const _string = async() => {
-    if(argv.key) {
+    if(argv.key || argv.str) {
         let data = {
             pkey: PKEY,
             akey: AKEY,
             lang: LANG,
-            cmd: 'string',
+            cmd: argv._[0],
             key: argv.key,
+            str: argv.str
         };
         needle.post(HOST, data, function(err, res) {
             if(err) {
@@ -584,7 +585,7 @@ const _string = async() => {
             } else {
                 if(res.body.r=="s" && res.body.d) {
                     // Success
-                    _log(JSON.stringify(res.body.d));
+                    _log(JSON.stringify(res.body.d, null, 2));
                 } else {
                     _log(chalk.red(JSON.stringify(res.body)));
                 }
@@ -639,6 +640,26 @@ const _load = (resolve) => {
     });
 }
 
+const _langs = async(json) => {
+    let data = {
+        pkey: PKEY,
+        akey: AKEY,
+        cmd: "langs"
+    };
+    needle.post(HOST, data, function(err, res) {
+        if(err) {
+            _log(chalk.red(JSON.stringify(err)));
+        } else {
+            if(res.body.r=="s" && res.body.d) {
+                // Success
+                _log(JSON.stringify(res.body.d, null, 2));
+            } else {
+                _log(chalk.red(JSON.stringify(res.body)));
+            }
+        }
+    });
+}
+
 const _init = async(json) => {
     fs.writeFile(jsonFile, JSON.stringify(json, null, 2), (err) => {
         if(err) {
@@ -663,6 +684,12 @@ const _main = async() => {
         case 'help':
             _welcome();
             break;
+        case 'langs':
+            _load((json) => {
+                _setenv(json);
+                _langs(json);
+            });
+            break;
         case 'image':
         case 'icon':
             _load((json) => {
@@ -671,6 +698,7 @@ const _main = async() => {
             });
             break;
         case 'string':
+        case 'dict':
             _load((json) => {
                 _setenv(json);
                 _string();

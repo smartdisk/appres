@@ -98,12 +98,123 @@ You can easily create an appres.json file using the init command.
 
 ```
 
+## $ appres langs
+```
+You can retrieve the project language settings.
+
+- Usage
+  $ appres langs
+
+- Result
+  {
+    "de-DE": "Deutsch (Germany)",
+    "en-US": "Englist (United States)",
+    "fr-FR": "Français (France)",
+    "ja-JP": "日本語 (Japan)",
+    "zh-CN": "简体中文 - Simplified (China)",
+    "zh-TW": "繁體中文 - Traditional (Taiwan)",
+    "ko-KR": "한국어 (Korea)"
+  }
+
+```
+
+
 ## $ appres string
 ```
+=====================
+### String by Key ###
+=====================
+
+- Usage
+  $ appres string --key {key of string}
+
+- Example
+  $ appres string --key appname
+
+- Result
+  {
+    "default": "App Resource",
+    "zh-CN": "应用资源",
+    "en-US": "App Resource",
+    "zh-TW": "应用资源",
+    "de-DE": "App Ressource",
+    "fr-FR": "App Ressource",
+    "ja-JP": "アプリリソース",
+    "ko-KR": "앱 리소스"
+  }
+
+
+================================
+### String by Default String ###
+================================
+
+- Usage
+  $ appres string --str {"default string"}
+
+- Example
+  $ appres string --str "This command is will cannot undo."
+
+- Result
+  {
+    "default": "This command is will cannot undo.",
+    "fr-FR": "Cette commande ne peut pas être annulée.",
+    "de-DE": "Dieser Befehl kann nicht rückgängig gemacht werden.",
+    "ja-JP": "このコマンドは、元に戻すことができません。",
+    "en-US": "This command is will cannot undo.",
+    "zh-TW": "此命令将无法撤消。",
+    "ko-KR": "이 명령은 실행 취소 할 수 없습니다.",
+    "zh-CN": "此命令将无法撤消。"
+  }
+
 ```
 
 ## $ appres dict
 ```
+=========================
+### Dictionary by Key ###
+=========================
+
+- Usage
+  $ appres dict --key {key of dict}
+
+- Example
+  $ appres dict --key appres
+
+- Result
+  {
+    "zh-CN": "应用程序资源平台",
+    "en-US": "The App Resource Platform",
+    "de-DE": "Die App Resource Platform",
+    "ja-JP": "アプリリソースプラットフォーム",
+    "zh-TW": "应用程序资源平台",
+    "fr-FR": "La plateforme de ressources d'application",
+    "default": "The App Resource Platform",
+    "ko-KR": "앱 리소스 플랫폼"
+  }
+
+====================================
+### Dictionary by Default String ###
+====================================
+
+- Usage
+  $ appres dict --str {"default string"}
+
+- Example
+  $ appres dict --str "The App Resource Platform"
+
+- Result
+  {
+    "default": "The App Resource Platform",
+    "ja-JP": "アプリリソースプラットフォーム",
+    "zh-CN": "应用程序资源平台",
+    "en-US": "The App Resource Platform",
+    "fr-FR": "La plateforme de ressources d'application",
+    "zh-TW": "应用程序资源平台",
+    "de-DE": "Die App Resource Platform",
+    "ko-KR": "앱 리소스 플랫폼"
+  }
+
+
 ```
 
 ## $ appres icon
