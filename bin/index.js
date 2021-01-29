@@ -660,6 +660,27 @@ const _langs = async(json) => {
     });
 }
 
+const _lang = async(json) => {
+    let data = {
+        pkey: PKEY,
+        akey: AKEY,
+        cmd: "langs",
+        lang: LANG
+    };
+    needle.post(HOST, data, function(err, res) {
+        if(err) {
+            _log(chalk.red(JSON.stringify(err)));
+        } else {
+            if(res.body.r=="s" && res.body.d) {
+                // Success
+                _log(JSON.stringify(res.body.d, null, 2));
+            } else {
+                _log(chalk.red(JSON.stringify(res.body)));
+            }
+        }
+    });
+}
+
 const _init = async(json) => {
     fs.writeFile(jsonFile, JSON.stringify(json, null, 2), (err) => {
         if(err) {
@@ -683,6 +704,12 @@ const _main = async() => {
             break;
         case 'help':
             _welcome();
+            break;
+        case 'lang':
+            _load((json) => {
+                _setenv(json);
+                _lang(json);
+            });
             break;
         case 'langs':
             _load((json) => {

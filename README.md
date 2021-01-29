@@ -119,6 +119,50 @@ You can retrieve the project language settings.
 ```
 
 
+## $ appres lang
+```
+You can retrieve the details of language in project.
+
+- Usage
+  $ appres lang --lang {lang code}
+
+- Example 1
+  $ appres lang --lang ko-KR
+
+- Result 1
+  {
+    "lang": "한국어",
+    "region_code": "KR",
+    "lang_code": "ko",
+    "region": "Korea"
+  }
+
+- Example 2
+  $ appres lang --lang ja-JP
+
+- Result 2
+  {
+    "lang": "日本語",
+    "lang_code": "ja",
+    "region": "Japan",
+    "region_code": "JP"
+  }
+
+- Example 3
+  $ appres lang --lang de-DE
+
+- Result 3
+  {
+    "region_code": "DE",
+    "lang": "Deutsch",
+    "lang_code": "de",
+    "region": "Germany"
+  }
+
+```
+
+
+
 ## $ appres string
 ```
 =====================
@@ -144,6 +188,33 @@ You can retrieve the project language settings.
   }
 
 
+========================================
+### String by Key with Language Code ###
+========================================
+
+- Usage
+  $ appres string --key {key of string} --lang {lang code}
+
+- Example 1
+  $ appres string --key appname --lang ko-KR
+
+- Result 1
+  "앱 리소스"
+
+- Example 2
+  $ appres string --key appname --lang ja-JP
+
+- Result 2
+  "アプリリソース"
+
+- Example 3
+  $ appres string --key appname --lang de-DE
+
+- Result 3
+  "App Ressource"
+
+
+
 ================================
 ### String by Default String ###
 ================================
@@ -165,6 +236,33 @@ You can retrieve the project language settings.
     "ko-KR": "이 명령은 실행 취소 할 수 없습니다.",
     "zh-CN": "此命令将无法撤消。"
   }
+
+
+===================================================
+### String by Default String with Language Code ###
+===================================================
+
+- Usage
+  $ appres string --str {"default string"} --lang {lang code}
+
+- Example 1
+  $ appres string --str "This command is will cannot undo." --lang ko-KR
+
+- Result 1
+  "이 명령은 실행 취소 할 수 없습니다."
+
+- Example 2
+  $ appres string --str "This command is will cannot undo." --lang ja-JP
+
+- Result 2
+  "このコマンドは、元に戻すことができません。"
+
+- Example 3
+  $ appres string --str "This command is will cannot undo." --lang de-DE
+  
+- Result 3
+  "Dieser Befehl kann nicht rückgängig gemacht werden."
+
 
 ```
 
@@ -192,6 +290,34 @@ You can retrieve the project language settings.
     "ko-KR": "앱 리소스 플랫폼"
   }
 
+
+============================================
+### Dictionary by Key with Language Code ###
+============================================
+
+- Usage
+  $ appres dict --key {key of dict} --lang {lang code}
+
+- Example 1
+  $ appres dict --key appres --lang ko-KR
+
+- Result 1
+  "앱 리소스 플랫폼"
+
+- Example 2
+  $ appres dict --key appres --lang ja-JP
+
+- Result 2
+  "アプリリソースプラットフォーム"
+
+- Example 3
+  $ appres dict --key appres --lang de-DE
+
+- Result 3
+  "Die App Resource Platform"
+
+
+
 ====================================
 ### Dictionary by Default String ###
 ====================================
@@ -215,7 +341,33 @@ You can retrieve the project language settings.
   }
 
 
+=======================================================
+### Dictionary by Default String with Language Code ###
+=======================================================
+
+- Usage
+  $ appres dict --str {"default string"} --lang {lang code}
+
+- Example 1
+  $ appres dict --str "The App Resource Platform" --lang ko-KR
+
+- Result 1
+  "앱 리소스 플랫폼"
+
+- Example 2
+  $ appres dict --str "The App Resource Platform" --lang ja-JP
+
+- Result 2
+  "アプリリソースプラットフォーム"
+
+- Example 3
+  $ appres dict --str "The App Resource Platform" --lang de-DE
+  
+- Result 3
+  "Die App Resource Platform"
+
 ```
+
 
 ## $ appres icon
 ```
