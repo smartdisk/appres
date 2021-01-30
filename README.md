@@ -1,7 +1,6 @@
 ## Notice : Now is under developing... Coming soon.
 <br/>
 
-
 # For the first time
 ```
 
@@ -20,7 +19,7 @@ If successful, You can find sample.png file in the your current working director
 
 ```
 
-## And, Your project key can be create for free at [appres.org](https://appres.org)
+## And, Your project can be create at [appres.org](https://appres.org)
 <br><br><br>
 
 
@@ -836,4 +835,8 @@ You can get an image from a project on appres.org.
 ```
 
 # Usage for node_modules
-# To be continue...
+```
+
+```
+
+## To be continue...
