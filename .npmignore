@@ -1,0 +1,15 @@
+**/.*
+*.iml
+*.png
+*.jpg
+*.gif
+package-lock.json
+appres.json
+sample.png
+icons/
+images/
+strings/
+assets/
+app/
+app/**/*
+node_modules/

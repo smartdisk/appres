@@ -1,5 +1,8 @@
 'use strict';
 
+const pkg = require('../package.json');
+const HOST = pkg.api.host;
+
 Object.defineProperty(exports, "__esModule", { value: true });
 var AppRes = /** @class */ (function () {
   
@@ -7,7 +10,7 @@ var AppRes = /** @class */ (function () {
   }
 
   AppRes.prototype.test = function () {
-      return 'test';
+    return 'test';
   };
 
   AppRes.appres = new AppRes();
