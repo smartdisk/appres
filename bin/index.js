@@ -32,6 +32,8 @@ let LANG = argv.lang;
 let DIR = argv.dir;
 let TARGET = argv.target;
 
+let IgnoreVerCheck = argv.IgnoreVerCheck;
+
 const _log = (...args) => {
     if(quiet) return;
     if(args==null) console.log();
@@ -45,8 +47,62 @@ const _log = (...args) => {
     }
 }
 
+// 현재 pkg 버전이 latest 보다 작으면 true 를 내 준다. 즉 업그레이드가 필요하다. null 리턴은 검사 실패. 
+const _needlatest = (latest) => {
+    let s1 = latest.split(".");
+    let s2 = pkg.version.split(".");
+    if(s1.length==3 && s2.length==3) {
+        if(s1[0]>s2[0]) return true;
+        if(s1[0]<s2[0]) return false;
+        if(s1[1]>s2[1]) return true;
+        if(s1[2]<s2[2]) return false;
+        if(s1[2]>s2[2]) return true;
+        return false;
+    }
+    return null;
+}
+
+if (!String.prototype.format) {
+    String.prototype.format = function() {
+        var args = arguments;
+        return this.replace(/{(\d+)}/g, function(match, number) { 
+        return typeof args[number] != 'undefined'
+            ? args[number]
+            : match
+        ;
+        });
+    };
+}
+const _updatemsg = (current, latest) => {
+    _log("");
+    _log(chalk.magentaBright("A newer version exists. {0}<{1}. You can update to the latest version using the following command.".format(current, latest)));
+    _log("$ " + chalk.greenBright("npm update appres -g"));
+    _log("");
+    _log(chalk.magentaBright("If you want to ignore the version check, use the following option."));
+    _log("$ " + chalk.greenBright("appres {your command and options} --IgnoreVerCheck"));
+    _log("");
+    _log(chalk.magentaBright("Insert ignore version check option into the appres.json file."));
+    _log("$ " + chalk.greenBright("appres init --IgnoreVerCheck true"));
+    _log("");
+}
+
+const _latest = (chkmode) => {
+    let data = {
+        cmd: "meta",
+        opt: "latest"
+    };
+    needle.post(HOST, data, function(err, res) {
+        if(err) {
+            _log(err);
+        } else {
+            let latest = res.body;
+            if(chkmode!==true) _log(chalk.blueBright("Latest") + ":" + chalk.greenBright.bold(latest));
+            if(_needlatest(res.body)===true) _updatemsg(pkg.version, latest);
+        }
+    });
+}
 const _version = () => {
-    _log(pkg.version);
+    _log(chalk.blueBright("Installed") + ":" + chalk.greenBright.bold(pkg.version));
 }
 
 const _welcome = () => {
@@ -602,6 +658,7 @@ const _setenv = (json) => {
     LANG = json.lang;
     DIR = json.dir;
     TARGET = json.target;
+    IgnoreVerCheck = json.IgnoreVerCheck;
 }
 
 const _setJson = (json, key, argv, def, nullChk=true) => {
@@ -635,6 +692,8 @@ const _load = (resolve) => {
         LANG = _setJson(json, 'lang', argv, LANG);
         DIR = _setJson(json, 'dir', argv, DIR);
         TARGET = _setJson(json, 'target', argv, TARGET);
+
+        IgnoreVerCheck = _setJson(json, 'IgnoreVerCheck', argv, IgnoreVerCheck);
 
         resolve(json);
     });
@@ -697,10 +756,12 @@ const _main = async() => {
         case 'init':
             _load((json) => {
                 _init(json);
+                if(IgnoreVerCheck!="true") _latest(true);
             });
             break;
         case 'version':
             _version();
+            _latest();
             break;
         case 'help':
             _welcome();
@@ -709,12 +770,14 @@ const _main = async() => {
             _load((json) => {
                 _setenv(json);
                 _lang(json);
+                if(IgnoreVerCheck!="true") _latest(true);
             });
             break;
         case 'langs':
             _load((json) => {
                 _setenv(json);
                 _langs(json);
+                if(IgnoreVerCheck!="true") _latest(true);
             });
             break;
         case 'image':
@@ -722,6 +785,7 @@ const _main = async() => {
             _load((json) => {
                 _setenv(json);
                 _asset();
+                if(IgnoreVerCheck!="true") _latest(true);
             });
             break;
         case 'string':
@@ -729,6 +793,7 @@ const _main = async() => {
             _load((json) => {
                 _setenv(json);
                 _string();
+                if(IgnoreVerCheck!="true") _latest(true);
             });
             break;
     }

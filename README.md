@@ -48,7 +48,7 @@ You can show version of appres package.
 
 Example :
   $ appres version
-  0.0.43
+  0.0.47
 
 ```
 
@@ -61,7 +61,7 @@ Direct input is available for each CLI command. However, the appres.json file is
 You can easily create an appres.json file using the init command.
 
 - Usage
-  $ appres init [--pkey {PKEY}] [--akey {AKEY}] [--lang {LANG}] [--dir {DIR}] [--target {TARGET}]
+  $ appres init [--pkey {PKEY}] [--akey {AKEY}] [--lang {LANG}] [--dir {DIR}] [--target {TARGET}] [--IgnoreVerCheck {version check option : true/false/null}]
 
 - Example
   $ appres init
@@ -71,6 +71,7 @@ You can easily create an appres.json file using the init command.
   $ appres init --lang en-US
   $ appres init --dir app/src/main/res
   $ appres init --target android
+  $ appres init --IgnoreVerCheck true
 
 - Result
   Initialize appres.json
