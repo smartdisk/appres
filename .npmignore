@@ -13,3 +13,6 @@ assets/
 app/
 app/**/*
 node_modules/
+string.*
+*.lproj/
+res/

@@ -11,6 +11,10 @@ images/
 strings/
 app/
 assets/
+string.*
+*.lproj/
+res/
+
 
 ### Angular ###
 ## Angular ##

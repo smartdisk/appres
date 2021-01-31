@@ -75,7 +75,8 @@ if (!String.prototype.format) {
 }
 const _updatemsg = (current, latest) => {
     _log("");
-    _log(chalk.magentaBright("A newer version exists. {0}<{1}. You can update to the latest version using the following command.".format(current, latest)));
+    _log(chalk.magentaBright("A newer version available! {0}->{1}").format(current, latest)); 
+    _log(chalk.magentaBright("You can update to the latest version using the following command."));
     _log("$ " + chalk.greenBright("npm update appres -g"));
     _log("");
     _log(chalk.magentaBright("If you want to ignore the version check, use the following option."));
@@ -576,8 +577,8 @@ const _asset = async() => {
                         } else {
                             if(fs.existsSync(argv.target + ".json")){
                                 // TODO : pre-defined target json file.
-
-                                                            
+                                console.log(chalk.redBright("TODO : exists pre-defined target json file."));                    
+                                console.log(chalk.greenBright(argv.target + ".json"));                    
                             } else 
                             if(argv.target=="android" || argv.target=="ios") {
                                 // android type : "drawable", "mipmap"
@@ -626,14 +627,16 @@ const _asset = async() => {
 }
 
 const _string = async() => {
-    if(argv.key || argv.str) {
+    if(argv.key || argv.str || argv.target || !argv.target) {
         let data = {
             pkey: PKEY,
             akey: AKEY,
             lang: LANG,
             cmd: argv._[0],
             key: argv.key,
-            str: argv.str
+            str: argv.str,
+            target: argv.target,
+            type: argv.type
         };
         needle.post(HOST, data, function(err, res) {
             if(err) {
@@ -641,7 +644,93 @@ const _string = async() => {
             } else {
                 if(res.body.r=="s" && res.body.d) {
                     // Success
-                    _log(JSON.stringify(res.body.d, null, 2));
+                    if(argv.save) {
+                        let subdir = null;
+                        let savefile = data.cmd + ".json";
+                        if(argv.target=="xml") {
+                            savefile = data.cmd + ".xml";
+                        } else
+                        if(argv.target=="plist") {
+                            savefile = data.cmd + ".plist";
+                        } else
+                        if(argv.target=="ios" || argv.target=="xcode") {
+                            if(data.type=="plist")
+                                savefile = "InfoPlist.strings";
+                            else
+                                savefile = "Localizable.strings";
+
+                            if(!LANG || LANG=="default") {
+                                subdir = "base.lproj";
+                            } else {
+                                let ss = LANG.split("-");
+                                if(ss.length==2) {
+                                    subdir = ss[0] + ".lproj";    
+                                }
+                            }    
+                        } else 
+                        if(argv.target=="android") {
+                            savefile = "strings.xml";
+                            if(!LANG || LANG=="default") {
+                                subdir = "values";
+                            } else {
+                                let ss = LANG.split("-");
+                                if(ss.length==2) {
+                                    subdir = "values-" + ss[0];    
+                                }
+                            }    
+                        }
+
+                        if(argv.save && argv.save!==true) {
+                            savefile = argv.save;
+                        }
+                        
+                        let dir = _getcwd();
+                        if(DIR && DIR!==true) {
+                            if(path.isAbsolute(DIR)) {
+                                dir = DIR;
+                            } else {
+                                dir = path.join(dir, DIR);
+                            }
+                        }
+
+                        if(subdir) {
+                            dir = path.join(dir, subdir);
+                        }
+
+                        let savefilepath = path.join(dir, savefile);
+                        if(_forcefiledir(savefilepath)) {
+                            let str = null;
+                            if((typeof res.body.d)=="string") {
+                                str = res.body.d;
+                            } else {
+                                try {
+                                    str = JSON.stringify(res.body.d, null, 2);
+                                } catch (e) {
+                                    str = res.body.d;
+                                }    
+                            }
+                            fs.writeFile(savefilepath, str, function (err) {
+                                if (err) {
+                                    _log(chalk.redBright(err));
+                                } else {
+                                    _log(chalk.cyanBright("Save") + " : " + chalk.greenBright(path.join(path.join(argv.dir||"", subdir||"")||"", savefile)));
+
+                                    if(argv.open) {
+                                        if(argv.open===true) {
+                                            _log(chalk.cyanBright("Open it."));
+                                            open(savefilepath);
+                                        } else {
+                                            _log(chalk.cyanBright("Open it as " + argv.open));
+                                            open(savefilepath, {app: argv.open});
+                                        }
+                                    }
+                                    _log(chalk.cyanBright("OK!"));
+                                }
+                            });
+                        }
+                    } else {
+                        _log(JSON.stringify(res.body.d, null, 2));
+                    }
                 } else {
                     _log(chalk.red(JSON.stringify(res.body)));
                 }
