@@ -14,7 +14,7 @@ assets/
 string.*
 *.lproj/
 res/
-
+dict.*
 
 ### Angular ###
 ## Angular ##

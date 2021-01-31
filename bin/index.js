@@ -25,7 +25,6 @@ const jsonFile = "appres.json";
 let quiet = argv.quiet===true;
 
 let HOST = pkg.api.host;
-//let HOST = "http://127.0.0.1:5001/appres-org/us-central1/api";
 let PKEY = argv.pkey || "YOUR_PKEY";
 let AKEY = argv.akey || "YOUR_AKEY";
 let LANG = argv.lang;
@@ -627,7 +626,7 @@ const _asset = async() => {
 }
 
 const _string = async() => {
-    if(argv.key || argv.str || argv.target || !argv.target) {
+    if(argv.key || argv.str || argv.target || argv.type) {
         let data = {
             pkey: PKEY,
             akey: AKEY,
@@ -647,12 +646,6 @@ const _string = async() => {
                     if(argv.save) {
                         let subdir = null;
                         let savefile = data.cmd + ".json";
-                        if(argv.target=="xml") {
-                            savefile = data.cmd + ".xml";
-                        } else
-                        if(argv.target=="plist") {
-                            savefile = data.cmd + ".plist";
-                        } else
                         if(argv.target=="ios" || argv.target=="xcode") {
                             if(data.type=="plist")
                                 savefile = "InfoPlist.strings";
@@ -678,6 +671,9 @@ const _string = async() => {
                                     subdir = "values-" + ss[0];    
                                 }
                             }    
+                        } else
+                        if(argv.type=="xml" || argv.type=="plist" || argv.type=="kv" || argv.type=="ini") {
+                            savefile = data.cmd + "." + argv.type;
                         }
 
                         if(argv.save && argv.save!==true) {

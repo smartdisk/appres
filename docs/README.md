@@ -264,6 +264,64 @@ You can retrieve the details of language in project.
   "Dieser Befehl kann nicht rückgängig gemacht werden."
 
 
+
+============================================
+### String : Save as local resource file ###
+============================================
+
+- Usage
+  $ appres string --save [{local filename}] [--dir {local directory}] [--type {format type}] [--target {target platform}] [--lang {lang code}]
+
+- Options
+
+  > If you skip {local filename}, the file name will be set to "string.{type}"
+
+  > Skip --dir, the file is saved in the current working directory.
+
+  > When you skip the --type, it is saved in json format. However, with --target, the type of target takes precedence.
+
+  > --type can use the following values:
+
+    json (default)
+    plist
+    xml
+    ini
+    dict
+    
+  > --target can use the following values:
+
+    android
+    ios
+
+    If used --target ios, You can use the --type key.
+  
+    # android
+      = The default local file name will be set "strings.xml"
+
+      = Sub directory will be set to "values" for the default language
+      = If do you have language code, sub directory will be set to "values-{LC}"
+      = {LC} is two length language code. (ex) en-US = en, ko-KR = ko, ja-JP = ja
+
+    # ios
+      = The default local file name will be set "Localizable.strings"
+      = With the --type plist, will be set "InfoPlist.strings"
+
+      = Sub directory will be set to "base.lproj" for the default language
+      = If do you have language code, sub directory will be set to "{LC}.lproj"
+      = {LC} is two length language code. (ex) en-US = en, ko-KR = ko, ja-JP = ja
+
+    
+    ### Please let us know if you have any opinions on other target platforms. ###
+
+
+  > The --lang is can be use find from your appres project language setting.
+
+    Alternatively, you can check it with the following command.
+    $ appres langs
+
+    The --lang default is "default"
+
+
 ```
 
 ## $ appres dict
@@ -365,6 +423,66 @@ You can retrieve the details of language in project.
   
 - Result Case 3
   "Die App Resource Platform"
+
+
+
+
+================================================
+### Dictionary : Save as local resource file ###
+================================================
+
+- Usage
+  $ appres dict --save [{local filename}] [--dir {local directory}] [--type {format type}] [--target {target platform}] [--lang {lang code}]
+
+- Options
+
+  > If you skip {local filename}, the file name will be set to "dict.{type}"
+
+  > Skip --dir, the file is saved in the current working directory.
+
+  > When you skip the --type, it is saved in json format. However, with --target, the type of target takes precedence.
+
+  > --type can use the following values:
+
+    json (default)
+    plist
+    xml
+    ini
+    dict
+    
+  > --target can use the following values:
+
+    android
+    ios
+
+    If used --target ios, You can use the --type key.
+  
+    # android
+      = The default local file name will be set "strings.xml"
+
+      = Sub directory will be set to "values" for the default language
+      = If do you have language code, sub directory will be set to "values-{LC}"
+      = {LC} is two length language code. (ex) en-US = en, ko-KR = ko, ja-JP = ja
+
+    # ios
+      = The default local file name will be set "Localizable.strings"
+      = With the --type plist, will be set "InfoPlist.strings"
+
+      = Sub directory will be set to "base.lproj" for the default language
+      = If do you have language code, sub directory will be set to "{LC}.lproj"
+      = {LC} is two length language code. (ex) en-US = en, ko-KR = ko, ja-JP = ja
+
+    
+    ### Please let us know if you have any opinions on other target platforms. ###
+
+
+  > The --lang is can be use find from your appres project language setting.
+
+    Alternatively, you can check it with the following command.
+    $ appres langs
+
+    The --lang default is "default"
+
 
 ```
 
