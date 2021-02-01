@@ -1,4 +1,4 @@
 export declare class AppRes {
-    static test(): string;
-    test(): void;  
+    static enableTabKey(id: any): void;
+    enableTabKey(id: any): void;  
 }
