@@ -1,6 +1,6 @@
 {
   "name": "appres",
-  "version": "0.0.53",
+  "version": "0.0.56",
   "description": "App Resource Organization",
   "main": "bin/index.js",
   "scripts": {
@@ -28,7 +28,6 @@
   "dependencies": {
     "@appres/color": "^0.1.7",
     "@appres/imgclip": "^0.0.12",
-    "axios": "^0.21.1",
     "chalk": "^4.1.0",
     "ext-name": "^5.0.0",
     "filesize": "^6.1.0",
