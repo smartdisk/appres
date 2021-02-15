@@ -9,27 +9,38 @@ let LANG = "ko-KR";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var AppRes = /** @class */ (function () {
-  
   function AppRes() {
+    /*
     window.customElements.define('app-res', class extends HTMLElement {
       constructor() {
         super();
-        const self = this;
+        const context = window;
+        const element = this;
         setTimeout(function(){
-          let newtext = null;
-          if(self.hasAttribute('key')) {
-            newtext = window.AppString[self.getAttribute('key')];
-          } else {
-            newtext = window.AppString[self.innerText];
-          }
-          if(newtext) {
-            self.innerText = newtext;  
-          } else {
-            console.log("AppRes:" + self.innerText);
-          }
-        }, 0)
+          element.innerText = appString(context, element) || element.innerText;
+        }, 0);
       }
-    });    
+    });
+    */    
+  }
+
+  function appString(context, element) {
+    let newtext = null;
+    if(context.AppString) {
+      if(element.hasAttribute('key')) {
+        newtext = context.AppString[element.getAttribute('key')];
+      } else {
+        newtext = context.AppString[element.innerText];
+      }  
+    }
+    if(!newtext) {
+      if(context.AppString) {
+        console.log("AppRes:" + element.innerText);
+      } else {
+        console.log("AppRes:" + element.innerText + " " + "(Not found AppString!!!)");
+      }
+    }
+    return newtext;
   }
 
   function setEnv(host, pkey, akey, lang) {
@@ -41,28 +52,6 @@ var AppRes = /** @class */ (function () {
   function setLang(lang) {
     if(lang) LANG = lang;
   }
-  function enableTabKey(id) {
-    var el = (typeof id)=="string" ? document.getElementById(id) : id;
-    el.onkeydown = function(e) {
-        if (e.keyCode === 9) { // tab was pressed
-  
-            // get caret position/selection
-            var val = this.value,
-                start = this.selectionStart,
-                end = this.selectionEnd;
-  
-            // set textarea value to: text before caret + tab + text after caret
-            this.value = val.substring(0, start) + '\t' + val.substring(end);
-  
-            // put caret at right position again
-            this.selectionStart = this.selectionEnd = start + 1;
-  
-            // prevent the focus lose
-            return false;
-  
-        }
-    };
-  }
 
   AppRes.prototype.setEnv = function (host, pkey, akey, lang) {
     setEnv(host, pkey, akey, lang);
@@ -70,21 +59,26 @@ var AppRes = /** @class */ (function () {
   AppRes.prototype.setLang = function (lang) {
     setLang(lang);
   };  
-  AppRes.prototype.enableTabKey = function (id) {
-    enableTabKey(id);
-  };
+
+  AppRes.prototype.appString = function (context, element) {
+    return appString(context, element);
+  };  
+
+
 
 
   AppRes.appres = new AppRes();
   AppRes.setEnv = function(host, pkey, akey, lang) {
-    return this.appres.setEnv(host, pkey, akey, lang);
+    this.appres.setEnv(host, pkey, akey, lang);
   };
   AppRes.setLang = function(lang) {
-    return this.appres.setLang(lang);
+    this.appres.setLang(lang);
   };
-  AppRes.enableTabKey = function(id) {
-    return this.appres.enableTabKey(id);
+
+  AppRes.appString = function(context, element) {
+    return this.appres.appString(context, element);
   };
+
   
   return AppRes;
 }());
