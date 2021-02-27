@@ -1,0 +1,109 @@
+/*!
+ * AppRes CSS Library v0.0.15
+ * https://appres.org/
+ *
+ * Copyright 2021 APPRES.ORG and other contributors
+ * Released under the MIT license
+ * https://appres.org/license
+ *
+ * Create Date: 2021.02.07 KST
+ * Last Update: 2021.02.27 KST
+ */
+
+.appres {
+  visibility: hidden;
+}
+
+.appres-langs {
+  position: absolute;
+  display: none;
+  right: 10px;
+  top: 15px;
+  z-index: 10000;
+}
+.appres-langs .appres-langs-button {
+  color: white;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 16px;
+  min-width: 160px;
+  border: none;
+  background-color: #4CAF50;
+}
+.appres-langs:hover .appres-langs-button {
+  background-color: #3e8e41;
+}
+.appres-langs-items {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+  z-index: 1;
+}
+.appres-langs-items div {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+}
+.appres-langs-items div:hover {background-color: #ddd;}
+.appres-langs-items .selected {
+  color: green;
+  font-weight: 600;
+}
+
+@media (max-width:480px)  { 
+  /* smartphones, iPhone, portrait 480x320 phones */ 
+}
+@media (max-width:640px)  { 
+  /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ 
+  .appres-langs .appres-langs-button {
+    min-width: 40px;
+    max-width: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    font-size: 0px;
+    background-image: url('https://cdn.appres.org/appres-js/appres-lang.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: transparent;
+  }
+  .appres-langs .appres-langs-button-small {
+    min-width: 25px;
+    max-width: 25px;
+    min-height: 25px;
+    max-height: 25px;
+    padding-top: 10px;
+  }
+  .appres-langs:hover .appres-langs-button {
+    background-color: #7ece71;
+    border: #3e8e41 1px solid;
+  } 
+  .appres-langs-items {
+    right: 0px;
+    border: #3e8e41 1px solid;
+    box-shadow: 0px 8px 16px 0px rgba(0,255,0,0.1);
+  }
+}
+@media (max-width:960px)  { 
+  /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
+}
+@media (max-width:1024px)  { 
+  /* tablet, landscape iPad, lo-res laptops ands desktops */ 
+}
+@media (max-width:1280px) { 
+  /* big landscape tablets, laptops, and desktops */ 
+}
+@media (min-width:1281px) { 
+  /* hi-res laptops and desktops */ 
+}
+
+
+
