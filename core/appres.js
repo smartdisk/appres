@@ -677,7 +677,7 @@ if(window.globalThis==null) {
           if(element.hasAttribute("appres")) {
             attrs = element.getAttribute("appres").split(/\s* |,\s/);
           }
-
+          
           if(attrs.indexOf("text")>=0) {
             elementText(element, appString(window, element) || elementText(element));
           } else
