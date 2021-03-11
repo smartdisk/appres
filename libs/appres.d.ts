@@ -1,1 +1,0 @@
-export declare var APPRES: any;
