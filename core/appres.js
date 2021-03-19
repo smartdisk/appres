@@ -1,5 +1,5 @@
 /*!
- * AppRes JavaScript Library v0.0.48
+ * AppRes JavaScript Library v0.0.63
  * https://appres.org/
  *
  * Copyright 2021 APPRES.ORG and other contributors
@@ -7,7 +7,7 @@
  * https://appres.org/license
  *
  * Create Date: 2021.02.07 KST
- * Last Update: 2021.03.11 KST
+ * Last Update: 2021.03.15 KST
  */
 
 
@@ -21,6 +21,7 @@ if(window.globalThis==null) {
       onReady: [],
       onLanguageChange: [],
       onLangsSelector: [],
+      onTranslate: [],
       add: function(name, event) {
         if(this[name] == null) this[name] = [];
         if(this[name].indexOf(event)<0) {
@@ -390,7 +391,7 @@ if(window.globalThis==null) {
       // host: "http://127.0.0.1:5001/appres-org/us-central1/api",
       pkey: "GXYqIgrafjTRatwTB96d",
       akey: "39f031e6-94a0-4e14-b600-82779ec899d7",
-      cmd: "string-dict",
+      cmd: "strings",
       target: "js",
       skey: "default",
       lang: "ja-JP",
@@ -400,18 +401,23 @@ if(window.globalThis==null) {
       cache: true,
       visibility: "hidden",
       title_trans: true,
+      lang_attr: true,
       langs_all: false,
       langs_selector: {
         langs: ".appres-langs",
         langs_button: ".appres-langs-button",  
         langs_button_color: "black",  
+        langs_button_size: null,  
         langs_items: ".appres-langs-items",
         style: {
+          css: {"position": "absolute", "display": "block", "right": "10px", "top": "15px", "z-index": "10000"},
           button: "auto"
         }
       },
       default_excepts: ["material-icons", "mat-tab-group"],
-      user_excepts: []
+      user_excepts: [],
+      default_img_attrs: ["svgIcon"],
+      user_img_attrs: []
     },
     md5 = new MD5(),
     sha1 = new SHA1(),
@@ -437,7 +443,60 @@ if(window.globalThis==null) {
         if(options.default_excepts.indexOf(element.id)>=0) return true;
         if(options.user_excepts.indexOf(element.id)>=0) return true;
       }
+      if(element.tagName) {
+        var tagname = element.tagName.toLowerCase();
+        if(options.default_excepts.indexOf(tagname)>=0) return true;
+        if(options.user_excepts.indexOf(tagname)>=0) return true;
+      }
       return false;
+    },
+    getFileName = function (filename) {
+      var i = filename.lastIndexOf('/');
+      if(i>=0) filename = filename.substring(i+1);
+      return filename;
+    },
+    getFileNameNoExt = function (filename) {
+      filename = getFileName(filename);
+      var i = filename.lastIndexOf('.');
+      return (i < 0) ? filename : filename.substring(0, i);
+    },
+    getFileExtension = function (filename) {
+      filename = getFileName(filename);
+      var i = filename.lastIndexOf('.');
+      return (i < 0) ? null : filename.substring(i+1);
+    },  
+    getImgAttr = function (element) {
+      var attrName;
+      var attr;
+
+      for(i=0;i<options.default_img_attrs.length;i++) {
+        attrName = options.default_img_attrs[i];        
+        attr = element.getAttribute(attrName);
+        if(attr) return attr;
+      }
+      for(i=0;i<options.user_img_attrs.length;i++) {
+        attrName = options.user_img_attrs[i];        
+        attr = element.getAttribute(attrName);
+        if(attr) return attr;
+      }
+      
+      attrName = element.getAttribute("appres");
+      if(attrName) {
+        attr = element.getAttribute(attrName);
+        if(attr) return attr;
+      }
+
+      return null;
+    },
+    getChild = function(element, tagName) {
+      var tagname = tagName.toLowerCase();
+      for(i=0;i<element.childNodes.length;i++) {
+        var child = element.childNodes[i];
+        if(typeof child === "object" && typeof child.tagName  === "string" && child.tagName.toLowerCase()===tagname) {
+          return child;
+        }
+      }
+      return null;
     },
     findPosition = function (window, obj) { 
       var currenttop = 0; 
@@ -446,7 +505,7 @@ if(window.globalThis==null) {
         obj = window;
         window = appWindow;
       }
-      if(typeof obj == 'string') {
+      if(typeof obj === "string") {
         var objs = elementSelectAll(window, obj);
         if(objs.length>0) {
           obj = objs[0];
@@ -496,11 +555,16 @@ if(window.globalThis==null) {
       } 
       return element.getAttribute(attr);
     },
+    elementStyle = function (element, style) {
+      for (var property in style) {
+        element.style[property] = style[property];
+      }
+    },
     objectString = function (text) {
       if(text==null) return null;
       if (typeof text === "object") {
         var _newtext = text[options.lang];
-        if (_newtext == "") _newtext = text["default"];
+        if (_newtext==null || _newtext == "") _newtext = text["default"];
         text = _newtext;
       }
       return text;
@@ -521,47 +585,41 @@ if(window.globalThis==null) {
       if (typeof element === "string") {        
         keystr = keyString(element);
         if(keystr!="") {
-          if(window.APPRES_STRINGS && window.APPRES_DICTS) {
-            newtext = window.APPRES_STRINGS[keystr] || window.APPRES_DICTS[keystr];
-          } else 
           if(window.APPRES_STRINGS) {
             newtext = window.APPRES_STRINGS[keystr];
-          } else 
-          if(window.APPRES_DICTS) {
-            newtext = window.APPRES_DICTS[keystr];
           }            
         }
         return objectString(newtext) || element;
       }
       
-      if (window.APPRES_DICTS) {
+      if (window.APPRES_STRINGS) {
         if (element.hasAttribute('dict')) {
           keystr = keyString(element.getAttribute('dict'));
           if(keystr!="") {
-            newtext = window.APPRES_DICTS[keystr];
+            newtext = window.APPRES_STRINGS[keystr];
           }
         }
-      }
-
-      if (newtext==null && window.APPRES_STRINGS) {
-        if (element.hasAttribute('string')) {
-          keystr = keyString(element.getAttribute('string'));
-          if(keystr!="") newtext = window.APPRES_STRINGS[keystr];
-        } else
-        if (element.hasAttribute('appres-key')) {
-          keystr = element.getAttribute('appres-key') || "";
-          if(keystr!="") newtext = window.APPRES_STRINGS[keystr];
-        } else {
-          var text = elementText(element);
-          if (text != null) {
-            keystr = keyString(text);
-            if(keystr!="") {
-              element.setAttribute('appres-key', keystr);
-              newtext = window.APPRES_STRINGS[keystr];
+        if (newtext==null) {
+          if (element.hasAttribute('string')) {
+            keystr = keyString(element.getAttribute('string'));
+            if(keystr!="") newtext = window.APPRES_STRINGS[keystr];
+          } else
+          if (element.hasAttribute('appres-key')) {
+            keystr = element.getAttribute('appres-key') || "";
+            if(keystr!="") newtext = window.APPRES_STRINGS[keystr];
+          } else {
+            var text = elementText(element);
+            if (text != null) {
+              keystr = keyString(text);
+              if(keystr!="") {
+                element.setAttribute('appres-key', keystr);
+                newtext = window.APPRES_STRINGS[keystr];
+              }
             }
           }
-        }
+        }  
       }
+
       if (newtext) {
         newtext = objectString(newtext);
       } else {
@@ -583,47 +641,42 @@ if(window.globalThis==null) {
       if (typeof element === "string") {        
         keystr = keyString(element);
         if(keystr!="") {
-          if(window.APPRES_STRINGS && window.APPRES_DICTS) {
-            newhtml = window.APPRES_STRINGS[keystr] || window.APPRES_DICTS[keystr];
-          } else 
           if(window.APPRES_STRINGS) {
             newhtml = window.APPRES_STRINGS[keystr];
-          } else 
-          if(window.APPRES_DICTS) {
-            newhtml = window.APPRES_DICTS[keystr];
-          }            
+          }
         }
         return objectString(newhtml) || element;
       }
       
-      if (window.APPRES_DICTS) {
+      if (window.APPRES_STRINGS) {
         if (element.hasAttribute('dict')) {
           keystr = keyString(element.getAttribute('dict'));
           if(keystr!="") {
-            newhtml = window.APPRES_DICTS[keystr];
+            newhtml = window.APPRES_STRINGS[keystr];
           }
         }
-      }
 
-      if (newhtml==null && window.APPRES_STRINGS) {
-        if (element.hasAttribute('string')) {
-          keystr = keyString(element.getAttribute('string'));
-          if(keystr!="") newhtml = window.APPRES_STRINGS[keystr];
-        } else
-        if (element.hasAttribute('appres-key')) {
-          keystr = element.getAttribute('appres-key') || "";
-          if(keystr!="") newhtml = window.APPRES_STRINGS[keystr];
-        } else {
-          var html = elementHTML(element);
-          if (html != null) {
-            keystr = keyString(html);
-            if(keystr!="") {
-              element.setAttribute('appres-key', keystr);
-              newhtml = window.APPRES_STRINGS[keystr];
+        if (newhtml==null) {
+          if (element.hasAttribute('string')) {
+            keystr = keyString(element.getAttribute('string'));
+            if(keystr!="") newhtml = window.APPRES_STRINGS[keystr];
+          } else
+          if (element.hasAttribute('appres-key')) {
+            keystr = element.getAttribute('appres-key') || "";
+            if(keystr!="") newhtml = window.APPRES_STRINGS[keystr];
+          } else {
+            var html = elementHTML(element);
+            if (html != null) {
+              keystr = keyString(html);
+              if(keystr!="") {
+                element.setAttribute('appres-key', keystr);
+                newhtml = window.APPRES_STRINGS[keystr];
+              }
             }
           }
-        }
+        }  
       }
+
       if (newhtml) {
         newhtml = objectString(newhtml);
       } else {
@@ -641,7 +694,8 @@ if(window.globalThis==null) {
       var val = elementAttr(element, attr);
       if (window.APPRES_STRINGS) {
         if (element.hasAttribute('appres-'+attr)) {
-          keystr = keyString(element.getAttribute('appres-'+attr));
+          val = element.getAttribute('appres-'+attr);
+          keystr = keyString(val);
           if(keystr!="") newval = window.APPRES_STRINGS[keystr];
         } else {
           if (val != null) {
@@ -655,7 +709,9 @@ if(window.globalThis==null) {
       }
       if (newval) {
         newval = objectString(newval);
-      } else {
+      }
+      if (newval==null) {
+        newval = val;
         if (window.APPRES_STRINGS) {
           console.log("AppRes:" + options.lang + ":" + val);
         } else {
@@ -667,33 +723,140 @@ if(window.globalThis==null) {
     appTranslateAsync = function (window, element, retry, callback) {
       if (window.APPRES_STRINGS) {
         if(elementAttr(element, "appres-lang")==options.lang) {
-          if(callback) callback(true);
+          if(callback) callback(element, true, false);
           return;
         }
 
-        // innerText, innerHTML
+        // element title is always translate
+        var attr = 'title';
+        if(elementAttr(element, attr)) {
+          elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
+        }
+
+        let visible = true;
+
         if(!isExpects(element)) {
           var attrs = ["text"];
           if(element.hasAttribute("appres")) {
             attrs = element.getAttribute("appres").split(/\s* |,\s/);
           }
           
-          if(attrs.indexOf("text")>=0) {
-            elementText(element, appString(window, element) || elementText(element));
-          } else
+          var already = null;
+          var attrnum = attrs.indexOf("image");
+          if(attrnum<0) attrnum = attrs.indexOf("icon");
+          if(attrnum>=0) {
+            var imgattr = getImgAttr(element);
+            if(imgattr==null) {
+              already = element.getAttribute("appres-already");
+              if(already!=true && already!="true") {
+                imgattr = already;
+              }
+            }
+            if(imgattr==null && typeof element.src==="string") {
+              imgattr = getFileName(element.src);
+              var pos1 = imgattr.lastIndexOf("?");
+              var pos2 = imgattr.lastIndexOf("&");
+              if(pos2>=0) {
+                imgattr = imgattr.substring(pos2+1);
+              } else 
+              if(pos1>=0) {
+                imgattr = imgattr.substring(pos1+1);
+              }
+              if(imgattr.lastIndexOf(".")<0) {
+                imgattr = null;
+              }
+            } 
+
+            if(imgattr){
+              var clientWidth = element.clientWidth;
+              var clientHeight = element.clientHeight;
+
+              var url = options.host +
+              "?pkey=" + options.pkey +
+              "&akey=" + options.akey +
+              "&lang=" + options.lang +
+              "&target=js" + 
+              "&file=" + imgattr +
+              "&cmd=" + attrs[attrnum];
+
+              if(clientWidth!==null && clientHeight!==null) {
+                url += "&width=" + clientWidth + "&height=" + clientHeight;
+              }
+
+              already = element.getAttribute("appres-already");
+              if(already) {
+                if(already!=true && already!="true") {
+                  if(element.src) {
+                    element.src = url;
+                  } else {
+                    var img = getChild(element, "img");
+                    if(img) img.src = url + "&type=" + already;  
+                  }  
+                }
+              } else {
+                element.setAttribute("appres-already", true);
+                if(element.src) {
+                  element.onload = function() {
+                    element.setAttribute("appres-already", imgattr);
+                    element.setAttribute('style', 'visibility:visible');
+                    if(callback) callback(element, true, false);
+                  };
+                  element.src = url;
+                } else {
+                  var svg = getChild(element, "svg");
+                  if(svg) {  
+                    var image = getChild(svg, "image");
+                    if(image) {
+                      var pe = element.parentElement;
+                      if(pe) {
+                        var img = document.createElement('img');
+                        img.src = url + "&type=" + "svg";
+                        img.className = element.className;
+                        var appres_attr2 = element.getAttribute("appres");
+                        if(appres_attr2) {
+                          img.setAttribute("appres", appres_attr2);
+                          if(element.getAttribute(appres_attr2)) img.setAttribute(appres_attr2, element.getAttribute(appres_attr2));
+                        }
+                        img.onload = function() {
+                          img.setAttribute("appres-already", imgattr+".svg");
+                          img.setAttribute('style', 'visibility:visible');
+                          if(callback) callback(img, true, false);
+                        };
+                        pe.replaceChild(img, element);  
+                      }
+                    }
+                  }  
+                }
+              }
+              return;
+            }
+          }          
+          
+          // innerHTML, innerText
           if(attrs.indexOf("html")>=0) {
             elementHTML(element, appHTML(window, element) || elementHTML(element));
+          } else
+          if(attrs.indexOf("text")>=0) {
+            elementText(element, appString(window, element) || elementText(element));
           }
 
-          // attributes
-          var attr = 'title';
-          if(elementAttr(element, attr)) {
-            elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
+          // src attributes
+          if(attrs.indexOf("src")>=0) {
+            attr = 'src';
+            if(attrs.indexOf(attr)>=0 && elementAttr(element, attr)) {
+              element.onload = function() {
+                element.setAttribute('style', 'visibility:visible');
+              };
+              visible = false;
+              elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
+            }
           }
-
-          attr = 'href';
-          if(attrs.indexOf(attr)>=0 && elementAttr(element, attr)) {
-            elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
+          // href attributes
+          if(attrs.indexOf("href")>=0) {
+            attr = 'href';
+            if(attrs.indexOf(attr)>=0 && elementAttr(element, attr)) {
+              elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
+            }
           }
 
           if (window.onChangedAppRes) {
@@ -702,7 +865,7 @@ if(window.globalThis==null) {
         }
 
         if (callback) {
-          callback(true);
+          callback(element, true, visible);
         }
       } else {
         if (retry >= options.retry) {
@@ -710,7 +873,7 @@ if(window.globalThis==null) {
             window.onChangedAppRes(element, false);
           }
           if (callback) {
-            callback(false);
+            callback(element, false, true);
           }
         } else {
           setTimeout(function () {
@@ -769,7 +932,7 @@ if(window.globalThis==null) {
       return getItem(window, "appres.ver");
     },
     elementSelectAll = function (window, selector) {
-      if(typeof selector == "object") return [selector];
+      if(typeof selector === "object") return [selector];
       if(window==null) return [];
       return window.document.querySelectorAll(selector);
     },
@@ -779,7 +942,10 @@ if(window.globalThis==null) {
       }
       var arr = element.className.split(" ");
       if (arr.indexOf(name) == -1) {
-        element.className += " " + name;
+        if(element.className!="") {
+          element.className += " ";  
+        }
+        element.className += name;
       }
     },    
     removeClassName = function (element, name) {
@@ -798,6 +964,12 @@ if(window.globalThis==null) {
     },
     getElementStyleDisplay = function (window, element) {
       return element.currentStyle ? element.currentStyle.display : window.getComputedStyle(element, null).display;
+    },
+    getLang = function () {
+      return options.lang;
+    },
+    setLang = function (lang) {
+      options.lang = lang;
     },
     getLangs = function (window) {
       var appres_langs = elementSelectAll(window, options.langs_selector.langs);
@@ -888,8 +1060,17 @@ if(window.globalThis==null) {
                   if(langs_button.blur) langs_button.blur();
                   removeClassName(langs_button, options.langs_selector.langs_button + "-active");
                 }          
+                if(options.lang_attr==true) {
+                  var __html = elementSelectAll(window, 'html');
+                  if(__html && __html.length>0) {
+                    __html[0].setAttribute('lang', lang.substring(0,2));
+                  }
+                }
+                appEvents.onTranslate.forEach(function (_onTranslate){
+                  _onTranslate(self, lang);
+                });
                 appEvents.onLanguageChange.forEach(function (_onLanguageChange){
-                  _onLanguageChange(self);
+                  _onLanguageChange(self, lang);
                 });
               } else {
                 window.location.reload();
@@ -905,18 +1086,27 @@ if(window.globalThis==null) {
       if(langs) {
         var _proced = false;
         appEvents.onLangsSelector.forEach(function (_onLangsSelector) {
-          _proced = _onLangsSelector(self, langs) || _proced;
+          _proced = _onLangsSelector(self, langs, options.lang) || _proced;
         });
         if(_proced) return langs;
-
+        
         var button = window.document.createElement("button");
         addClassName(button, options.langs_selector.langs_button);
         addClassName(button, options.langs_selector.langs_button + "-" + options.langs_selector.langs_button_color);
-
+        if(options.langs_selector.langs_button_size) {
+          addClassName(button, options.langs_selector.langs_button + "-" + options.langs_selector.langs_button_size);
+        }
         langs.appendChild(button);
+
         var div = window.document.createElement("div");
         addClassName(div, options.langs_selector.langs_items);  
         langs.appendChild(div);
+
+        if(options.langs_selector.style.css) {
+          setTimeout(function() {
+            elementStyle(langs, options.langs_selector.style.css);
+          }, 0);
+        }
       }
       return langs;  
     },
@@ -950,10 +1140,6 @@ if(window.globalThis==null) {
         }          
         if(lang) {
           elementText(langs_button, lang);
-          var appres_langs = getLangs(window);
-          if(appres_langs) {
-            appres_langs.setAttribute('style', 'display:block');
-          }
         }
         langs_button.onclick = function(e) {
           toggleLangsSelector(window);
@@ -971,6 +1157,7 @@ if(window.globalThis==null) {
       elements.forEach(function (element) {
         element.removeAttribute("appres-lang");
         element.removeAttribute("appres-key");
+        element.removeAttribute("appres-already");
       });
     },
     title_translate = function (window) {
@@ -982,16 +1169,10 @@ if(window.globalThis==null) {
     translate = function (window, sels) {
       var elements = (sels==null) ? elementSelectAll(window, ".appres") : elementSelectAll(window, ".appres " + sels);
       elements.forEach(function (element) {
-        var image = elementAttr(element, "image");
-        if(image) {
-          console.log(">>>" + image);
-
-        }
-
-        appTranslateAsync(window, element, 0, function (success) {
+        appTranslateAsync(window, element, 0, function (element, success, visible) {
           var appres_lang = elementAttr(element, "appres-lang");
           if(success && appres_lang==null) {
-            if (options.visibility == "hidden") {
+            if (options.visibility == "hidden" && visible===true) {
               element.setAttribute('style', 'visibility:visible');
             }  
             elementAttr(element, "appres-lang", options.lang);
@@ -1025,7 +1206,7 @@ if(window.globalThis==null) {
     },
     langsSelectorSmallButton = function (window, retry) {
       if(window==null) window = appWindow;
-      if(typeof window == "number") {
+      if(typeof window === "number") {
         retry = window;
         window = appWindow;
       }
@@ -1045,7 +1226,7 @@ if(window.globalThis==null) {
       }
     },
     readFromCache = function (window, name) {
-      if(typeof window == "string") {
+      if(typeof window === "string") {
         name = window;
         window = appWindow;
       }
@@ -1062,7 +1243,6 @@ if(window.globalThis==null) {
     loadFromCache = function (window) {
       window.APPRES_LANGS = readFromCache(window, "appres.langs");  
       window.APPRES_STRINGS = readFromCache(window, "appres.strings");
-      window.APPRES_DICTS = readFromCache(window, "appres.dicts");
     },
     loadAppResScript = function (window, url, ver) {
       loadScript(window, url + "&cver=" + ver,
@@ -1070,7 +1250,7 @@ if(window.globalThis==null) {
           if (options.cache) {
             if(window.APPRES_STRINGS==null) {
               loadFromCache(window);
-              if(window.APPRES_STRINGS==null || window.APPRES_DICTS==null || window.APPRES_LANGS==null) {
+              if(window.APPRES_STRINGS==null || window.APPRES_LANGS==null) {
                 clearItems(window);
                 setTimeout(function() {
                   loadAppResScript(window, url, 0);
@@ -1082,7 +1262,6 @@ if(window.globalThis==null) {
               if(window.APPRES_DVER>0) {
                 setItem(window, "appres.strings", JSON.stringify(window.APPRES_STRINGS));
                 setItem(window, "appres.dicts", JSON.stringify(window.APPRES_DICTS));
-                setItem(window, "appres.langs", JSON.stringify(window.APPRES_LANGS));
                 setItem(window, "appres.url", url);
                 setItem(window, "appres.ver", JSON.stringify(window.APPRES_DVER));  
               } else {
@@ -1098,13 +1277,24 @@ if(window.globalThis==null) {
           if (options.title_trans) title_translate(window);
 
           appEvents.onReady.forEach(function (_onReady){
-            _onReady(self);
+            _onReady(self, options.lang);
+          });
+
+          if(options.lang_attr==true) {
+            var __html = elementSelectAll(window, 'html');
+            if(__html && __html.length>0) {
+              __html[0].setAttribute('lang', options.lang.substring(0,2));
+            }
+          }
+
+          appEvents.onTranslate.forEach(function (_onTranslate){
+            _onTranslate(self, options.lang);
           });
         }
       );
     },
     self = null;
-
+    
   var appWindow = window;
   var AppRes = function (window, _options, _appEvents) {
     appWindow = window;
@@ -1128,19 +1318,30 @@ if(window.globalThis==null) {
 
       if (_options.langs_all != null) options.langs_all = _options.langs_all;
       if (_options.title_trans != null) options.title_trans = _options.title_trans;
+      if (_options.lang_attr != null) options.lang_attr = _options.lang_attr;
+      
       
       if (_options.retry != null) options.retry = _options.retry;
       if (_options.time != null) options.time = _options.time;
       if (_options.cache != null) options.cache = _options.cache;
       if (_options.visibility != null) options.visibility = _options.visibility;
+
       if (_options.excepts != null) options.user_excepts = _options.excepts;
+      if (_options.img_attrs != null) options.user_img_attrs = _options.img_attrs;
+
       if (_options.langs_selector != null) {
         if(_options.langs_selector.langs_button_color != null) {
           options.langs_selector.langs_button_color = _options.langs_selector.langs_button_color;
         }          
+        if(_options.langs_selector.langs_button_size != null) {
+          options.langs_selector.langs_button_size = _options.langs_selector.langs_button_size;
+        }          
         if(_options.langs_selector.style != null) {
           if(_options.langs_selector.style.button != null) {
             options.langs_selector.style.button = _options.langs_selector.style.button;
+          }
+          if(_options.langs_selector.style.css != null) {
+            options.langs_selector.style.css = _options.langs_selector.style.css;
           }
         } 
       } 
@@ -1149,6 +1350,7 @@ if(window.globalThis==null) {
       if (_options.onReady != null) appEvents.add("onReady", _options.onReady);
       if (_options.onLanguageChange != null) appEvents.add("onLanguageChange", _options.onLanguageChange);
       if (_options.onLangsSelector != null) appEvents.add("onLangsSelector", _options.onLangsSelector);
+      if (_options.onTranslate != null) appEvents.add("onTranslate", _options.onTranslate);
     }
 
     if (options.visibility == "hidden") {
@@ -1179,6 +1381,18 @@ if(window.globalThis==null) {
   AppRes.prototype.self = function (o) {
     if(o) self = o;
     return self;
+  };
+
+  AppRes.prototype.lang = function (lang) {
+    if(lang) setLang(lang);
+    return getLang();
+  };
+
+  AppRes.prototype.setLang = function (lang) {
+    return setLang(lang);
+  };
+  AppRes.prototype.getLang = function () {
+    return getLang();
   };
 
   AppRes.prototype.appString = function (text, attr) {
@@ -1332,11 +1546,13 @@ if(window.globalThis==null) {
   }
 
   AppRes.prototype.appOptions = function (opt, val) {
-    if(opt && typeof opt=="object") options = opt;
-    else
-    if(opt && typeof opt=="string" && val) options[opt] = val;
-    else
-    if(opt && typeof opt=="string" && val==null) return options[opt];
+    if(opt) {
+      if(typeof opt==="object") options = opt;
+      else
+      if(typeof opt==="string" && val) options[opt] = val;
+      else
+      if(typeof opt==="string" && val==null) return options[opt];  
+    }
     return options;
   };
     

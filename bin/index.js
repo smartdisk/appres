@@ -874,7 +874,6 @@ const _main = async() => {
             });
             break;
         case 'string':
-        case 'dict':
             _load((json) => {
                 _setenv(json);
                 _string();

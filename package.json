@@ -1,6 +1,6 @@
 {
   "name": "appres",
-  "version": "0.0.63",
+  "version": "0.0.64",
   "description": "App Resource Organization",
   "main": "bin/index.js",
   "scripts": {
