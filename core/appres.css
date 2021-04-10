@@ -1,13 +1,13 @@
 /*!
- * AppRes CSS Library v0.0.63
+ * AppRes CSS Library v0.0.74
  * https://appres.org/
  *
  * Copyright 2021 APPRES.ORG and other contributors
- * Released under the MIT license
+ * Released under the LGPLv3 license
  * https://appres.org/license
  *
  * Create Date: 2021.02.07 KST
- * Last Update: 2021.03.15 KST
+ * Last Update: 2021.03.29 KST
  */
 
 .appres {
@@ -82,10 +82,10 @@
     background-color: transparent;
   }
   .appres-langs .appres-langs-button-black {
-    background-image: url('https://cdn.appres.org/appres-js/language-earth-black.png');
+    background-image: url('https://storage.googleapis.com/cdn.appres.org/appres-js/language-earth-black.png');
   }
   .appres-langs .appres-langs-button-white {
-    background-image: url('https://cdn.appres.org/appres-js/language-earth-white.png');
+    background-image: url('https://storage.googleapis.com/cdn.appres.org/appres-js/language-earth-white.png');
   }
   .appres-langs .appres-langs-button-small {
     min-width: 27px !important;

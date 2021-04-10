@@ -20,7 +20,8 @@ const imgclip = require('@appres/imgclip');
 
 const pkg = require('../package.json');
 
-const jsonFile = "appres.json";
+const oldJsonFile = "appres.json";
+const jsonFile = ".appres.json";
 
 let quiet = argv.quiet===true;
 
@@ -761,6 +762,9 @@ const _setJson = (json, key, argv, def, nullChk=true) => {
 
 const _load = (resolve) => {
     let json = null;
+    if(fs.existsSync(oldJsonFile) && !fs.existsSync(jsonFile)) {
+        fs.renameSync(oldJsonFile, jsonFile);
+    }
     fs.readFile(jsonFile, (err, data) => {
         if(err) {
             json = {};
@@ -831,7 +835,7 @@ const _init = async(json) => {
             _log(chalk.red(err));
         } else {
             _log(chalk.blueBright("Initialize : %s"), chalk.greenBright(jsonFile));
-            _log(chalk.blueBright("appres.json:\n%s"), chalk.greenBright(JSON.stringify(json, null, 2)));
+            _log(chalk.blueBright(jsonFile + ":\n%s"), chalk.greenBright(JSON.stringify(json, null, 2)));
         }
     });
 }
