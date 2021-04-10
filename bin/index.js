@@ -82,7 +82,7 @@ const _updatemsg = (current, latest) => {
     _log(chalk.magentaBright("If you want to ignore the version check, use the following option."));
     _log("$ " + chalk.greenBright("appres {your command and options} --IgnoreVerCheck"));
     _log("");
-    _log(chalk.magentaBright("Insert ignore version check option into the appres.json file."));
+    _log(chalk.magentaBright("Insert ignore version check option into the .appres.json file."));
     _log("$ " + chalk.greenBright("appres init --IgnoreVerCheck true"));
     _log("");
 }

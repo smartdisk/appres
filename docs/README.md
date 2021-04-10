@@ -55,9 +55,9 @@ Example :
 ## $ appres init
 ```
 
-Direct input is available for each CLI command. However, the appres.json file is much more convenient to use.
+Direct input is available for each CLI command. However, the .appres.json file is much more convenient to use.
 
-You can easily create an appres.json file using the init command.
+You can easily create an .appres.json file using the init command.
 
 - Usage
   $ appres init [--pkey {PKEY}] [--akey {AKEY}] [--lang {LANG}] [--dir {DIR}] [--target {TARGET}] [--IgnoreVerCheck {version check option : true/false/null}]
@@ -73,12 +73,12 @@ You can easily create an appres.json file using the init command.
   $ appres init --IgnoreVerCheck true
 
 - Result
-  Initialize appres.json
+  Initialize .appres.json
 
 - Hint
   You can get your PKEY and AKEY from the https://appres.org site.
   Not use arguments will use default or already setting value.
-  If successful, You can find the appres.json file in your working directory.
+  If successful, You can find the .appres.json file in your working directory.
 
   You can use our test project and access keys.
     --pkey GXYqIgrafjTRatwTB96d
@@ -90,7 +90,7 @@ You can easily create an appres.json file using the init command.
     --target ios
     --target android
 
-  Use null or empty (not word 'empty') with name to remove entry from theappres.json file.
+  Use null or empty (not word 'empty') with name to remove entry from the .appres.json file.
     --target null
     --target
     --dir null

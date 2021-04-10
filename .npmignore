@@ -4,6 +4,7 @@
 *.jpg
 *.gif
 package-lock.json
+.appres.json
 appres.json
 sample.png
 icons/
