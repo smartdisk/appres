@@ -760,21 +760,41 @@ const _setJson = (json, key, argv, def, nullChk=true) => {
     return json[key];
 }
 
+const _findJson = (pDir) => {
+    let findJsonFile = path.join(pDir, jsonFile);
+    if(fs.existsSync(findJsonFile)) {
+        return findJsonFile;
+    }
+    let pd = path.dirname(pDir);
+    if(pd==='/' || pd===pDir) return null;
+    return _findJson(pd);
+}
+
 const _load = (resolve) => {
     let json = null;
     if(fs.existsSync(oldJsonFile) && !fs.existsSync(jsonFile)) {
         fs.renameSync(oldJsonFile, jsonFile);
     }
-    fs.readFile(jsonFile, (err, data) => {
+
+    let findJsonFile = jsonFile;
+    if(!fs.existsSync(findJsonFile)) {
+        findJsonFile = _findJson(_getcwd());
+    }
+    if(findJsonFile==null) findJsonFile = jsonFile;
+
+    fs.readFile(findJsonFile, (err, data) => {
         if(err) {
             json = {};
-        } 
-        try {
-            json = JSON.parse(data);
-        } catch (e) {
-            json = {};
-        
+            // _log(chalk.red(JSON.stringify(err)));
+        } else {
+            try {
+                json = JSON.parse(data);
+            } catch (e) {
+                json = {};
+                _log(chalk.red(JSON.stringify(e)));
+            }    
         }
+
         HOST = _setJson(json, 'host', argv, null) || pkg.api.host;
         PKEY = _setJson(json, 'pkey', argv, PKEY);
         AKEY = _setJson(json, 'akey', argv, AKEY);
@@ -840,8 +860,17 @@ const _init = async(json) => {
     });
 }
 
+const _test = async(json) => {
+    chalk.greenBright(JSON.stringify(json, null, 2))    
+}
+
 const _main = async() => {
     switch(argv._[0]) {
+        case 'test':
+            _load((json) => {
+                _test(json);
+            });
+            break;
         case 'init':
             _load((json) => {
                 _init(json);

@@ -1,6 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/osx,node,angular
 # Edit at https://www.toptal.com/developers/gitignore?templates=osx,node,angular
 
+.appres.json
 appres.json
 sample.png
 *.png
