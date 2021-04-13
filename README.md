@@ -369,10 +369,11 @@ You can get an icon from a project on appres.org.
 =====================
 
 - Usage
-  $ appres icon --file sample.png [--size {size}] [--width {width}] [--height {height}] [--scale {scale}]
+  $ appres icon --file sample.png [--size {size}] [--width {width}] [--height {height}] [--scale {scale}] [--padding {padding}]
 
 - Example
   $ appres icon --file sample.png --size 120
+  $ appres icon --file sample.png --size 120 --padding 5
   $ appres icon --file sample.png --width 120
   $ appres icon --file sample.png --height 120
   $ appres icon --file sample.png --width 120 --height 120
@@ -381,6 +382,7 @@ You can get an icon from a project on appres.org.
 
 - Hint
   --size      : Set same size to icon width and height
+  --padding   : Set to icon padding
   --width     : Set to icon width
   --height    : Set to icon height
   --scale     : Set to icon scale
@@ -638,10 +640,11 @@ You can get an image from a project on appres.org.
 ======================
 
 - Usage
-  $ appres image --file sample.png [--save {save as filename}] [--size {size}] [--width {width}] [--height {height}] [--scale {scale}]
+  $ appres image --file sample.png [--save {save as filename}] [--size {size}] [--width {width}] [--height {height}] [--scale {scale}] [--padding {padding}]
 
 - Example
   $ appres image --file sample.png --size 120
+  $ appres image --file sample.png --size 120 --padding 5
   $ appres image --file sample.png --width 120
   $ appres image --file sample.png --height 120
   $ appres image --file sample.png --width 120 --height 120
@@ -650,6 +653,7 @@ You can get an image from a project on appres.org.
 
 - Hint
   --size      : Set same size to image width and height
+  --padding   : Set to image padding
   --width     : Set to image width
   --height    : Set to image height
   --scale     : Set to image scale

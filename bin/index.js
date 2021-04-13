@@ -6,7 +6,7 @@ const chalk = require("chalk");
 const filesize = require("filesize");
 const needle = require('needle');
 const mkdirp = require('mkdirp');
-const jimp = require('jimp');
+const Jimp = require('jimp');
 const open = require('open');
 const progress = require('progress');
 const extName = require('ext-name');
@@ -1157,7 +1157,7 @@ const _newsize = (width, height, _scale, _width, _height) => {
 
 const _saveAsset = (_asset, _file, _scale, _width, _height, quietly) => {
     return new Promise((resolve, reject) => {
-        jimp.read(_asset).then((jimp, err) => {
+        Jimp.read(_asset).then((jimp, err) => {
             if(jimp) {
                 let width = jimp.getWidth();
                 let height = jimp.getHeight();
@@ -1273,10 +1273,38 @@ const _saveAsset = (_asset, _file, _scale, _width, _height, quietly) => {
                     jimp = jimp.rotate(argv.rotate);
                 }
 
+                let padding = 0;
+                if(argv.padding && argv.padding!==true && argv.padding>0) {
+                    padding = argv.padding;
+                }
+
+                let user_width = newsize.width;
+                let user_height = newsize.height;
+
                 if((width!=newsize.width || height!=newsize.height) && newsize.width>0 && newsize.height>0) {
                     if(!quietly) _console_proc("resize: " + newsize.width + "," + newsize.height);
+                    if(padding>0) {
+                        let padding_width = newsize.width - padding * 2;
+                        let padding_height = newsize.height - padding * 2;
+                        if(padding_width>0 && padding_height>0) {
+                            newsize.width = padding_width;
+                            newsize.height = padding_height;
+                        } else {
+                            padding = 0;
+                            if(!quietly) _console_proc("padding: " + chalk.yellowBright("The padding is too large.") + " " + chalk.redBright("Ignored"));
+                        }
+                    }
                     jimp = jimp.contain(newsize.width, newsize.height);
                 }
+                if(padding>0) {
+                    if(!quietly) _console_proc("padding: " + argv.padding);
+                    let jimp_padding = new Jimp(user_width, user_height, function (err, image) {
+
+                    });
+                    jimp_padding.blit(jimp, padding, padding);
+                    jimp = jimp_padding;
+                }
+
 
                 if(argv.scale) {
                     if(argv.scale===true) argv.scale = 1.0;
@@ -1497,21 +1525,22 @@ const _asset = async() => {
                     }
                 } else {
                     // success
+                    const asset = res.body;
                     if(argv.console) {
                         if(argv.console=='bytes') {
-                            let bytes = imgclip.bufferToBytes(res.body);
+                            let bytes = imgclip.bufferToBytes(asset);
                             console.log(bytes);
                         } else
                         if(argv.console=='array') {
-                            let bytes = imgclip.bufferToArray(res.body);
+                            let bytes = imgclip.bufferToArray(asset);
                             console.log(bytes);
                         } else
                         if(argv.console=='base64') {
-                            let b64data = imgclip.bufferToBase64(res.body);
+                            let b64data = imgclip.bufferToBase64(asset);
                             console.log(b64data);
                         } else
                         if(argv.console=='blob') {
-                            let b64data = imgclip.bufferToBase64(res.body);
+                            let b64data = imgclip.bufferToBase64(asset);
                             let mime = "png";
                             let ext = extName(argv.file);
                             if(ext && ext.length>0) {
@@ -1519,7 +1548,7 @@ const _asset = async() => {
                             }
                             console.log("data:image/"+mime+";base64," + b64data);
                         } else {
-                            console.log(res.body);
+                            console.log(asset);
                         }
                     } else {
                         let savefile = argv.file;
@@ -1563,7 +1592,7 @@ const _asset = async() => {
                                             dirname ? (subdir==null ? path.join(dirname, savefile) : path.join(subdir, dirname, savefile)) : (subdir==null ? path.join(savefile) : path.join(subdir, savefile))
                                         ));
                                 }
-                                _writeAsset(res.body, savefilepath, scale, width, height, subdir, dirname, savefile).then((res, err) => {
+                                _writeAsset(asset, savefilepath, scale, width, height, subdir, dirname, savefile).then((res, err) => {
                                     if(res) {
                                         if(argv.open) {
                                             if(argv.open===true) {
@@ -1582,7 +1611,7 @@ const _asset = async() => {
                                 });
                             } else {
                                 if(!quiet) {
-                                    console.log(res.body);
+                                    console.log(asset);
                                 }
                             }    
                         } else {
@@ -1630,7 +1659,7 @@ const _asset = async() => {
                                                     assets_contents["images"].forEach(image => {
                                                         dpis.push(image);
                                                     });                                                          
-                                                    _saveAssetProc(res.body, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents, filename, (result) => {
+                                                    _saveAssetProc(asset, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents, filename, (result) => {
 
                                                     });
                                                 }
@@ -1641,7 +1670,7 @@ const _asset = async() => {
                                 }
 
                                 if(wasProcessed==false) {
-                                    _saveAssetProc(res.body, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents);    
+                                    _saveAssetProc(asset, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents);    
                                 }
                             }
                         }
