@@ -529,9 +529,12 @@ You can get an icon from a project on appres.org.
 - Example
   $ appres icon --file sample.png --save --target android --dir app/src/main/res --type mipmap
   $ appres icon --file sample.png --save --target ios --dir app/assets/icons
-  $ appres icon --file sample.png --save --target ios --type appiconset
-  $ appres icon --file sample.png --save --target macos --type appiconset
-  $ appres icon --file sample.png --save --target watchos --type appiconset
+  $ appres icon --file sample.png --save --target ios --type iconset
+  $ appres icon --file sample.png --save --target macos --type iconset
+  $ appres icon --file sample.png --save --target watchos --type iconset
+  $ appres icon --file sample.png --save --target ios --type appiconset --save AppIcon
+  $ appres icon --file sample.png --save --target macos --type appiconset --save AppIcon
+  $ appres icon --file sample.png --save --target watchos --type appiconset --save AppIcon
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
@@ -795,9 +798,12 @@ You can get an image from a project on appres.org.
 - Example
   $ appres image --file sample.png --save --target android --dir app/src/main/res --type mipmap
   $ appres image --file sample.png --save --target ios --dir app/assets/images
-  $ appres image --file sample.png --save --target ios --type appiconset
-  $ appres image --file sample.png --save --target macos --type appiconset
-  $ appres image --file sample.png --save --target watchos --type appiconset
+  $ appres icon --file sample.png --save --target ios --type imageset
+  $ appres icon --file sample.png --save --target macos --type imageset
+  $ appres icon --file sample.png --save --target watchos --type imageset
+  $ appres image --file sample.png --save --target ios --type appiconset --save AppIcon
+  $ appres image --file sample.png --save --target macos --type appiconset --save AppIcon
+  $ appres image --file sample.png --save --target watchos --type appiconset --save AppIcon
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
