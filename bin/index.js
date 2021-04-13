@@ -1600,11 +1600,6 @@ const _asset = async() => {
                                     dpis = ['', '@2x', '@3x'];
                                 }
 
-                                if(width=="auto" || height=="auto") {
-                                    _log(chalk.yellowBright("Required") + " : " + chalk.redBright("You need to enter the target image size."));
-                                    return;
-                                }
-
                                 let assets_contents = null;
                                 let wasProcessed = false;
                                 if(isAppleOS(argv.target) && type) {
@@ -1613,10 +1608,17 @@ const _asset = async() => {
                                         dpis = [];
                                         if(assets_contents["images"]) {
                                             assets_contents["images"].forEach(image => {
+                                                let sizeok = true;
                                                 if(image["size"]==null) {
-                                                    image["size"] = "" + width + "x" + height;
+                                                    sizeok = false;
+                                                    if(width=="auto" || height=="auto") {
+                                                        _log(chalk.yellowBright("Required") + " : " + chalk.redBright("You need to enter the target image size."));
+                                                    } else {
+                                                        image["size"] = "" + width + "x" + height;
+                                                        sizeok = true;
+                                                    }
                                                 }
-                                                dpis.push(image);
+                                                if(sizeok) dpis.push(image);
                                             });        
                                         } else
                                         if(assets_contents["assets"]) { // apple watch (Complication.complicationset)
