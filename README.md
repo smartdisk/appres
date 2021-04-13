@@ -11,7 +11,7 @@ Please try the following for test:
 
   $ appres init --pkey GXYqIgrafjTRatwTB96d --akey 39f031e6-94a0-4e14-b600-82779ec899d7
 
-  $ appres icon --file sample.png --save
+  $ appres icon --file sample.png
   or
   $ appres icon --file sample.png --open
 
@@ -270,7 +270,7 @@ You can retrieve the details of language in project.
 ============================================
 
 - Usage
-  $ appres string --save [{local filename}] [--dir {local directory}] [--type {format type}] [--target {target platform}] [--lang {lang code}]
+  $ appres string --save [{save as filename}] [--dir {local directory}] [--type {format type}] [--target {target platform}] [--lang {lang code}]
 
 - Options
 
@@ -352,7 +352,7 @@ You can get an icon from a project on appres.org.
 ==============================================
 
 - Usage
-  $ appres icon --file {icon filename} --save {save filename}
+  $ appres icon --file {icon filename} [--save {save as filename}]
 
 - Example
   $ appres icon --file sample.png --save another.png
@@ -369,15 +369,15 @@ You can get an icon from a project on appres.org.
 =====================
 
 - Usage
-  $ appres icon --file sample.png --save [--size {size}] [--width {width}] [--height {height}] [--scale {scale}]
+  $ appres icon --file sample.png [--size {size}] [--width {width}] [--height {height}] [--scale {scale}]
 
 - Example
-  $ appres icon --file sample.png --save --size 120
-  $ appres icon --file sample.png --save --width 120
-  $ appres icon --file sample.png --save --height 120
-  $ appres icon --file sample.png --save --width 120 --height 120
-  $ appres icon --file sample.png --save --scale 2
-  $ appres icon --file sample.png --save --width 120 --height 120 --scale 1.2
+  $ appres icon --file sample.png --size 120
+  $ appres icon --file sample.png --width 120
+  $ appres icon --file sample.png --height 120
+  $ appres icon --file sample.png --width 120 --height 120
+  $ appres icon --file sample.png --scale 2
+  $ appres icon --file sample.png --width 120 --height 120 --scale 1.2
 
 - Hint
   --size      : Set same size to icon width and height
@@ -399,51 +399,51 @@ You can get an icon from a project on appres.org.
 ============================
 
 - Usage
-  $ appres icon --file sample.png --save --{effect} [--effect value] ... [--effect]
+  $ appres icon --file sample.png --{effect} [--effect value] ... [--effect]
 
 - Effect Examples
 
   --crop
-  $ appres icon --file sample.png --save --crop
+  $ appres icon --file sample.png --crop
 
   --rotate
-  $ appres icon --file sample.png --save --rotate 90
+  $ appres icon --file sample.png --rotate 90
     range : -360 ~ 360
 
   --mirror
-  $ appres icon --file sample.png --save --mirror
+  $ appres icon --file sample.png --mirror
 
   --flip
-  $ appres icon --file sample.png --save --flip
+  $ appres icon --file sample.png --flip
 
   --grayscale
-  $ appres icon --file sample.png --save --grayscale
+  $ appres icon --file sample.png --grayscale
 
   --sepia
-  $ appres icon --file sample.png --save --sepia
+  $ appres icon --file sample.png --sepia
 
   --contrast
-  $ appres icon --file sample.png --save --contrast 0.2
+  $ appres icon --file sample.png --contrast 0.2
     default value : 0.2 , range : -1.0 ~ 1.0
 
   --brightness
-  $ appres icon --file sample.png --save --brightness 0.2
+  $ appres icon --file sample.png --brightness 0.2
     default value : 0.2 , range : -1.0 ~ 1.0
 
   --blur
-  $ appres icon --file sample.png --save --blur 5
+  $ appres icon --file sample.png --blur 5
     default value : 5 , range : 1 ~
 
   --gaussian
-  $ appres icon --file sample.png --save --gaussian 1
+  $ appres icon --file sample.png --gaussian 1
     default value : 1 , range : 1 ~
 
   --opacity
-  $ appres icon --file sample.png --save --opacity 0.5
+  $ appres icon --file sample.png --opacity 0.5
     default value : 0.5 , range : 0.0 ~ 1.0
 
   --invert
-  $ appres icon --file sample.png --save --invert
+  $ appres icon --file sample.png --invert
 
 
 - Hint
@@ -456,16 +456,16 @@ You can get an icon from a project on appres.org.
 ====================================================
 
 - Usage
-  $ appres icon --file sample.png --save --overlay {color}
+  $ appres icon --file sample.png --overlay {color}
 
 - Example
-  $ appres icon --file sample.png --save --overlay white
-  $ appres icon --file sample.png --save --overlay 0xFF0000
-  $ appres icon --file sample.png --save --overlay 0xFF0000FF
-  $ appres icon --file sample.png --save --overlay "#F00"
-  $ appres icon --file sample.png --save --overlay "#FF0000"
-  $ appres icon --file sample.png --save --overlay "#F00F"
-  $ appres icon --file sample.png --save --overlay "#FF0000FF"
+  $ appres icon --file sample.png --overlay white
+  $ appres icon --file sample.png --overlay 0xFF0000
+  $ appres icon --file sample.png --overlay 0xFF0000FF
+  $ appres icon --file sample.png --overlay "#F00"
+  $ appres icon --file sample.png --overlay "#FF0000"
+  $ appres icon --file sample.png --overlay "#F00F"
+  $ appres icon --file sample.png --overlay "#FF0000FF"
 
 
 - Hint
@@ -481,16 +481,16 @@ You can get an icon from a project on appres.org.
 =======================================================
 
 - Usage
-  $ appres icon --file sample.png --save --background {color}
+  $ appres icon --file sample.png --background {color}
 
 - Example
-  $ appres icon --file sample.png --save --background white
-  $ appres icon --file sample.png --save --background 0xFF0000
-  $ appres icon --file sample.png --save --background 0xFF0000FF
-  $ appres icon --file sample.png --save --background "#F00"
-  $ appres icon --file sample.png --save --background "#FF0000"
-  $ appres icon --file sample.png --save --background "#F00F"
-  $ appres icon --file sample.png --save --background "#FF0000FF"
+  $ appres icon --file sample.png --background white
+  $ appres icon --file sample.png --background 0xFF0000
+  $ appres icon --file sample.png --background 0xFF0000FF
+  $ appres icon --file sample.png --background "#F00"
+  $ appres icon --file sample.png --background "#FF0000"
+  $ appres icon --file sample.png --background "#F00F"
+  $ appres icon --file sample.png --background "#FF0000FF"
 
 
 - Hint
@@ -506,12 +506,12 @@ You can get an icon from a project on appres.org.
 =============================
 
 - Usage
-  $ appres icon --file sample.png --save --dir {save directory path}
+  $ appres icon --file sample.png --dir {save directory path}
 
 - Example
-  $ appres icon --file sample.png --save --dir icons
-  $ appres icon --file sample.png --save --dir app/src/main/res
-  $ appres icon --file sample.png --save --dir /Users/me/dev/app/resource
+  $ appres icon --file sample.png --dir icons
+  $ appres icon --file sample.png --dir app/src/main/res
+  $ appres icon --file sample.png --dir /Users/me/dev/app/resource
 
 - Hint
   The directory with the dir option can be either absolute or relative.
@@ -524,17 +524,17 @@ You can get an icon from a project on appres.org.
 =================================
 
 - Usage
-  $ appres icon --file sample.png --save --target {target name} [--type {resource type}]
+  $ appres icon --file sample.png --target {target name} [--type {resource type}]
 
 - Example
-  $ appres icon --file sample.png --save --target android --dir app/src/main/res --type mipmap
-  $ appres icon --file sample.png --save --target ios --dir app/assets/icons
-  $ appres icon --file sample.png --save --target ios --type iconset
-  $ appres icon --file sample.png --save --target macos --type iconset
-  $ appres icon --file sample.png --save --target watchos --type iconset
-  $ appres icon --file sample.png --save --target ios --type appiconset --save AppIcon.png
-  $ appres icon --file sample.png --save --target macos --type appiconset --save AppIcon.png
-  $ appres icon --file sample.png --save --target watchos --type appiconset --save AppIcon.png
+  $ appres icon --file sample.png --target android --dir app/src/main/res --type mipmap
+  $ appres icon --file sample.png --target ios --dir app/assets/icons
+  $ appres icon --file sample.png --target ios --type iconset
+  $ appres icon --file sample.png --target macos --type iconset
+  $ appres icon --file sample.png --target watchos --type iconset
+  $ appres icon --file sample.png --target ios --type appiconset --save AppIcon.png
+  $ appres icon --file sample.png --target macos --type appiconset --save AppIcon.png
+  $ appres icon --file sample.png --target watchos --type appiconset --save AppIcon.png
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
@@ -621,7 +621,7 @@ You can get an image from a project on appres.org.
 ===============================================
 
 - Usage
-  $ appres image --file {image filename} --save {save filename}
+  $ appres image --file {image filename} [--save {save as filename}]
 
 - Example
   $ appres image --file sample.png --save another.png
@@ -638,15 +638,15 @@ You can get an image from a project on appres.org.
 ======================
 
 - Usage
-  $ appres image --file sample.png --save [--size {size}] [--width {width}] [--height {height}] [--scale {scale}]
+  $ appres image --file sample.png [--save {save as filename}] [--size {size}] [--width {width}] [--height {height}] [--scale {scale}]
 
 - Example
-  $ appres image --file sample.png --save --size 120
-  $ appres image --file sample.png --save --width 120
-  $ appres image --file sample.png --save --height 120
-  $ appres image --file sample.png --save --width 120 --height 120
-  $ appres image --file sample.png --save --scale 2
-  $ appres image --file sample.png --save --width 120 --height 120 --scale 1.2
+  $ appres image --file sample.png --size 120
+  $ appres image --file sample.png --width 120
+  $ appres image --file sample.png --height 120
+  $ appres image --file sample.png --width 120 --height 120
+  $ appres image --file sample.png --scale 2
+  $ appres image --file sample.png --width 120 --height 120 --scale 1.2
 
 - Hint
   --size      : Set same size to image width and height
@@ -668,51 +668,51 @@ You can get an image from a project on appres.org.
 =============================
 
 - Usage
-  $ appres image --file sample.png --save --{effect} [--effect value] ... [--effect]
+  $ appres image --file sample.png [--save {save as filename}] --{effect} [--effect value] ... [--effect]
 
 - Effect Examples
 
   --crop
-  $ appres image --file sample.png --save --crop
+  $ appres image --file sample.png --crop
 
   --rotate
-  $ appres image --file sample.png --save --rotate 90
+  $ appres image --file sample.png --rotate 90
     range : -360 ~ 360
 
   --mirror
-  $ appres image --file sample.png --save --mirror
+  $ appres image --file sample.png --mirror
 
   --flip
-  $ appres image --file sample.png --save --flip
+  $ appres image --file sample.png --flip
 
   --grayscale
-  $ appres image --file sample.png --save --grayscale
+  $ appres image --file sample.png --grayscale
 
   --sepia
-  $ appres image --file sample.png --save --sepia
+  $ appres image --file sample.png --sepia
 
   --contrast
-  $ appres image --file sample.png --save --contrast 0.2
+  $ appres image --file sample.png --contrast 0.2
     default value : 0.2 , range : -1.0 ~ 1.0
 
   --brightness
-  $ appres image --file sample.png --save --brightness 0.2
+  $ appres image --file sample.png --brightness 0.2
     default value : 0.2 , range : -1.0 ~ 1.0
 
   --blur
-  $ appres image --file sample.png --save --blur 5
+  $ appres image --file sample.png --blur 5
     default value : 5 , range : 1 ~
 
   --gaussian
-  $ appres image --file sample.png --save --gaussian 1
+  $ appres image --file sample.png --gaussian 1
     default value : 1 , range : 1 ~
 
   --opacity
-  $ appres image --file sample.png --save --opacity 0.5
+  $ appres image --file sample.png --opacity 0.5
     default value : 0.5 , range : 0.0 ~ 1.0
 
   --invert
-  $ appres image --file sample.png --save --invert
+  $ appres image --file sample.png --invert
 
 
 - Hint
@@ -725,16 +725,16 @@ You can get an image from a project on appres.org.
 =====================================================
 
 - Usage
-  $ appres image --file sample.png --save --overlay {color}
+  $ appres image --file sample.png [--save {save as filename}] --overlay {color}
 
 - Example
-  $ appres image --file sample.png --save --overlay white
-  $ appres image --file sample.png --save --overlay 0xFF0000
-  $ appres image --file sample.png --save --overlay 0xFF0000FF
-  $ appres image --file sample.png --save --overlay "#F00"
-  $ appres image --file sample.png --save --overlay "#FF0000"
-  $ appres image --file sample.png --save --overlay "#F00F"
-  $ appres image --file sample.png --save --overlay "#FF0000FF"
+  $ appres image --file sample.png --overlay white
+  $ appres image --file sample.png --overlay 0xFF0000
+  $ appres image --file sample.png --overlay 0xFF0000FF
+  $ appres image --file sample.png --overlay "#F00"
+  $ appres image --file sample.png --overlay "#FF0000"
+  $ appres image --file sample.png --overlay "#F00F"
+  $ appres image --file sample.png --overlay "#FF0000FF"
 
 
 - Hint
@@ -750,16 +750,16 @@ You can get an image from a project on appres.org.
 ========================================================
 
 - Usage
-  $ appres image --file sample.png --save --background {color}
+  $ appres image --file sample.png [--save {save as filename}] --background {color}
 
 - Example
-  $ appres image --file sample.png --save --background white
-  $ appres image --file sample.png --save --background 0xFF0000
-  $ appres image --file sample.png --save --background 0xFF0000FF
-  $ appres image --file sample.png --save --background "#F00"
-  $ appres image --file sample.png --save --background "#FF0000"
-  $ appres image --file sample.png --save --background "#F00F"
-  $ appres image --file sample.png --save --background "#FF0000FF"
+  $ appres image --file sample.png --background white
+  $ appres image --file sample.png --background 0xFF0000
+  $ appres image --file sample.png --background 0xFF0000FF
+  $ appres image --file sample.png --background "#F00"
+  $ appres image --file sample.png --background "#FF0000"
+  $ appres image --file sample.png --background "#F00F"
+  $ appres image --file sample.png --background "#FF0000FF"
 
 
 - Hint
@@ -775,12 +775,12 @@ You can get an image from a project on appres.org.
 ==============================
 
 - Usage
-  $ appres image --file sample.png --save --dir {save directory path}
+  $ appres image --file sample.png [--save {save as filename}] --dir {save directory path}
 
 - Example
-  $ appres image --file sample.png --save --dir images
-  $ appres image --file sample.png --save --dir app/src/main/res
-  $ appres image --file sample.png --save --dir /Users/me/dev/app/resource
+  $ appres image --file sample.png --dir images
+  $ appres image --file sample.png --dir app/src/main/res
+  $ appres image --file sample.png --dir /Users/me/dev/app/resource
 
 - Hint
   The directory with the dir option can be either absolute or relative.
@@ -793,17 +793,17 @@ You can get an image from a project on appres.org.
 ==================================
 
 - Usage
-  $ appres image --file sample.png --save --target {target name} [--type {resource type}]
+  $ appres image --file sample.png --target {target name} [--type {resource type}] [--save {save as filename}]
 
 - Example
-  $ appres image --file sample.png --save --target android --dir app/src/main/res --type mipmap
-  $ appres image --file sample.png --save --target ios --dir app/assets/images
-  $ appres icon --file sample.png --save --target ios --type imageset
-  $ appres icon --file sample.png --save --target macos --type imageset
-  $ appres icon --file sample.png --save --target watchos --type imageset
-  $ appres image --file sample.png --save --target ios --type appiconset --save AppIcon.png
-  $ appres image --file sample.png --save --target macos --type appiconset --save AppIcon.png
-  $ appres image --file sample.png --save --target watchos --type appiconset --save AppIcon.png
+  $ appres image --file sample.png --target android --dir app/src/main/res --type mipmap
+  $ appres image --file sample.png --target ios --dir app/assets/images
+  $ appres icon --file sample.png --target ios --type imageset
+  $ appres icon --file sample.png --target macos --type imageset
+  $ appres icon --file sample.png --target watchos --type imageset
+  $ appres image --file sample.png --target ios --type appiconset --save AppIcon.png
+  $ appres image --file sample.png --target macos --type appiconset --save AppIcon.png
+  $ appres image --file sample.png --target watchos --type appiconset --save AppIcon.png
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
