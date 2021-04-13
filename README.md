@@ -532,9 +532,9 @@ You can get an icon from a project on appres.org.
   $ appres icon --file sample.png --save --target ios --type iconset
   $ appres icon --file sample.png --save --target macos --type iconset
   $ appres icon --file sample.png --save --target watchos --type iconset
-  $ appres icon --file sample.png --save --target ios --type appiconset --save AppIcon
-  $ appres icon --file sample.png --save --target macos --type appiconset --save AppIcon
-  $ appres icon --file sample.png --save --target watchos --type appiconset --save AppIcon
+  $ appres icon --file sample.png --save --target ios --type appiconset --save AppIcon.png
+  $ appres icon --file sample.png --save --target macos --type appiconset --save AppIcon.png
+  $ appres icon --file sample.png --save --target watchos --type appiconset --save AppIcon.png
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
@@ -801,9 +801,9 @@ You can get an image from a project on appres.org.
   $ appres icon --file sample.png --save --target ios --type imageset
   $ appres icon --file sample.png --save --target macos --type imageset
   $ appres icon --file sample.png --save --target watchos --type imageset
-  $ appres image --file sample.png --save --target ios --type appiconset --save AppIcon
-  $ appres image --file sample.png --save --target macos --type appiconset --save AppIcon
-  $ appres image --file sample.png --save --target watchos --type appiconset --save AppIcon
+  $ appres image --file sample.png --save --target ios --type appiconset --save AppIcon.png
+  $ appres image --file sample.png --save --target macos --type appiconset --save AppIcon.png
+  $ appres image --file sample.png --save --target watchos --type appiconset --save AppIcon.png
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
