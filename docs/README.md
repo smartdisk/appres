@@ -78,7 +78,7 @@ You can easily create an .appres.json file using the init command.
 - Hint
   You can get your PKEY and AKEY from the https://appres.org site.
   Not use arguments will use default or already setting value.
-  If successful, You can find the .appres.json file in your working directory.
+  If successful, You can find the .appres.json file in your current working directory.
 
   You can use our test project and access keys.
     --pkey GXYqIgrafjTRatwTB96d
@@ -95,6 +95,10 @@ You can easily create an .appres.json file using the init command.
     --target
     --dir null
     --dir
+
+
+- Note
+  If the .appres.json file does not exist in the current working folder, appres will look it up in the parent folders.
 
 ```
 

@@ -11,6 +11,8 @@ const open = require('open');
 const progress = require('progress');
 const extName = require('ext-name');
 
+const inquirer = require('inquirer');
+
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const argv = yargs(hideBin(process.argv)).argv;
@@ -19,6 +21,7 @@ const color = require('@appres/color');
 const imgclip = require('@appres/imgclip');
 
 const pkg = require('../package.json');
+const { Console } = require("console");
 
 const oldJsonFile = "appres.json";
 const jsonFile = ".appres.json";
@@ -31,6 +34,9 @@ let AKEY = argv.akey || "YOUR_AKEY";
 let LANG = argv.lang;
 let DIR = argv.dir;
 let TARGET = argv.target;
+
+let CMD = null;
+let FILE = null;
 
 let IgnoreVerCheck = argv.IgnoreVerCheck;
 
@@ -141,6 +147,20 @@ const _getcwd = () => {
     return process.cwd();
 }
 
+const _isCwdName = (name) => {
+    return path.basename(_getcwd())===name;
+}
+const _hasParentsName = (name, dir) => {
+    if(dir==null) dir = _getcwd();
+    if(path.basename(dir)===name) return true;
+
+    let pd = path.dirname(dir);
+    if(pd==='/' || pd===dir) return false;
+
+    return _hasParentsName(name, pd);
+}
+
+
 const _forcedir = (dir) => {
     let dirok = true;
     if(!fs.existsSync(dir)) {
@@ -182,12 +202,921 @@ const _scale = (tag) => {
     }
     return 1.0;
 }
+const _assetsSize = (size, scale) => {
+    if(size==null) return null;
+
+    let sizes = size.split("x");
+    if(sizes.length==1) {
+        sizes = [sizes[0], sizes[0]];
+    } else
+    if(sizes.length!=2) return null;    
+
+    if(sizes) {
+        let scales = null;
+        if(scale) scales = scale.split("x");
+        if(scales && scales.length>0) {
+            sizes[0] *= scales[0];
+            sizes[1] *= scales[0];
+        }    
+    }
+    return sizes;
+}
+const _xcassets = (target, type) => {
+    if(target) target - target.toLowerCase();
+    if(type) type - type.toLowerCase();
+    let kind = (type==null) ? target : target + "." + type;
+    switch(kind) {
+        case 'ios.imageset':
+        case 'macos.imageset':
+        case 'watch.imageset':
+        case 'ios.iconset':
+        case 'macos.iconset':
+        case 'watch.iconset':
+            return {
+                "images" : [
+                    {
+                        "scale" : "1x",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "2x",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "3x",
+                        "idiom" : "universal"
+                    }
+                ],
+                "info" : {
+                "author" : "xcode",
+                "version" : 1
+                }
+            };
+        case 'Circular.imageset':
+            return {
+                "images" : [
+                {
+                    "screen-width" : "<=145",
+                    "scale" : "2x",
+                    "size" : "16x16",
+                    "idiom" : "watch",
+                    "filename" : "circular38mm@2x.png"
+                },
+                {
+                    "screen-width" : ">161",
+                    "scale" : "2x",
+                    "size" : "18x18",
+                    "idiom" : "watch",
+                    "filename" : "circular40mm@2x.png"
+                },
+                {
+                    "screen-width" : ">145",
+                    "scale" : "2x",
+                    "size" : "18x18",
+                    "idiom" : "watch",
+                    "filename" : "circular42mm@2x.png"
+                },
+                {
+                    "screen-width" : ">183",
+                    "scale" : "2x",
+                    "size" : "20x20",
+                    "idiom" : "watch",
+                    "filename" : "circular44mm@2x.png"
+                }
+                ],
+                "info" : {
+                "author" : "xcode",
+                "version" : 1
+                }
+            };
+        case 'Extra Large.imageset':
+            return {
+                "images" : [
+                    {
+                      "screen-width" : "<=145",
+                      "scale" : "2x",
+                      "size" : "91x91",
+                      "idiom" : "watch",
+                      "filename" : "extra-large38mm@2x.png"
+                    },
+                    {
+                      "screen-width" : ">161",
+                      "scale" : "2x",
+                      "size" : "101.5x101.5",
+                      "idiom" : "watch",
+                      "filename" : "extra-large40mm@2x.png"
+                    },
+                    {
+                      "screen-width" : ">145",
+                      "scale" : "2x",
+                      "size" : "101.5x101.5",
+                      "idiom" : "watch",
+                      "filename" : "extra-large42mm@2x.png"
+                    },
+                    {
+                      "screen-width" : ">183",
+                      "scale" : "2x",
+                      "size" : "112x112",
+                      "idiom" : "watch",
+                      "filename" : "extra-large44mm@2x.png"
+                    }
+                  ],
+                  "info" : {
+                    "author" : "xcode",
+                    "version" : 1
+                  }                
+            };
+        case 'Graphic Bezel.imageset':
+            return {
+                "info" : {
+                    "author" : "xcode",
+                    "version" : 1
+                  },
+                  "images" : [
+                    {
+                      "screen-width" : ">161",
+                      "scale" : "2x",
+                      "size" : "42x42",
+                      "idiom" : "watch",
+                      "filename" : "graphic-bezel40mm@2x.png"
+                    },
+                    {
+                      "screen-width" : ">183",
+                      "scale" : "2x",
+                      "size" : "47x47",
+                      "idiom" : "watch",
+                      "filename" : "graphic-bezel44mm@2x.png"
+                    }
+                  ]                
+            };
+        case 'Graphic Circular.imageset':
+            return {
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                },
+                "images" : [
+                  {
+                    "screen-width" : ">161",
+                    "scale" : "2x",
+                    "size" : "42x42",
+                    "idiom" : "watch",
+                    "filename" : "graphic-circular40mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">183",
+                    "scale" : "2x",
+                    "size" : "47x47",
+                    "idiom" : "watch",
+                    "filename" : "graphic-circular44mm@2x.png"
+                  }
+                ]
+            };
+        case 'Graphic Corner.imageset':
+            return {
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                },
+                "images" : [
+                  {
+                    "screen-width" : ">161",
+                    "scale" : "2x",
+                    "size" : "42x42",
+                    "idiom" : "watch",
+                    "filename" : "graphic-corner40mm@2x.png",
+                  },
+                  {
+                    "screen-width" : ">183",
+                    "scale" : "2x",
+                    "size" : "47x47",
+                    "idiom" : "watch",
+                    "filename" : "graphic-corner44mm@2x.png"
+                  }
+                ]
+            };
+        case 'Graphic Extra Large.imageset':
+            return {
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                },
+                "images" : [
+                  {
+                    "screen-width" : "<=145",
+                    "scale" : "2x",
+                    "size" : "103x103",
+                    "idiom" : "watch",
+                    "filename" : "graphic-extra-large38mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">161",
+                    "scale" : "2x",
+                    "size" : "120x120",
+                    "idiom" : "watch",
+                    "filename" : "graphic-extra-large40mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">145",
+                    "scale" : "2x",
+                    "size" : "120x120",
+                    "idiom" : "watch",
+                    "filename" : "graphic-extra-large42mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">183",
+                    "scale" : "2x",
+                    "size" : "132x132",
+                    "idiom" : "watch",
+                    "filename" : "graphic-extra-large44mm@2x.png"
+                  }
+                ]
+            };
+        case 'Graphic Large Rectangular.imageset':
+            return {
+                "images" : [
+                  {
+                    "screen-width" : ">161",
+                    "scale" : "2x",
+                    "size" : "150x47",
+                    "idiom" : "watch",
+                    "filename" : "graphic-large-rectangular40mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">183",
+                    "scale" : "2x",
+                    "size" : "171x54",
+                    "idiom" : "watch",
+                    "filename" : "graphic-large-rectangular44mm@2x.png"
+                  }
+                ],
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                }
+            };
+        case 'Modular.imageset':
+            return {
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                },
+                "images" : [
+                  {
+                    "screen-width" : "<=145",
+                    "scale" : "2x",
+                    "size" : "26x26",
+                    "idiom" : "watch",
+                    "filename" : "modular38mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">161",
+                    "scale" : "2x",
+                    "size" : "29x29",
+                    "idiom" : "watch",
+                    "filename" : "modular40mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">145",
+                    "scale" : "2x",
+                    "size" : "29x29",
+                    "idiom" : "watch",
+                    "filename" : "modular42mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">183",
+                    "scale" : "2x",
+                    "size" : "32x32",
+                    "idiom" : "watch",
+                    "filename" : "modular44mm@2x.png"
+                  }
+                ]
+            };
+        case 'Utilitarian.imageset':
+            return {
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                },
+                "images" : [
+                  {
+                    "screen-width" : "<=145",
+                    "scale" : "2x",
+                    "size" : "20x20",
+                    "idiom" : "watch",
+                    "filename" : "utility38mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">161",
+                    "scale" : "2x",
+                    "size" : "22x22",
+                    "idiom" : "watch",
+                    "filename" : "utility40mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">145",
+                    "scale" : "2x",
+                    "size" : "22x22",
+                    "idiom" : "watch",
+                    "filename" : "utility42mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">183",
+                    "scale" : "2x",
+                    "size" : "25x25",
+                    "idiom" : "watch",
+                    "filename" : "utility44mm@2x.png"
+                  }
+                ]
+            };
+        case 'watchos.complicationset':
+            return {
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                },
+                "assets" : [
+                  {
+                    "role" : "circular",
+                    "idiom" : "watch",
+                    "filename" : "Circular.imageset"
+                  },
+                  {
+                    "idiom" : "watch",
+                    "role" : "modular",
+                    "filename" : "Modular.imageset"
+                  },
+                  {
+                    "role" : "utilitarian",
+                    "idiom" : "watch",
+                    "filename" : "Utilitarian.imageset"
+                  },
+                  {
+                    "idiom" : "watch",
+                    "filename" : "Extra Large.imageset",
+                    "role" : "extra-large"
+                  },
+                  {
+                    "role" : "graphic-corner",
+                    "idiom" : "watch",
+                    "filename" : "Graphic Corner.imageset"
+                  },
+                  {
+                    "role" : "graphic-circular",
+                    "filename" : "Graphic Circular.imageset",
+                    "idiom" : "watch"
+                  },
+                  {
+                    "role" : "graphic-bezel",
+                    "filename" : "Graphic Bezel.imageset",
+                    "idiom" : "watch"
+                  },
+                  {
+                    "filename" : "Graphic Large Rectangular.imageset",
+                    "role" : "graphic-large-rectangular",
+                    "idiom" : "watch"
+                  },
+                  {
+                    "idiom" : "watch",
+                    "filename" : "Graphic Extra Large.imageset",
+                    "role" : "graphic-extra-large"
+                  }
+                ]
+              };
+        case 'watchos.appiconset':
+            return {
+                "images" : [
+                {
+                    "idiom" : "watch",
+                    "role" : "notificationCenter",
+                    "scale" : "2x",
+                    "size" : "24x24",
+                    "subtype" : "38mm"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "notificationCenter",
+                    "scale" : "2x",
+                    "size" : "27.5x27.5",
+                    "subtype" : "42mm"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "companionSettings",
+                    "scale" : "2x",
+                    "size" : "29x29"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "companionSettings",
+                    "scale" : "3x",
+                    "size" : "29x29"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "appLauncher",
+                    "scale" : "2x",
+                    "size" : "40x40",
+                    "subtype" : "38mm"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "appLauncher",
+                    "scale" : "2x",
+                    "size" : "44x44",
+                    "subtype" : "40mm"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "appLauncher",
+                    "scale" : "2x",
+                    "size" : "50x50",
+                    "subtype" : "44mm"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "quickLook",
+                    "scale" : "2x",
+                    "size" : "86x86",
+                    "subtype" : "38mm"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "quickLook",
+                    "scale" : "2x",
+                    "size" : "98x98",
+                    "subtype" : "42mm"
+                },
+                {
+                    "idiom" : "watch",
+                    "role" : "quickLook",
+                    "scale" : "2x",
+                    "size" : "108x108",
+                    "subtype" : "44mm"
+                },
+                {
+                    "idiom" : "watch-marketing",
+                    "scale" : "1x",
+                    "size" : "1024x1024"
+                }
+                ],
+                "info" : {
+                "author" : "xcode",
+                "version" : 1
+                }
+            }
+          
+        case 'macos.sidebariconset':
+            return {
+                "images" : [
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "16x16"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "16x16"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "18x18"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "18x18"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "24x24"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "24x24"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "32x32"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "32x32"
+                }
+                ],
+                "info" : {
+                "author" : "xcode",
+                "version" : 1
+                }
+            };
+          
+        case 'macos.iconbadgeset':
+            return {
+                "images" : [
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "7x7"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "7x7"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "3x",
+                    "size" : "7x7"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "11x11"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "11x11"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "3x",
+                    "size" : "11x11"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "24x24"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "24x24"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "3x",
+                    "size" : "24x24"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "50x50"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "50x50"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "3x",
+                    "size" : "50x50"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "1x",
+                    "size" : "100x100"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "2x",
+                    "size" : "100x100"
+                },
+                {
+                    "idiom" : "universal",
+                    "scale" : "3x",
+                    "size" : "100x100"
+                }
+                ],
+                "info" : {
+                "author" : "xcode",
+                "version" : 1
+                }
+            };
+          
+        case 'macos.iconset':
+            return {
+                "images" : [
+                  {
+                    "scale" : "1x",
+                    "size" : "16x16"
+                  },
+                  {
+                    "scale" : "2x",
+                    "size" : "16x16"
+                  },
+                  {
+                    "scale" : "1x",
+                    "size" : "32x32"
+                  },
+                  {
+                    "scale" : "2x",
+                    "size" : "32x32"
+                  },
+                  {
+                    "scale" : "1x",
+                    "size" : "128x128"
+                  },
+                  {
+                    "scale" : "2x",
+                    "size" : "128x128"
+                  },
+                  {
+                    "scale" : "1x",
+                    "size" : "256x256"
+                  },
+                  {
+                    "scale" : "2x",
+                    "size" : "256x256"
+                  },
+                  {
+                    "scale" : "1x",
+                    "size" : "512x512"
+                  },
+                  {
+                    "scale" : "2x",
+                    "size" : "512x512"
+                  }
+                ],
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                }
+              };
+
+        case 'ios.stickersiconset':
+            return {
+                "images" : [
+                {
+                    "idiom" : "iphone",
+                    "scale" : "2x",
+                    "size" : "29x29"
+                },
+                {
+                    "idiom" : "iphone",
+                    "scale" : "3x",
+                    "size" : "29x29"
+                },
+                {
+                    "idiom" : "iphone",
+                    "scale" : "2x",
+                    "size" : "60x45"
+                },
+                {
+                    "idiom" : "iphone",
+                    "scale" : "3x",
+                    "size" : "60x45"
+                },
+                {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "29x29"
+                },
+                {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "67x50"
+                },
+                {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "74x55"
+                },
+                {
+                    "idiom" : "ios-marketing",
+                    "scale" : "1x",
+                    "size" : "1024x1024"
+                },
+                {
+                    "idiom" : "universal",
+                    "platform" : "ios",
+                    "scale" : "2x",
+                    "size" : "27x20"
+                },
+                {
+                    "idiom" : "universal",
+                    "platform" : "ios",
+                    "scale" : "3x",
+                    "size" : "27x20"
+                },
+                {
+                    "idiom" : "universal",
+                    "platform" : "ios",
+                    "scale" : "2x",
+                    "size" : "32x24"
+                },
+                {
+                    "idiom" : "universal",
+                    "platform" : "ios",
+                    "scale" : "3x",
+                    "size" : "32x24"
+                },
+                {
+                    "idiom" : "ios-marketing",
+                    "platform" : "ios",
+                    "scale" : "1x",
+                    "size" : "1024x768"
+                }
+                ],
+                "info" : {
+                "author" : "xcode",
+                "version" : 1
+                }
+            };
+          
+        case 'macos.appiconset':
+            return {
+                "images" : [
+                  {
+                    "idiom" : "mac",
+                    "scale" : "1x",
+                    "size" : "16x16"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "2x",
+                    "size" : "16x16"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "1x",
+                    "size" : "32x32"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "2x",
+                    "size" : "32x32"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "1x",
+                    "size" : "128x128"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "2x",
+                    "size" : "128x128"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "1x",
+                    "size" : "256x256"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "2x",
+                    "size" : "256x256"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "1x",
+                    "size" : "512x512"
+                  },
+                  {
+                    "idiom" : "mac",
+                    "scale" : "2x",
+                    "size" : "512x512"
+                  }
+                ],
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                }
+              };
+
+        case 'ios.appiconset':
+            return {
+                "images" : [
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "2x",
+                    "size" : "20x20"
+                  },
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "3x",
+                    "size" : "20x20"
+                  },
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "2x",
+                    "size" : "29x29"
+                  },
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "3x",
+                    "size" : "29x29"
+                  },
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "2x",
+                    "size" : "40x40"
+                  },
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "3x",
+                    "size" : "40x40"
+                  },
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "2x",
+                    "size" : "60x60"
+                  },
+                  {
+                    "idiom" : "iphone",
+                    "scale" : "3x",
+                    "size" : "60x60"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "1x",
+                    "size" : "20x20"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "20x20"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "1x",
+                    "size" : "29x29"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "29x29"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "1x",
+                    "size" : "40x40"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "40x40"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "1x",
+                    "size" : "76x76"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "76x76"
+                  },
+                  {
+                    "idiom" : "ipad",
+                    "scale" : "2x",
+                    "size" : "83.5x83.5"
+                  },
+                  {
+                    "idiom" : "ios-marketing",
+                    "scale" : "1x",
+                    "size" : "1024x1024"
+                  },
+                  {
+                    "idiom" : "car",
+                    "scale" : "2x",
+                    "size" : "60x60"
+                  },
+                  {
+                    "idiom" : "car",
+                    "scale" : "3x",
+                    "size" : "60x60"
+                  }
+                ],
+                "info" : {
+                  "author" : "xcode",
+                  "version" : 1
+                }
+              };
+    }
+    return {};
+}
+
+function isAppleOS(name) {
+    return name==="ios" || name==="macos" || name==="watchos";
+}
+
 
 function fillChar(str, width, ch) {
     if(ch==null) ch = '0';
     return str.length >= width ? str:new Array(width-str.length+1).join(ch)+str; //남는 길이만큼 ch 으로 채움
 }
 
+function replaceAll(str, s, r) {
+    return str.split(s).join(r);
+}
 
 const _console_proc = (msg) => {
     _log(chalk.cyan(" > " + msg));
@@ -226,7 +1155,7 @@ const _newsize = (width, height, _scale, _width, _height) => {
     return {width: __width, height: __height};
 }
 
-const _saveAsset = (_asset, _file, _scale, _width, _height) => {
+const _saveAsset = (_asset, _file, _scale, _width, _height, quietly) => {
     return new Promise((resolve, reject) => {
         jimp.read(_asset).then((jimp, err) => {
             if(jimp) {
@@ -239,7 +1168,7 @@ const _saveAsset = (_asset, _file, _scale, _width, _height) => {
                 if(overlay && overlay!==true) {
                     if(jimp.hasAlpha()) {
                         let _overlay = fillChar(overlay.toString(16), 8);
-                        _console_proc("overlay: 0x" + _overlay);
+                        if(!quietly) _console_proc("overlay: 0x" + _overlay);
                         overlay = color.json("#" + _overlay);
                         if(overlay!=null) {
                             jimp.scan(0, 0, jimp.bitmap.width, jimp.bitmap.height, (x, y, idx) => {
@@ -251,16 +1180,16 @@ const _saveAsset = (_asset, _file, _scale, _width, _height) => {
                                 }
                             });    
                         } else {
-                            _console_proc("overlay: " + chalk.red("Was canceled. Color is invalid."));
+                            if(!quietly) _console_proc("overlay: " + chalk.red("Was canceled. Color is invalid."));
                         }
                     } else {
-                        _console_proc("overlay: " + chalk.red("Was canceled. No alpha channel."));
+                        if(!quietly) _console_proc("overlay: " + chalk.red("Was canceled. No alpha channel."));
                     }
                 }
                 
                 if(background!=null) {
                     let _background = fillChar(background.toString(16), 8);
-                    _console_proc("background: 0x" + _background);
+                    if(!quietly) _console_proc("background: 0x" + _background);
                     if(jimp.hasAlpha()) {
                         background = color.json("#" + _background);
                         if(background!=null) {
@@ -273,79 +1202,79 @@ const _saveAsset = (_asset, _file, _scale, _width, _height) => {
                                 }
                             });    
                         } else {
-                            _console_proc("background: " + chalk.red("Was canceled. Color is invalid."));
+                            if(!quietly) _console_proc("background: " + chalk.red("Was canceled. Color is invalid."));
                         }
                     } else {
-                        _console_proc("background: " + chalk.red("Was canceled. No alpha channel."));
+                        if(!quietly) _console_proc("background: " + chalk.red("Was canceled. No alpha channel."));
                     }
                 }
                 if(argv.crop) {
-                    _console_proc("crop");
+                    if(!quietly) _console_proc("crop");
                     jimp = jimp.autocrop();
                 }
                 if(argv.flip || argv.mirror) {
                     if(!quiet) {
-                        if(argv.flip===true) _console_proc("flip");
-                        if(argv.mirror===true) _console_proc("mirror");
+                        if(argv.flip===true && !quietly) _console_proc("flip");
+                        if(argv.mirror===true && !quietly) _console_proc("mirror");
                     }
                     jimp = jimp.flip(argv.mirror===true, argv.flip===true);
                 }
                 if(argv.grayscale) {
-                    _console_proc("grayscale");
+                    if(!quietly) _console_proc("grayscale");
                     jimp = jimp.grayscale();
                 }
                 if(argv.sepia) {
-                    _console_proc("sepia");
+                    if(!quietly) _console_proc("sepia");
                     jimp = jimp.sepia();
                 }
 
                 if(argv.contrast) {
                     argv.contrast = argv.contrast===true ? 0.2 : 1.0 * argv.contrast;
                     if(argv.contrast>=-1.0 && argv.contrast<=1.0) {
-                        _console_proc("contrast: " + argv.contrast);
+                        if(!quietly) _console_proc("contrast: " + argv.contrast);
                         jimp = jimp.contrast(argv.contrast);
                     }
                 }
                 if(argv.brightness) {
                     argv.brightness = argv.brightness===true ? 0.2 : 1.0 * argv.brightness;
                     if(argv.brightness>=-1.0 && argv.brightness<=1.0) {
-                        _console_proc("brightness: " + argv.brightness);
+                        if(!quietly) _console_proc("brightness: " + argv.brightness);
                         jimp = jimp.brightness(argv.brightness);
                     }
                 }
                 
                 if(argv.invert) {
-                    _console_proc("invert");
+                    if(!quietly) _console_proc("invert");
                     jimp = jimp.invert();
                 }
                 if(argv.blur) {
                     argv.blur = argv.blur===true ? 5 : 1 * argv.blur;
                     if(argv.blur>0) {
-                        _console_proc("blur: " + argv.blur);
+                        if(!quietly) _console_proc("blur: " + argv.blur);
                         jimp = jimp.blur(argv.blur);    
                     }
                 }
                 if(argv.gaussian) {
                     argv.gaussian = argv.gaussian===true ? 1 : 1 * argv.gaussian;
                     if(argv.gaussian>0) {
-                        _console_proc("gaussian: " + argv.gaussian);
+                        if(!quietly) _console_proc("gaussian: " + argv.gaussian);
                         jimp = jimp.gaussian(argv.gaussian);    
                     }
                 }
                 if(argv.opacity) {
                     argv.opacity = argv.opacity===true ? 0.5 : 1.0 * argv.opacity;
                     if(argv.opacity>=0 && argv.opacity<1.0) {
-                        _console_proc("opacity: " + argv.opacity);
+                        if(!quietly) _console_proc("opacity: " + argv.opacity);
                         jimp = jimp.opacity(argv.opacity);    
                     }
                 }
                 if(argv.rotate && argv.rotate!==true && argv.rotate!=0) {
-                    _console_proc("rotate: " + argv.rotate);
+                    if(!quietly) _console_proc("rotate: " + argv.rotate);
                     jimp = jimp.rotate(argv.rotate);
                 }
 
                 if((width!=newsize.width || height!=newsize.height) && newsize.width>0 && newsize.height>0) {
-                    _console_proc("resize: " + newsize.width + "," + newsize.height);
+                    if(!quietly) _console_proc("resize: " + newsize.width + "," + newsize.height);
                     jimp = jimp.contain(newsize.width, newsize.height);
                 }
 
@@ -354,7 +1283,7 @@ const _saveAsset = (_asset, _file, _scale, _width, _height) => {
                     else argv.scale *= 1.0;
 
                     if(argv.scale>0) {
-                        _console_proc("scale: " + argv.scale);
+                        if(!quietly) _console_proc("scale: " + argv.scale);
                         jimp = jimp.scale(argv.scale);
                     }
                 }
@@ -375,10 +1304,10 @@ const _saveAsset = (_asset, _file, _scale, _width, _height) => {
     });
 }
 
-const _writeAsset = (_asset, _savefilepath, _scale, _width, _height, _subdir, _dirname, _savefile) => {
+const _writeAsset = (_asset, _savefilepath, _scale, _width, _height, _subdir, _dirname, _savefile, quietly) => {
     return new Promise((resolve, reject) => {
         if(_forcefiledir(_savefilepath)) {
-            _saveAsset(_asset, _savefilepath, _scale, _width, _height).then((res, err) => {
+            _saveAsset(_asset, _savefilepath, _scale, _width, _height, quietly).then((res, err) => {
                 if(res) {
                     resolve(res);
                 } 
@@ -393,26 +1322,83 @@ const _writeAsset = (_asset, _savefilepath, _scale, _width, _height, _subdir, _d
 }
 
 
-const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, type, dpis, dpi) => {
-    if(dpis.length<=dpi) return;
-
-    let dpitag = dpis[dpi];                                
-    let dirname = type;
-    if(dpitag!='' && target=="android") {
-        if(type) {
-            dirname = type + "-" + dpitag;
-        } else {
-            dirname = dpitag;
+const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, type, dpis, dpi, assets_contents, filename, finish) => {
+    if(dpis.length<=dpi) {
+        if(finish) {
+            finish(filename);
         }
+        return;
     }
+
+    let dirname = type;
+    let dpitag = dpis[dpi];
     let _savefile = savefile;
+
+    if(typeof dpitag === 'object') {
+        let assetSize = _assetsSize(dpitag['size']);
+        if(assetSize && isAppleOS(target)) {
+            width = assetSize[0];
+            height = assetSize[1];
+
+            if(dpitag['scale']=='2x' || dpitag['scale']=='3x') {
+                dpitag = "@" + dpitag['scale'];
+            } else {
+                dpitag = "";
+            }
+
+            if(assets_contents && type=="complicationset" && filename) {
+                if(_hasParentsName("Assets.xcassets")) {
+                    dirname = filename;
+                } else {
+                    dirname = path.join("Assets.xcassets", filename);
+                }                    
+            } else {
+                let fname = path.parse(savefile).name;        
+                if(_hasParentsName("Assets.xcassets")) {
+                    dirname = fname + "." + type;
+                } else {
+                    dirname = path.join("Assets.xcassets", fname + "." + type);
+                }    
+            }
+
+
+            let _filename = null;
+            if(assets_contents && assets_contents['images']) {
+                _filename = assets_contents['images'][dpi]['filename'];
+            }
+            if(_filename) {
+                _savefile = _filename;
+            } else {
+                let fw = replaceAll(width, ".", "_");
+                let fh = replaceAll(height, ".", "_");
+                let sname = path.parse(savefile).name;
+                let sext = path.parse(savefile).ext;
+                if(width==height) {
+                    _savefile = sname + "-" + fw + sext;
+                } else {
+                    _savefile = sname + "-" + fw + "x" + fh + sext;
+                }    
+            }
+        } else {
+            dpitag = "";
+        }
+    } else {
+        if(dpitag!='' && target=="android") {
+            if(type) {
+                dirname = type + "-" + dpitag;
+            } else {
+                dirname = dpitag;
+            }
+        }    
+    }
+
     let savefilepath;
     if(dirname) {
         savefilepath = path.join(dir, dirname, _savefile);
     } else {
         savefilepath = path.join(dir, _savefile);
     }
-    if(dpitag!='' && target=='ios') {
+    if(dpitag!='' && isAppleOS(target)) {
         let fileext = path.extname(savefilepath);
         savefilepath = savefilepath.replace(/\.[^/.]+$/, "") + dpitag;
         if(fileext!=null && fileext!="") {
@@ -421,30 +1407,55 @@ const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, typ
         }
     }
 
-    _log(chalk.cyanBright("Save") + " : %s", 
-        chalk.greenBright(
-            dirname ? (subdir==null ? path.join(dirname, _savefile) : path.join(subdir, dirname, _savefile)) : (subdir==null ? path.join(_savefile) : path.join(subdir, _savefile))
-        ));
+    let savedFile = dirname ? (subdir==null ? path.join(dirname, _savefile) : path.join(subdir, dirname, _savefile)) : (subdir==null ? path.join(_savefile) : path.join(subdir, _savefile));
+    if(assets_contents) {
+        assets_contents['images'][dpi]['filename'] = path.basename(savedFile);
+    }
+
+
+    if(assets_contents!=null && dpi==0) {
+        if(fs.existsSync(path.dirname(savedFile))) {
+            // TODO : confirm to remove derectory
+            
+            if(finish==null) _log(chalk.cyanBright("Clear Folder") + " : %s", chalk.greenBright(path.join(path.dirname(savedFile), "*")));
+            fs.rmdirSync(path.dirname(savedFile), {recursive:true});
+            if(finish==null) _log(chalk.cyanBright("OK!"));    
+        }
+    }
+
+    if(finish==null) _log(chalk.cyanBright("Save") + " : %s", chalk.greenBright(savedFile));
 
     let scale = _scale(dpitag);
-    _writeAsset(asset, savefilepath, scale, width, height, subdir, dirname, _savefile).then((res, err) => {
+    _writeAsset(asset, savefilepath, scale, width, height, subdir, dirname, _savefile, (finish!=null)).then((res, err) => {
         if(res) {
             if(argv.open) {
                 if(argv.open===true) {
-                    _log(chalk.cyanBright("Open it."));
+                    if(finish==null) _log(chalk.cyanBright("Open it."));
                     open(savefilepath);
                 } else {
-                    _log(chalk.cyanBright("Open it as " + argv.open));
+                    if(finish==null) _log(chalk.cyanBright("Open it as " + argv.open));
                     open(savefilepath, {app: argv.open});
                 }
             }
-            _log(chalk.cyanBright("OK!"));
+
+            if(finish==null) _log(chalk.cyanBright("OK!"));
+
+            if(assets_contents!=null && dpi+1==dpis.length) {
+                assets_contents['info']['author'] = "appres";
+                if(assets_contents['images'][dpi]['idiom']!=null) {
+                    let contentsFile = path.join(path.dirname(savedFile), "Contents.json");                
+                    fs.writeFileSync(contentsFile, JSON.stringify(assets_contents, null, 2));                
+                    _log(chalk.cyanBright("Save") + " : %s", chalk.greenBright(contentsFile) + " " + "with" + " " + chalk.greenBright((dpi+1)) + " " + "assets.");    
+                    _log(chalk.cyanBright("OK!"));
+                }
+            }        
+
             setTimeout(()=>{
-                _saveAssetProc(asset, dir, subdir, savefile, width, height, target, type, dpis, dpi+1);            
+                _saveAssetProc(asset, dir, subdir, savefile, width, height, target, type, dpis, dpi+1, assets_contents, filename, finish);
             },1);    
         }
         if(err) {
-            _log(chalk.red(err));
+            if(finish==null) _log(chalk.red(err));
         }
     });
 }
@@ -454,7 +1465,7 @@ const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, typ
 
 const _asset = async() => {
     if(PKEY=="YOUR_PKEY" || AKEY=="YOUR_AKEY") {
-        let msg = "You haven't initialize an access key yet.";
+        let msg = "The access key has not been initialized yet. Please check the related to PKEY and AKEY.";
         _log(chalk.redBright(msg));
         _log("\n");
         _first();
@@ -580,17 +1591,56 @@ const _asset = async() => {
                                 console.log(chalk.redBright("TODO : exists pre-defined target json file."));                    
                                 console.log(chalk.greenBright(argv.target + ".json"));                    
                             } else 
-                            if(argv.target=="android" || argv.target=="ios") {
+                            if(argv.target=="android" || isAppleOS(argv.target)) {
                                 // android type : "drawable", "mipmap"
                                 let type = (argv.type!==true ? argv.type : null) || "mipmap";
                                 let dpis = ['', 'ldpi', 'mdpi', 'tvdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
-                                if(argv.target=='ios') {
+                                if(isAppleOS(argv.target)) {
                                     type = argv.type || null;
                                     dpis = ['', '@2x', '@3x'];
                                 }
-                                let dpi = 0;
-                                let target = argv.target;
-                                _saveAssetProc(res.body, dir, subdir, savefile, width, height, target, type, dpis, dpi);
+
+                                if(width=="auto" || height=="auto") {
+                                    _log(chalk.yellowBright("Required") + " : " + chalk.redBright("You need to enter the target image size."));
+                                    return;
+                                }
+
+                                let assets_contents = null;
+                                let wasProcessed = false;
+                                if(isAppleOS(argv.target) && type) {
+                                    assets_contents = _xcassets(argv.target, argv.type);
+                                    if(assets_contents) {
+                                        dpis = [];
+                                        if(assets_contents["images"]) {
+                                            assets_contents["images"].forEach(image => {
+                                                if(image["size"]==null) {
+                                                    image["size"] = "" + width + "x" + height;
+                                                }
+                                                dpis.push(image);
+                                            });        
+                                        } else
+                                        if(assets_contents["assets"]) { // apple watch (Complication.complicationset)
+                                            assets_contents["assets"].forEach(asset => {
+                                                let filename = asset['filename'];
+                                                if(filename) {
+                                                    let dpis = [];
+                                                    let assets_contents = _xcassets(filename);
+                                                    assets_contents["images"].forEach(image => {
+                                                        dpis.push(image);
+                                                    });                                                          
+                                                    _saveAssetProc(res.body, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents, filename, (result) => {
+
+                                                    });
+                                                }
+                                            });        
+                                            wasProcessed = true;
+                                        }
+                                    }
+                                }
+
+                                if(wasProcessed==false) {
+                                    _saveAssetProc(res.body, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents);    
+                                }
                             }
                         }
                     }
@@ -761,6 +1811,7 @@ const _setJson = (json, key, argv, def, nullChk=true) => {
 }
 
 const _findJson = (pDir) => {
+    if(pDir==null) return null;
     let findJsonFile = path.join(pDir, jsonFile);
     if(fs.existsSync(findJsonFile)) {
         return findJsonFile;
@@ -849,7 +1900,7 @@ const _lang = async(json) => {
     });
 }
 
-const _init = async(json) => {
+const _writeJson = async(json) => {
     fs.writeFile(jsonFile, JSON.stringify(json, null, 2), (err) => {
         if(err) {
             _log(chalk.red(err));
@@ -860,16 +1911,32 @@ const _init = async(json) => {
     });
 }
 
-const _test = async(json) => {
-    chalk.greenBright(JSON.stringify(json, null, 2))    
+const _init = async(json) => {
+    if(!fs.existsSync(jsonFile)) {
+        let find = _findJson(_getcwd());
+        if(find!=null) {
+            var questions = [{
+                type: 'confirm',
+                name: 'toBeNewCreate',
+                message: 'We have find .appres.json file in parent folder. Do you want to create a new .appres.json file in the current working folder?',
+                default: false,
+            }];              
+            inquirer.prompt(questions).then((answers) => {
+                if(answers.toBeNewCreate===true) {
+                    _writeJson(json);
+                }
+            });
+            return;
+        }
+    }
+    _writeJson(json);
 }
 
 const _main = async() => {
-    switch(argv._[0]) {
+    CMD = argv._[0];
+    FILE = argv.file;
+    switch(CMD) {
         case 'test':
-            _load((json) => {
-                _test(json);
-            });
             break;
         case 'init':
             _load((json) => {
