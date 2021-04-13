@@ -529,6 +529,9 @@ You can get an icon from a project on appres.org.
 - Example
   $ appres icon --file sample.png --save --target android --dir app/src/main/res --type mipmap
   $ appres icon --file sample.png --save --target ios --dir app/assets/icons
+  $ appres icon --file sample.png --save --target ios --type appiconset
+  $ appres icon --file sample.png --save --target macos --type appiconset
+  $ appres icon --file sample.png --save --target watchos --type appiconset
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
@@ -540,6 +543,36 @@ You can get an icon from a project on appres.org.
 
   ios
   ['', '@2x', '@3x'];
+
+
+- Target
+  
+  android
+
+  ios
+  macos
+  watchos
+
+- Type for Assets
+
+  for ios
+    appiconset
+    iconset
+    imageset
+    stickersiconset
+
+  for macos
+    appiconset
+    iconset
+    imageset
+    sidebariconset
+    iconbadgeset
+
+  for watchos
+    appiconset
+    iconset
+    imageset
+    complicationset
 
 
 
@@ -762,6 +795,9 @@ You can get an image from a project on appres.org.
 - Example
   $ appres image --file sample.png --save --target android --dir app/src/main/res --type mipmap
   $ appres image --file sample.png --save --target ios --dir app/assets/images
+  $ appres image --file sample.png --save --target ios --type appiconset
+  $ appres image --file sample.png --save --target macos --type appiconset
+  $ appres image --file sample.png --save --target watchos --type appiconset
 
 - Hint
   If target is android, you can use it with type. type is something like mipmap or drawable.
@@ -773,6 +809,37 @@ You can get an image from a project on appres.org.
 
   ios
   ['', '@2x', '@3x'];
+
+
+- Target
+  
+  android
+
+  ios
+  macos
+  watchos
+
+- Type for Assets
+
+  for ios
+    appiconset
+    iconset
+    imageset
+    stickersiconset
+
+  for macos
+    appiconset
+    iconset
+    imageset
+    sidebariconset
+    iconbadgeset
+
+  for watchos
+    appiconset
+    iconset
+    imageset
+    complicationset
+
 
 
 
