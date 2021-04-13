@@ -17,6 +17,10 @@ string.*
 res/
 dict.*
 
+Assets.xcassets/
+*.png
+*.jpg
+
 ### Angular ###
 ## Angular ##
 # compiled output

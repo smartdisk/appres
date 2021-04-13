@@ -1518,7 +1518,14 @@ const _asset = async() => {
                 if(res.body.r) {
                     if(!quiet) {
                         if(res.body.r=="e") {
-                            console.log(chalk.redBright("Invalid command."));
+                            if(path.extname(argv.file)=="") {
+                                argv.file = argv.file + ".png";
+                                setTimeout(()=>{
+                                    _asset();
+                                },1);
+                            } else {
+                                console.log(chalk.redBright("Invalid command or file not found."));
+                            }
                         } else {
                             console.log(chalk.red(JSON.stringify(res.body)));
                         }
@@ -1677,7 +1684,14 @@ const _asset = async() => {
                     }
                 }
             } else {
-                _log(chalk.red(JSON.stringify(err)));
+                if(path.extname(argv.file)=="") {
+                    argv.file = argv.file + ".png";
+                    setTimeout(()=>{
+                        _asset();
+                    },1);
+                } else {
+                    _log(chalk.red(JSON.stringify(err)));
+                }
             }
         });
         if(!quiet) {
