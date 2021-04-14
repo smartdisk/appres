@@ -226,12 +226,60 @@ const _xcassets = (target, type) => {
     if(type) type - type.toLowerCase();
     let kind = (type==null) ? target : target + "." + type;
     switch(kind) {
+        case 'macos.iconset':
+        case 'ios.iconset':
+        case 'watch.iconset':
+            return {
+                "images" : [
+                    {
+                        "scale" : "1x",
+                        "size"  : "16x16",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "2x",
+                        "size"  : "16x16",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "1x",
+                        "size"  : "32x32",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "2x",
+                        "size"  : "32x32",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "1x",
+                        "size"  : "128x128",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "2x",
+                        "size"  : "128x128",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "1x",
+                        "size"  : "256x256",
+                        "idiom" : "universal"
+                    },
+                    {
+                        "scale" : "2x",
+                        "size"  : "256x256",
+                        "idiom" : "universal"
+                    }
+                ],
+                "info" : {
+                "author" : "xcode",
+                "version" : 1
+                }
+            };
         case 'ios.imageset':
         case 'macos.imageset':
         case 'watch.imageset':
-        case 'ios.iconset':
-        case 'macos.iconset':
-        case 'watch.iconset':
             return {
                 "images" : [
                     {
