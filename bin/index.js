@@ -234,42 +234,62 @@ const _xcassets = (target, type) => {
                     {
                         "scale" : "1x",
                         "size"  : "16x16",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_16x16.png"
                     },
                     {
                         "scale" : "2x",
                         "size"  : "16x16",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_16x16.png"
                     },
                     {
                         "scale" : "1x",
                         "size"  : "32x32",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_32x32.png"
                     },
                     {
                         "scale" : "2x",
                         "size"  : "32x32",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_32x32.png"
                     },
                     {
                         "scale" : "1x",
                         "size"  : "128x128",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_128x128.png"
                     },
                     {
                         "scale" : "2x",
                         "size"  : "128x128",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_128x128.png"
                     },
                     {
                         "scale" : "1x",
                         "size"  : "256x256",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_256x256.png"
                     },
                     {
                         "scale" : "2x",
                         "size"  : "256x256",
-                        "idiom" : "universal"
+                        "idiom" : "universal",
+                        "filename" : "icon_256x256.png"
+                    },
+                    {
+                        "scale" : "1x",
+                        "size"  : "512x512",
+                        "idiom" : "universal",
+                        "filename" : "icon_512x512.png"
+                    },
+                    {
+                        "scale" : "2x",
+                        "size"  : "512x512",
+                        "idiom" : "universal",
+                        "filename" : "icon_512x512.png"
                     }
                 ],
                 "info" : {
