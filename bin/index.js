@@ -53,6 +53,45 @@ const _log = (...args) => {
     }
 }
 
+const _err = (...args) => {
+    if(quiet) return;
+    if(args==null) console.log();
+    else 
+    {
+        if(args.length==1) console.log(chalk.redBright(args[0]));
+        if(args.length==2) console.log(chalk.redBright(args[0]),chalk.redBright(args[1]));
+        if(args.length==3) console.log(chalk.redBright(args[0]),chalk.redBright(args[1]),chalk.redBright(args[2]));
+        if(args.length==4) console.log(chalk.redBright(args[0]),chalk.redBright(args[1]),chalk.redBright(args[2]),chalk.redBright(args[3]));
+        if(args.length==5) console.log(chalk.redBright(args[0]),chalk.redBright(args[1]),chalk.redBright(args[2]),chalk.redBright(args[3]),chalk.redBright(args[4]));
+    }
+}
+
+const _debug = (...args) => {
+    if(quiet) return;
+    if(args==null) console.log();
+    else 
+    {
+        if(args.length==1) console.log(chalk.greenBright(args[0]));
+        if(args.length==2) console.log(chalk.greenBright(args[0]),chalk.greenBright(args[1]));
+        if(args.length==3) console.log(chalk.greenBright(args[0]),chalk.greenBright(args[1]),chalk.greenBright(args[2]));
+        if(args.length==4) console.log(chalk.greenBright(args[0]),chalk.greenBright(args[1]),chalk.greenBright(args[2]),chalk.greenBright(args[3]));
+        if(args.length==5) console.log(chalk.greenBright(args[0]),chalk.greenBright(args[1]),chalk.greenBright(args[2]),chalk.greenBright(args[3]),chalk.greenBright(args[4]));
+    }
+}
+
+const _info = (...args) => {
+    if(quiet) return;
+    if(args==null) console.log();
+    else 
+    {
+        if(args.length==1) console.log(chalk.cyanBright(args[0]));
+        if(args.length==2) console.log(chalk.cyanBright(args[0]),chalk.cyanBright(args[1]));
+        if(args.length==3) console.log(chalk.cyanBright(args[0]),chalk.cyanBright(args[1]),chalk.cyanBright(args[2]));
+        if(args.length==4) console.log(chalk.cyanBright(args[0]),chalk.cyanBright(args[1]),chalk.cyanBright(args[2]),chalk.cyanBright(args[3]));
+        if(args.length==5) console.log(chalk.cyanBright(args[0]),chalk.cyanBright(args[1]),chalk.cyanBright(args[2]),chalk.cyanBright(args[3]),chalk.cyanBright(args[4]));
+    }
+}
+
 // 현재 pkg 버전이 latest 보다 작으면 true 를 내 준다. 즉 업그레이드가 필요하다. null 리턴은 검사 실패. 
 const _needlatest = (latest) => {
     let s1 = latest.split(".");
@@ -222,8 +261,8 @@ const _assetsSize = (size, scale) => {
     return sizes;
 }
 const _xcassets = (target, type) => {
-    if(target) target - target.toLowerCase();
-    if(type) type - type.toLowerCase();
+    if(target) target = target.toLowerCase();
+    if(type) type = type.toLowerCase();
     let kind = (type==null) ? target : target + "." + type;
     switch(kind) {
         case 'macos.iconset':
@@ -320,7 +359,7 @@ const _xcassets = (target, type) => {
                 "version" : 1
                 }
             };
-        case 'Circular.imageset':
+        case 'circular.imageset':
             return {
                 "images" : [
                 {
@@ -357,7 +396,7 @@ const _xcassets = (target, type) => {
                 "version" : 1
                 }
             };
-        case 'Extra Large.imageset':
+        case 'extra large.imageset':
             return {
                 "images" : [
                     {
@@ -394,7 +433,7 @@ const _xcassets = (target, type) => {
                     "version" : 1
                   }                
             };
-        case 'Graphic Bezel.imageset':
+        case 'graphic bezel.imageset':
             return {
                 "info" : {
                     "author" : "xcode",
@@ -417,7 +456,7 @@ const _xcassets = (target, type) => {
                     }
                   ]                
             };
-        case 'Graphic Circular.imageset':
+        case 'graphic circular.imageset':
             return {
                 "info" : {
                   "author" : "xcode",
@@ -440,7 +479,7 @@ const _xcassets = (target, type) => {
                   }
                 ]
             };
-        case 'Graphic Corner.imageset':
+        case 'graphic corner.imageset':
             return {
                 "info" : {
                   "author" : "xcode",
@@ -463,7 +502,7 @@ const _xcassets = (target, type) => {
                   }
                 ]
             };
-        case 'Graphic Extra Large.imageset':
+        case 'graphic extra large.imageset':
             return {
                 "info" : {
                   "author" : "xcode",
@@ -500,7 +539,7 @@ const _xcassets = (target, type) => {
                   }
                 ]
             };
-        case 'Graphic Large Rectangular.imageset':
+        case 'graphic large rectangular.imageset':
             return {
                 "images" : [
                   {
@@ -523,7 +562,7 @@ const _xcassets = (target, type) => {
                   "version" : 1
                 }
             };
-        case 'Modular.imageset':
+        case 'modular.imageset':
             return {
                 "info" : {
                   "author" : "xcode",
@@ -560,7 +599,7 @@ const _xcassets = (target, type) => {
                   }
                 ]
             };
-        case 'Utilitarian.imageset':
+        case 'utilitarian.imageset':
             return {
                 "info" : {
                   "author" : "xcode",
@@ -1522,6 +1561,7 @@ const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, typ
     if(finish==null) _log(chalk.cyanBright("Save") + " : %s", chalk.greenBright(savedFile));
 
     let scale = _scale(dpitag);
+
     _writeAsset(asset, savefilepath, scale, width, height, subdir, dirname, _savefile, (finish!=null)).then((res, err) => {
         if(res) {
             if(argv.open) {
@@ -1726,14 +1766,14 @@ const _asset = async() => {
                                             });        
                                         } else
                                         if(assets_contents["assets"]) { // apple watch (Complication.complicationset)
-                                            assets_contents["assets"].forEach(asset => {
-                                                let filename = asset['filename'];
+                                            assets_contents["assets"].forEach(asset_content => {
+                                                let filename = asset_content['filename'];
                                                 if(filename) {
                                                     let dpis = [];
                                                     let assets_contents = _xcassets(filename);
                                                     assets_contents["images"].forEach(image => {
                                                         dpis.push(image);
-                                                    });                                                          
+                                                    });
                                                     _saveAssetProc(asset, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents, filename, (result) => {
 
                                                     });
