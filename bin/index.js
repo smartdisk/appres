@@ -1483,9 +1483,9 @@ const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, typ
 
             if(assets_contents && type=="complicationset" && filename) {
                 if(_hasParentsName("Assets.xcassets")) {
-                    dirname = filename;
+                    dirname = path.join("Complication", filename);
                 } else {
-                    dirname = path.join("Assets.xcassets", filename);
+                    dirname = path.join("Assets.xcassets", "Complication", filename);
                 }                    
             } else {
                 let fname = path.parse(savefile).name;        
@@ -1773,7 +1773,7 @@ const _asset = async() => {
                                                     let assets_contents = _xcassets(filename);
                                                     assets_contents["images"].forEach(image => {
                                                         dpis.push(image);
-                                                    });
+                                                    });                                                
                                                     _saveAssetProc(asset, dir, subdir, savefile, width, height, argv.target, type, dpis, 0, assets_contents, filename, (result) => {
 
                                                     });
