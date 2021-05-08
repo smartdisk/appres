@@ -441,11 +441,25 @@ const _xcassets = (target, type) => {
                   },
                   "images" : [
                     {
+                      "screen-width" : "<=145",
+                      "scale" : "2x",
+                      "size" : "37x37",
+                      "idiom" : "watch",
+                      "filename" : "graphic-bezel38mm@2x.png"
+                    },
+                    {
                       "screen-width" : ">161",
                       "scale" : "2x",
                       "size" : "42x42",
                       "idiom" : "watch",
                       "filename" : "graphic-bezel40mm@2x.png"
+                    },
+                    {
+                      "screen-width" : ">145",
+                      "scale" : "2x",
+                      "size" : "42x42",
+                      "idiom" : "watch",
+                      "filename" : "graphic-bezel42mm@2x.png"
                     },
                     {
                       "screen-width" : ">183",
@@ -464,11 +478,25 @@ const _xcassets = (target, type) => {
                 },
                 "images" : [
                   {
+                    "screen-width" : "<=145",
+                    "scale" : "2x",
+                    "size" : "37x37",
+                    "idiom" : "watch",
+                    "filename" : "graphic-circular38mm@2x.png"
+                  },
+                  {
                     "screen-width" : ">161",
                     "scale" : "2x",
                     "size" : "42x42",
                     "idiom" : "watch",
                     "filename" : "graphic-circular40mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">145",
+                    "scale" : "2x",
+                    "size" : "42x42",
+                    "idiom" : "watch",
+                    "filename" : "graphic-circular42mm@2x.png"
                   },
                   {
                     "screen-width" : ">183",
@@ -487,11 +515,25 @@ const _xcassets = (target, type) => {
                 },
                 "images" : [
                   {
+                    "screen-width" : "<=145",
+                    "scale" : "2x",
+                    "size" : "37x37",
+                    "idiom" : "watch",
+                    "filename" : "graphic-corner38mm@2x.png",
+                  },
+                  {
                     "screen-width" : ">161",
                     "scale" : "2x",
                     "size" : "42x42",
                     "idiom" : "watch",
                     "filename" : "graphic-corner40mm@2x.png",
+                  },
+                  {
+                    "screen-width" : ">145",
+                    "scale" : "2x",
+                    "size" : "42x42",
+                    "idiom" : "watch",
+                    "filename" : "graphic-corner42mm@2x.png",
                   },
                   {
                     "screen-width" : ">183",
@@ -543,11 +585,25 @@ const _xcassets = (target, type) => {
             return {
                 "images" : [
                   {
+                    "screen-width" : "<=145",
+                    "scale" : "2x",
+                    "size" : "129x41",
+                    "idiom" : "watch",
+                    "filename" : "graphic-large-rectangular38mm@2x.png"
+                  },
+                  {
                     "screen-width" : ">161",
                     "scale" : "2x",
                     "size" : "150x47",
                     "idiom" : "watch",
                     "filename" : "graphic-large-rectangular40mm@2x.png"
+                  },
+                  {
+                    "screen-width" : ">145",
+                    "scale" : "2x",
+                    "size" : "150x47",
+                    "idiom" : "watch",
+                    "filename" : "graphic-large-rectangular42mm@2x.png"
                   },
                   {
                     "screen-width" : ">183",
