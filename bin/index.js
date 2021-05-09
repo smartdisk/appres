@@ -517,28 +517,28 @@ const _xcassets = (target, type) => {
                   {
                     "screen-width" : "<=145",
                     "scale" : "2x",
-                    "size" : "37x37",
+                    "size" : "18x18",
                     "idiom" : "watch",
                     "filename" : "graphic-corner38mm@2x.png",
                   },
                   {
                     "screen-width" : ">161",
                     "scale" : "2x",
-                    "size" : "40x40",
+                    "size" : "20x20",
                     "idiom" : "watch",
                     "filename" : "graphic-corner40mm@2x.png",
                   },
                   {
                     "screen-width" : ">145",
                     "scale" : "2x",
-                    "size" : "42x42",
+                    "size" : "20x20",
                     "idiom" : "watch",
                     "filename" : "graphic-corner42mm@2x.png",
                   },
                   {
                     "screen-width" : ">183",
                     "scale" : "2x",
-                    "size" : "44x44",
+                    "size" : "22x22",
                     "idiom" : "watch",
                     "filename" : "graphic-corner44mm@2x.png"
                   }
