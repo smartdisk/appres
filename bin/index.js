@@ -524,7 +524,7 @@ const _xcassets = (target, type) => {
                   {
                     "screen-width" : ">161",
                     "scale" : "2x",
-                    "size" : "42x42",
+                    "size" : "40x40",
                     "idiom" : "watch",
                     "filename" : "graphic-corner40mm@2x.png",
                   },
@@ -538,7 +538,7 @@ const _xcassets = (target, type) => {
                   {
                     "screen-width" : ">183",
                     "scale" : "2x",
-                    "size" : "47x47",
+                    "size" : "44x44",
                     "idiom" : "watch",
                     "filename" : "graphic-corner44mm@2x.png"
                   }
