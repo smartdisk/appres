@@ -1539,9 +1539,9 @@ const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, typ
 
             if(assets_contents && type=="complicationset" && filename) {
                 if(_hasParentsName("Assets.xcassets")) {
-                    dirname = path.join("Complication", filename);
+                    dirname = path.join("Complication.complicationset", filename);
                 } else {
-                    dirname = path.join("Assets.xcassets", "Complication", filename);
+                    dirname = path.join("Assets.xcassets", "Complication.complicationset", filename);
                 }                    
             } else {
                 let fname = path.parse(savefile).name;        
