@@ -1591,7 +1591,7 @@ const _saveAssetProc = (asset, dir, subdir, savefile, width, height, target, typ
     }
     if(dpitag!='' && isAppleOS(target)) {
         let fileext = path.extname(savefilepath);
-        savefilepath = savefilepath.replace(/\.[^/.]+$/, "") + dpitag;
+        savefilepath = savefilepath.replace(/\.[^/.]+$/, "");
         if(!savefilepath.endsWith(dpitag)) {
             savefilepath = savefilepath + dpitag
         }
