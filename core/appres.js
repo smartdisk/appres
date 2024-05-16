@@ -1,14 +1,17 @@
 /*!
- * AppRes JavaScript Library v0.0.74
+ * AppRES JavaScript Library v0.0.96
  * https://appres.org/
  *
- * Copyright 2021 APPRES.ORG and other contributors
+ * Copyright 2024 APPRES.ORG and other contributors
  * Released under the LGPLv3 license
  * https://appres.org/license
  *
  * Create Date: 2021.02.07 KST
- * Last Update: 2021.03.29 KST
- */
+ * Last Update: 2023.08.20 KST
+ * Last Update: 2024.04.02 KST , placeholder
+ * Last Update: 2024.04.16 KST , HIDE, isReady, getLangs, updateLang, element text trim, currentURL, onLanguageChange
+ * Last Update: 2024.05.03 KST , init
+*/
 
 
 if(window.globalThis==null) {
@@ -19,34 +22,42 @@ if(window.globalThis==null) {
   window.APPRES = {
     appEvents: {
       onReady: [],
-      onLanguageChange: [],
       onLangsSelector: [],
-      onTranslate: [],
+      onTranslate: [],      // before translation (If true is returned, the translation is considered complete.)
+      onLanguageChange: [], // after translation
       add: function(name, event) {
-        if(this[name] == null) this[name] = [];
-        if(this[name].indexOf(event)<0) {
+        if (this[name] == null) this[name] = [];
+        if (this[name].indexOf(event)<0) {
           this[name].push(event);
         }
+        return event;
       },
       remove: function(name, event) {
-        if(this[name] == null) this[name] = [];
-        if(event==null) {
+        if (this[name] == null) this[name] = [];
+        if (event==null) {
           this[name] = [];
         } else {
-          while(this[name].indexOf(event)>=0) {
+          while (this[name].indexOf(event)>=0) {
             this[name].splice(this[name].indexOf(event), 1);
           }  
         }
+        return event;
       },
       get: function(name) {
-        if(this[name] == null) this[name] = [];
+        if (this[name] == null) this[name] = [];
         return this[name];
       }
     }
   };
+
+  var ShowLangSelector = true;
   
-  var AppEvents = function() {
-    var Event = (function(){
+  var AppEvents = function(v, vv, vvv) {
+    if (v === window && typeof vv === 'number' && typeof vvv === 'function') {
+      setTimeout(vvv, vv);
+    }
+    if (v) return v;
+    var Event = (function(v){
       function Event() { }
       return Event;
     }());
@@ -59,9 +70,45 @@ if(window.globalThis==null) {
     Event.prototype.getEvents = function (name) {
       return window.APPRES.appEvents.get(name);
     };
+    Event.prototype.showLangSelector = function (value) {
+      if (value == null) return ShowLangSelector;
+      return ShowLangSelector = value;
+    };
+    Event.prototype.isReady = function () {
+      return false;
+    };
+    Event.prototype.init = function () {
+      return null;
+    };
+  
+    Event.prototype.currentURL = function () {
+      return window.location.href;
+    };
+    Event.prototype.protocol = function () {
+      return window.location.protocol;
+    };
+    Event.prototype.host = function () {
+      return window.location.host;
+    };
+    Event.prototype.hostname = function () {
+      return window.location.hostname;
+    };
+    Event.prototype.port = function () {
+      return window.location.port;
+    };
+    Event.prototype.path = function () {
+      return window.location.pathname;
+    };
+    Event.prototype.queryString = function () {
+      return window.location.search;
+    };
+
     return new Event();
   };
   window.$$ = AppEvents;
+  window.$S = function () {
+    return "...";
+  }
 
 
   var SUM = (function () {      
@@ -466,721 +513,822 @@ if(window.globalThis==null) {
   }());
 
   var
-    options = {
-      host: "https://us-central1-appres-org.cloudfunctions.net/api",
-      // host: "https://appres.org/functions/api",
-      // host: "http://127.0.0.1:5001/appres-org/us-central1/api",
-      pkey: null,
-      akey: null,
-      cmd: "strings",
-      target: "js",
-      skey: "default",
-      lang: "en-US",
-      hash: null,
-      retry: 50,
-      time: 25,
-      cache: true,
-      datajs: null,
-      visibility: "hidden",
-      title_trans: true,
-      lang_attr: true,
-      langs_all: false,
-      langs_selector: {
-        langs: ".appres-langs",
-        langs_button: ".appres-langs-button",  
-        langs_button_color: "black",  
-        langs_button_size: null,  
-        langs_items: ".appres-langs-items",
-        style: {
-          css: {"position": "absolute", "display": "block", "right": "10px", "top": "15px", "z-index": "10000"},
-          button: "auto"
-        }
-      },
-      default_excepts: ["material-icons", "mat-tab-group"],
-      user_excepts: [],
-      default_img_attrs: ["svgIcon"],
-      user_img_attrs: []
-    },
-    md5 = new MD5(),
-    sha1 = new SHA1(),
-    sum = new SUM(),
-    getScript = function (window, url, onload) {
-      if(typeof window === "string" && onload==null) {
-        onload = url;
-        url = window;
-        window = appWindow;
+  options = {
+    host: "https://us-central1-appres-org.cloudfunctions.net/api",
+    // host: "https://appres.org/functions/api",
+    // host: "http://127.0.0.1:5001/appres-org/us-central1/api",
+    pkey: null,
+    akey: null,
+    cmd: "strings",
+    target: "js",
+    skey: "default",
+    lang: "en-US",
+    hash: null,
+    retry: 50,
+    time: 25,
+    cache: true,
+    datajs: null,
+    visibility: "hidden",
+    title_trans: true,
+    lang_attr: true,
+    langs_all: false,
+    langs_selector: {
+      langs: ".appres-langs",
+      langs_button: ".appres-langs-button",  
+      langs_button_color: "black",  
+      langs_button_size: null,  
+      langs_items: ".appres-langs-items",
+      style: {
+        css: {"position": "absolute", "display": "block", "right": "10px", "top": "15px", "z-index": "10000"},
+        hide: {"position": "absolute", "display": "none", "right": "10px", "top": "15px", "z-index": "10000"},
+        button: "auto"
       }
-      var script = window.document.createElement("script");
-      script.type = 'text/javascript';
-      // use onreadystatechange in IE
-      script.onload = function () {
-        if (onload) onload(window, script);
-      };
-      script.src = url;
-      return script;
     },
-    loadScript = function (window, url, onload) {
-      if(typeof window === "string" && onload==null) {
-        onload = url;
-        url = window;
-        window = appWindow;
-      }
-      var script = getScript(window, url, onload);
-      window.document.getElementsByTagName('head')[0].appendChild(script);
-    },
-    isExpects = function (element) {
-      var arr = split(element.className);
-      for(i=0;i<options.default_excepts.length;i++) {
-        if (arr.indexOf(options.default_excepts[i])>=0) return true;
-      }
-      for(i=0;i<options.user_excepts.length;i++) {
-        if (arr.indexOf(options.default_excepts[i])>=0) return true;
-      }
-      if(element.id) {
-        if(options.default_excepts.indexOf(element.id)>=0) return true;
-        if(options.user_excepts.indexOf(element.id)>=0) return true;
-      }
-      if(element.tagName) {
-        var tagname = element.tagName.toLowerCase();
-        if(options.default_excepts.indexOf(tagname)>=0) return true;
-        if(options.user_excepts.indexOf(tagname)>=0) return true;
-      }
-      return false;
-    },
-    getFileName = function (filename) {
-      var i = filename.lastIndexOf('/');
-      if(i>=0) filename = filename.substring(i+1);
-      return filename;
-    },
-    getFileNameNoExt = function (filename) {
-      filename = getFileName(filename);
-      var i = filename.lastIndexOf('.');
-      return (i < 0) ? filename : filename.substring(0, i);
-    },
-    getFileExtension = function (filename) {
-      filename = getFileName(filename);
-      var i = filename.lastIndexOf('.');
-      return (i < 0) ? null : filename.substring(i+1);
-    },  
-    getImgAttr = function (element) {
-      var attrName;
-      var attr;
+    default_excepts: ["material-icons", "mat-tab-group"],
+    user_excepts: [],
+    default_img_attrs: ["svgIcon"],
+    user_img_attrs: []
+  },
+  md5 = new MD5(),
+  sha1 = new SHA1(),
+  sum = new SUM(),
+  getScript = function (window, url, onload) {
+    if(typeof window === "string" && onload==null) {
+      onload = url;
+      url = window;
+      window = appWindow;
+    }
+    var script = window.document.createElement("script");
+    script.type = 'text/javascript';
+    // use onreadystatechange in IE
+    script.onload = function () {
+      if (onload) onload(window, script);
+    };
+    script.src = url;
+    return script;
+  },
+  loadScript = function (window, url, onload) {
+    if(typeof window === "string" && onload==null) {
+      onload = url;
+      url = window;
+      window = appWindow;
+    }
+    var script = getScript(window, url, onload);
+    window.document.getElementsByTagName('head')[0].appendChild(script);
+  },
+  isExpects = function (element) {
+    var arr = split(element.className);
+    for(i=0;i<options.default_excepts.length;i++) {
+      if (arr.indexOf(options.default_excepts[i])>=0) return true;
+    }
+    for(i=0;i<options.user_excepts.length;i++) {
+      if (arr.indexOf(options.default_excepts[i])>=0) return true;
+    }
+    if(element.id) {
+      if(options.default_excepts.indexOf(element.id)>=0) return true;
+      if(options.user_excepts.indexOf(element.id)>=0) return true;
+    }
+    if(element.tagName) {
+      var tagname = element.tagName.toLowerCase();
+      if(options.default_excepts.indexOf(tagname)>=0) return true;
+      if(options.user_excepts.indexOf(tagname)>=0) return true;
+    }
+    return false;
+  },
+  getFileName = function (filename) {
+    var i = filename.lastIndexOf('/');
+    if(i>=0) filename = filename.substring(i+1);
+    return filename;
+  },
+  getFileNameNoExt = function (filename) {
+    filename = getFileName(filename);
+    var i = filename.lastIndexOf('.');
+    return (i < 0) ? filename : filename.substring(0, i);
+  },
+  getFileExtension = function (filename) {
+    filename = getFileName(filename);
+    var i = filename.lastIndexOf('.');
+    return (i < 0) ? null : filename.substring(i+1);
+  },  
+  getImgAttr = function (element) {
+    var attrName;
+    var attr;
 
-      for(i=0;i<options.default_img_attrs.length;i++) {
-        attrName = options.default_img_attrs[i];        
-        attr = element.getAttribute(attrName);
-        if(attr) return attr;
-      }
-      for(i=0;i<options.user_img_attrs.length;i++) {
-        attrName = options.user_img_attrs[i];        
-        attr = element.getAttribute(attrName);
-        if(attr) return attr;
-      }
-      
-      attrName = element.getAttribute("appres");
-      if(attrName) {
-        attr = element.getAttribute(attrName);
-        if(attr) return attr;
-      }
+    for(i=0;i<options.default_img_attrs.length;i++) {
+      attrName = options.default_img_attrs[i];        
+      attr = element.getAttribute(attrName);
+      if(attr) return attr;
+    }
+    for(i=0;i<options.user_img_attrs.length;i++) {
+      attrName = options.user_img_attrs[i];        
+      attr = element.getAttribute(attrName);
+      if(attr) return attr;
+    }
+    
+    attrName = element.getAttribute("appres");
+    if(attrName) {
+      attr = element.getAttribute(attrName);
+      if(attr) return attr;
+    }
 
-      return null;
-    },
-    getChild = function(element, tagName) {
-      var tagname = tagName.toLowerCase();
-      for(i=0;i<element.childNodes.length;i++) {
-        var child = element.childNodes[i];
-        if(typeof child === "object" && typeof child.tagName  === "string" && child.tagName.toLowerCase()===tagname) {
-          return child;
-        }
+    return null;
+  },
+  getChild = function(element, tagName) {
+    var tagname = tagName.toLowerCase();
+    for(i=0;i<element.childNodes.length;i++) {
+      var child = element.childNodes[i];
+      if(typeof child === "object" && typeof child.tagName  === "string" && child.tagName.toLowerCase()===tagname) {
+        return child;
       }
-      return null;
-    },
-    findPosition = function (window, obj) { 
-      var currenttop = 0; 
-      var currentleft = 0; 
-      if(obj==null) {        
-        obj = window;
-        window = appWindow;
+    }
+    return null;
+  },
+  findSide = function (window, obj) {
+    var pos = findPosition(window, $(obj)[0]);
+    var x = pos[0];
+    var y = pos[1];
+    var cx = $( window ).width() / 2;
+    var cy = $( window ).height() / 2;
+    if (x <= cx && y < cy) return 1;
+    if (x > cx && y < cy) return 2;
+    if (x >= cx && y > cy) return 3;
+    if (x < cx && y > cy) return 4;
+    return 0;
+  },
+  findPosition = function (window, obj) { 
+    var currenttop = 0; 
+    var currentleft = 0; 
+    if(obj==null) {        
+      obj = window;
+      window = appWindow;
+    }
+    if(typeof obj === "string") {
+      var objs = elementSelectAll(window, obj);
+      if(objs.length>0) {
+        obj = objs[0];
+      } else {
+        return [currentleft, currenttop]; 
       }
-      if(typeof obj === "string") {
-        var objs = elementSelectAll(window, obj);
-        if(objs.length>0) {
-          obj = objs[0];
+    }
+    if (obj.offsetParent) { 
+        do { 
+            currenttop += obj.offsetTop; 
+            currentleft += obj.offsetLeft; 
+        } while ((obj = obj.offsetParent)); 
+    } 
+    return [currentleft, currenttop]; 
+  },
+  autoGrow = function (window, selector, adjust) {
+    if(adjust==null) adjust = 0;
+    if(typeof adjust !== "number") {
+      adjust = 1 * adjust;
+    }
+    var elements = elementSelectAll(window, selector);
+    for (var index = 0; index < elements.length; index++) {
+      var element = elements[index];
+      element.style.height = "1px";
+      element.style.height = (element.scrollHeight + adjust)+"px";  
+    }    
+  },
+  elementText = function (element, text) {
+    if (text) {
+      if (element.textContent!=null) {
+        element.textContent = text;
+        return element.textContent;
+      }
+      if (element.innerText!=null) {
+        element.innerText = text;
+        return element.innerText;
+      }
+    } else {
+      if (element.textContent) return element.textContent;
+      if (element.innerText) return element.innerText;
+    }
+    return null;
+  },
+  elementHTML = function (element, html) {
+    if (html) {
+      if (element.innerHTML) {
+        element.innerHTML = html;
+        return element.innerHTML;
+      }
+    } else {
+      if (element.innerHTML) return element.innerHTML;
+    }
+    return null;
+  },
+  ngHTML2PlainHTML = function (ngHtml, tag) {
+    var ss = ngHtml.split("<" + tag + " ");
+    if (ss.length > 1) {
+      var r = "";
+      for (var i=0; i<ss.length; i++) {
+        if (i%2==0) {
+          r = r + ss[i] + ("<" + tag);
         } else {
-          return [currentleft, currenttop]; 
+          var s = ss[i];
+          var sp = s.indexOf(">");
+          if (sp>=0) {
+            r = r + s.substring(sp);
+          }
         }
       }
-      if (obj.offsetParent) { 
-          do { 
-              currenttop += obj.offsetTop; 
-              currentleft += obj.offsetLeft; 
-          } while ((obj = obj.offsetParent)); 
-      } 
-      return [currentleft, currenttop]; 
-    },
-    autoGrow = function (window, selector, adjust) {
-      if(adjust==null) adjust = 0;
-      if(typeof adjust !== "number") {
-        adjust = 1 * adjust;
-      }
-      var elements = elementSelectAll(window, selector);
-      for (var index = 0; index < elements.length; index++) {
-        var element = elements[index];
-        element.style.height = "1px";
-        element.style.height = (element.scrollHeight + adjust)+"px";  
-      }    
-    },
-    elementText = function (element, text) {
-      if (text) {
-        if (element.textContent!=null) {
-          element.textContent = text;
-          return element.textContent;
-        }
-        if (element.innerText!=null) {
-          element.innerText = text;
-          return element.innerText;
-        }
-      } else {
-        if (element.textContent) return element.textContent;
-        if (element.innerText) return element.innerText;
-      }
-      return null;
-    },
-    elementHTML = function (element, html) {
-      if (html) {
-        if (element.innerHTML) {
-          element.innerHTML = html;
-          return element.innerHTML;
-        }
-      } else {
-        if (element.innerHTML) return element.innerHTML;
-      }
-      return null;
-    },
-    elementAttr = function (element, attr, val) {
-      if (val) {
-        element.setAttribute(attr, val);
-        return element.getAttribute(attr);
-      } 
+      if (r=="") return ngHtml;
+      return r;
+    }
+    return ngHtml;
+  },
+  elementAttr = function (element, attr, val) {
+    if (val) {
+      element.setAttribute(attr, val);
       return element.getAttribute(attr);
-    },
-    elementStyle = function (element, style) {
-      for (var property in style) {
-        element.style[property] = style[property];
+    } 
+    return element.getAttribute(attr);
+  },
+  elementStyle = function (element, style) {
+    for (var property in style) {
+      element.style[property] = style[property];
+    }
+  },
+  objectString = function (text) {
+    if(text==null) return null;
+    if (typeof text === "object") {
+      var _newtext = text[options.lang];
+      if (_newtext==null || _newtext == "") _newtext = text["default"];
+      text = _newtext;
+    }
+    return text;
+  },
+  keyString = function (keystr) {
+    if(options.hash && keystr!="") {
+      switch(options.hash) {
+        case "md5":
+          keystr = md5.calc(keystr);
+          break;
+        case "sha1":
+          keystr = sha1.calc(keystr);
+          break;
+        case "sum":
+          keystr = sum.calc(keystr);
+          break;
       }
-    },
-    objectString = function (text) {
-      if(text==null) return null;
-      if (typeof text === "object") {
-        var _newtext = text[options.lang];
-        if (_newtext==null || _newtext == "") _newtext = text["default"];
-        text = _newtext;
+    }
+    return keystr || "";
+  },
+  appString = function (window, element) {
+    var newtext = null;
+    var keystr = null;
+    if (typeof window === "string") {
+      element = window;
+      window = appWindow;
+    }
+    if (typeof element === "string") {        
+      keystr = keyString(element);
+      if(keystr!="") {
+        if(window.APPRES.APPRES_STRINGS) {
+          newtext = window.APPRES.APPRES_STRINGS[keystr];
+        }            
       }
-      return text;
-    },
-    keyString = function (keystr) {
-      if(options.hash && keystr!="") {
-        switch(options.hash) {
-          case "md5":
-            keystr = md5.calc(keystr);
-            break;
-          case "sha1":
-            keystr = sha1.calc(keystr);
-            break;
-          case "sum":
-            keystr = sum.calc(keystr);
-            break;
-        }
-      }
-      return keystr || "";
-    },
-    appString = function (window, element) {
-      var newtext = null;
-      var keystr = null;
-      if (typeof window === "string") {
-        element = window;
-        window = appWindow;
-      }
-      if (typeof element === "string") {        
-        keystr = keyString(element);
+      return objectString(newtext) || element;
+    }
+    
+    if (window.APPRES.APPRES_STRINGS) {
+      if (element.hasAttribute('dict')) {
+        keystr = keyString(element.getAttribute('dict'));
         if(keystr!="") {
-          if(window.APPRES.APPRES_STRINGS) {
-            newtext = window.APPRES.APPRES_STRINGS[keystr];
-          }            
+          newtext = window.APPRES.APPRES_STRINGS[keystr];
         }
-        return objectString(newtext) || element;
       }
-      
-      if (window.APPRES.APPRES_STRINGS) {
-        if (element.hasAttribute('dict')) {
-          keystr = keyString(element.getAttribute('dict'));
-          if(keystr!="") {
-            newtext = window.APPRES.APPRES_STRINGS[keystr];
-          }
-        }
-        if (newtext==null) {
-          if (element.hasAttribute('string')) {
-            keystr = keyString(element.getAttribute('string'));
-            if(keystr!="") newtext = window.APPRES.APPRES_STRINGS[keystr];
-          } else
-          if (element.hasAttribute('appres-key')) {
-            keystr = element.getAttribute('appres-key') || "";
-            if(keystr!="") newtext = window.APPRES.APPRES_STRINGS[keystr];
-          } else {
-            var text = elementText(element);
-            if (text != null) {
-              keystr = keyString(text);
-              if(keystr!="") {
-                element.setAttribute('appres-key', keystr);
-                newtext = window.APPRES.APPRES_STRINGS[keystr];
-              }
-            }
-          }
-        }  
-      }
-
-      if (newtext) {
-        newtext = objectString(newtext);
-      } else {
-        if (window.APPRES.APPRES_STRINGS) {
-          console.log("AppRes:" + options.lang + ":" + elementText(element));
+      if (newtext==null) {
+        if (element.hasAttribute('string')) {
+          keystr = keyString(element.getAttribute('string'));
+          if(keystr!="") newtext = window.APPRES.APPRES_STRINGS[keystr];
+        } else
+        if (element.hasAttribute('appres-key')) {
+          keystr = element.getAttribute('appres-key') || "";
+          if(keystr!="") newtext = window.APPRES.APPRES_STRINGS[keystr];
         } else {
-          console.log("AppRes:" + options.lang + ":" + elementText(element) + " " + "(Not found APPRES_STRINGS!!!)");
-        }
-      }
-      return newtext;
-    },
-    appHTML = function (window, element) {
-      var newhtml = null;
-      var keystr = null;
-      if (typeof window === "string") {
-        element = window;
-        window = appWindow;
-      }
-      if (typeof element === "string") {        
-        keystr = keyString(element);
-        if(keystr!="") {
-          if(window.APPRES.APPRES_STRINGS) {
-            newhtml = window.APPRES.APPRES_STRINGS[keystr];
-          }
-        }
-        return objectString(newhtml) || element;
-      }
-      
-      if (window.APPRES.APPRES_STRINGS) {
-        if (element.hasAttribute('dict')) {
-          keystr = keyString(element.getAttribute('dict'));
-          if(keystr!="") {
-            newhtml = window.APPRES.APPRES_STRINGS[keystr];
-          }
-        }
-
-        if (newhtml==null) {
-          if (element.hasAttribute('string')) {
-            keystr = keyString(element.getAttribute('string'));
-            if(keystr!="") newhtml = window.APPRES.APPRES_STRINGS[keystr];
-          } else
-          if (element.hasAttribute('appres-key')) {
-            keystr = element.getAttribute('appres-key') || "";
-            if(keystr!="") newhtml = window.APPRES.APPRES_STRINGS[keystr];
-          } else {
-            var html = elementHTML(element);
-            if (html != null) {
-              keystr = keyString(html);
-              if(keystr!="") {
-                element.setAttribute('appres-key', keystr);
-                newhtml = window.APPRES.APPRES_STRINGS[keystr];
-              }
-            }
-          }
-        }  
-      }
-
-      if (newhtml) {
-        newhtml = objectString(newhtml);
-      } else {
-        if (window.APPRES.APPRES_STRINGS) {
-          console.log("AppRes:" + options.lang + ":" + elementHTML(element));
-        } else {
-          console.log("AppRes:" + options.lang + ":" + elementHTML(element) + " " + "(Not found APPRES_STRINGS!!!)");
-        }
-      }
-      return newhtml;
-    },
-    appAttr = function (window, element, attr) {
-      var newval = null;
-      var keystr = null;
-      var val = elementAttr(element, attr);
-      if (window.APPRES.APPRES_STRINGS) {
-        if (element.hasAttribute('appres-'+attr)) {
-          val = element.getAttribute('appres-'+attr);
-          keystr = keyString(val);
-          if(keystr!="") newval = window.APPRES.APPRES_STRINGS[keystr];
-        } else {
-          if (val != null) {
-            element.setAttribute('appres-'+attr, val);
-            keystr = keyString(val);
+          var text = elementText(element);
+          if (text != null) {
+            text = text.trim();
+            keystr = keyString(text);
             if(keystr!="") {
-              newval = window.APPRES.APPRES_STRINGS[keystr];
+              element.setAttribute('appres-key', keystr);
+              newtext = window.APPRES.APPRES_STRINGS[keystr];
             }
           }
         }
+      }  
+    }
+
+    if (newtext) {
+      newtext = objectString(newtext);
+    } else {
+      if (window.APPRES.APPRES_STRINGS) {
+        console.log("AppRes:" + options.lang + ":" + elementText(element));
+      } else {
+        console.log("AppRes:" + options.lang + ":" + elementText(element) + " " + "(Not found APPRES_STRINGS!!!)");
       }
-      if (newval) {
-        newval = objectString(newval);
-      }
-      if (newval==null) {
-        newval = val;
-        if (window.APPRES.APPRES_STRINGS) {
-          console.log("AppRes:" + options.lang + ":" + val);
-        } else {
-          console.log("AppRes:" + options.lang + ":" + val + " " + "(Not found APPRES_STRINGS!!!)");
+    }
+    return newtext;
+  },
+  appHTML = function (window, element) {
+    var newhtml = null;
+    var keystr = null;
+    if (typeof window === "string") {
+      element = window;
+      window = appWindow;
+    }
+    if (typeof element === "string") {        
+      keystr = keyString(element);
+      if(keystr!="") {
+        if(window.APPRES.APPRES_STRINGS) {
+          newhtml = window.APPRES.APPRES_STRINGS[keystr];
         }
       }
-      return newval;
-    },
-    appTranslateAsync = function (window, element, retry, callback) {
+      return objectString(newhtml) || element;
+    }
+    
+    if (window.APPRES.APPRES_STRINGS) {
+      if (element.hasAttribute('dict')) {
+        keystr = keyString(element.getAttribute('dict'));
+        if(keystr!="") {
+          newhtml = window.APPRES.APPRES_STRINGS[keystr];
+        }
+      }
+
+      if (newhtml==null) {
+        if (element.hasAttribute('string')) {
+          keystr = keyString(element.getAttribute('string'));
+          if(keystr!="") newhtml = window.APPRES.APPRES_STRINGS[keystr];
+        } else
+        if (element.hasAttribute('appres-key')) {
+          keystr = element.getAttribute('appres-key') || "";
+          if(keystr!="") newhtml = window.APPRES.APPRES_STRINGS[keystr];
+        } else {
+          var html = elementHTML(element);
+          if (html != null) {
+            keystr = keyString(html);
+            if(keystr!="") {
+              element.setAttribute('appres-key', keystr);
+              newhtml = window.APPRES.APPRES_STRINGS[keystr];
+              
+              if (newhtml==null) {
+                keystr = ngHTML2PlainHTML(keystr, "br");
+                keystr = ngHTML2PlainHTML(keystr, "span");
+
+                element.setAttribute('appres-key', keystr);
+                newhtml = window.APPRES.APPRES_STRINGS[keystr];    
+              }  
+            }
+          }
+        }
+      }  
+    }
+
+    if (newhtml) {
+      newhtml = objectString(newhtml);
+    } else {
       if (window.APPRES.APPRES_STRINGS) {
-        if(elementAttr(element, "appres-lang")==options.lang) {
-          if(callback) callback(element, true, false);
-          return;
+        console.log("AppRes:" + options.lang + ":" + elementHTML(element));
+      } else {
+        console.log("AppRes:" + options.lang + ":" + elementHTML(element) + " " + "(Not found APPRES_STRINGS!!!)");
+      }
+    }
+    return newhtml;
+  },
+  appAttr = function (window, element, attr) {
+    var newval = null;
+    var keystr = null;
+    var val = elementAttr(element, attr);
+    if (window.APPRES.APPRES_STRINGS) {
+      if (element.hasAttribute('appres-'+attr)) {
+        val = element.getAttribute('appres-'+attr);
+        keystr = keyString(val);
+        if(keystr!="") newval = window.APPRES.APPRES_STRINGS[keystr];
+      } else {
+        if (val != null) {
+          element.setAttribute('appres-'+attr, val);
+          keystr = keyString(val);
+          if(keystr!="") {
+            newval = window.APPRES.APPRES_STRINGS[keystr];
+          }
+        }
+      }
+    }
+    if (newval) {
+      newval = objectString(newval);
+    }
+    if (newval==null) {
+      newval = val;
+      if (window.APPRES.APPRES_STRINGS) {
+        console.log("AppRes:" + options.lang + ":" + val);
+      } else {
+        console.log("AppRes:" + options.lang + ":" + val + " " + "(Not found APPRES_STRINGS!!!)");
+      }
+    }
+    return newval;
+  },
+  appTranslateAsync = function (window, element, retry, callback) {
+    if (window.APPRES.APPRES_STRINGS) {
+      if(elementAttr(element, "appres-lang")==options.lang) {
+        if(callback) callback(element, true, false);
+        return;
+      }
+
+      // element title is always translate
+      var attr = 'title';
+      if(elementAttr(element, attr)) {
+        elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
+      }
+
+      let visible = true;
+
+      if(!isExpects(element)) {
+        var attrs = ["text"];
+        if(element.hasAttribute("appres")) {
+          attrs = split(element.getAttribute("appres"));
+        }
+        
+        var already = null;
+        var attrnum = attrs.indexOf("image");
+        if(attrnum<0) attrnum = attrs.indexOf("icon");
+        if(attrnum>=0) {
+          var imgattr = getImgAttr(element);
+          if(imgattr==null) {
+            already = element.getAttribute("appres-already");
+            if(already!=true && already!="true") {
+              imgattr = already;
+            }
+          }
+          if(imgattr==null && typeof element.src==="string") {
+            imgattr = getFileName(element.src);
+            var pos1 = imgattr.lastIndexOf("?");
+            var pos2 = imgattr.lastIndexOf("&");
+            if(pos2>=0) {
+              imgattr = imgattr.substring(pos2+1);
+            } else 
+            if(pos1>=0) {
+              imgattr = imgattr.substring(pos1+1);
+            }
+            if(imgattr.lastIndexOf(".")<0) {
+              imgattr = null;
+            }
+          } 
+
+          if(imgattr){
+            var clientWidth = element.clientWidth;
+            var clientHeight = element.clientHeight;
+
+            var url = options.host +
+            "?pkey=" + options.pkey +
+            "&akey=" + options.akey +
+            "&lang=" + options.lang +
+            "&target=js" + 
+            "&file=" + imgattr +
+            "&cmd=" + attrs[attrnum];
+
+            if(clientWidth!==null && clientHeight!==null) {
+              url += "&width=" + clientWidth + "&height=" + clientHeight;
+            }
+
+            already = element.getAttribute("appres-already");
+            if(already) {
+              if(already!=true && already!="true") {
+                if(element.src) {
+                  element.src = url;
+                } else {
+                  var img = getChild(element, "img");
+                  if(img) img.src = url + "&type=" + already;  
+                }  
+              }
+            } else {
+              element.setAttribute("appres-already", true);
+              if(element.src) {
+                element.onload = function() {
+                  element.setAttribute("appres-already", imgattr);
+                  element.setAttribute('style', 'visibility:visible');
+                  if(callback) callback(element, true, false);
+                };
+                element.src = url;
+              } else {
+                var svg = getChild(element, "svg");
+                if(svg) {  
+                  var image = getChild(svg, "image");
+                  if(image) {
+                    var pe = element.parentElement;
+                    if(pe) {
+                      var img = document.createElement('img');
+                      img.src = url + "&type=" + "svg";
+                      img.className = element.className;
+                      var appres_attr2 = element.getAttribute("appres");
+                      if(appres_attr2) {
+                        img.setAttribute("appres", appres_attr2);
+                        if(element.getAttribute(appres_attr2)) img.setAttribute(appres_attr2, element.getAttribute(appres_attr2));
+                      }
+                      img.onload = function() {
+                        img.setAttribute("appres-already", imgattr+".svg");
+                        img.setAttribute('style', 'visibility:visible');
+                        if(callback) callback(img, true, false);
+                      };
+                      pe.replaceChild(img, element);  
+                    }
+                  }
+                }  
+              }
+            }
+            return;
+          }
+        }
+        
+        
+        // innerHTML, innerText
+        if(attrs.indexOf("html")>=0) {
+          elementHTML(element, appHTML(window, element) || elementHTML(element));
+        } else
+        if(attrs.indexOf("text")>=0) {
+          elementText(element, appString(window, element) || elementText(element));
         }
 
-        // element title is always translate
-        var attr = 'title';
+        attr = 'placeholder';
         if(elementAttr(element, attr)) {
           elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
         }
 
-        let visible = true;
-
-        if(!isExpects(element)) {
-          var attrs = ["text"];
-          if(element.hasAttribute("appres")) {
-            attrs = split(element.getAttribute("appres"));
+        // src attributes
+        if(attrs.indexOf("src")>=0) {
+          attr = 'src';
+          if(attrs.indexOf(attr)>=0 && elementAttr(element, attr)) {
+            element.onload = function() {
+              element.setAttribute('style', 'visibility:visible');
+            };
+            visible = false;
+            elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
           }
-          
-          var already = null;
-          var attrnum = attrs.indexOf("image");
-          if(attrnum<0) attrnum = attrs.indexOf("icon");
-          if(attrnum>=0) {
-            var imgattr = getImgAttr(element);
-            if(imgattr==null) {
-              already = element.getAttribute("appres-already");
-              if(already!=true && already!="true") {
-                imgattr = already;
-              }
-            }
-            if(imgattr==null && typeof element.src==="string") {
-              imgattr = getFileName(element.src);
-              var pos1 = imgattr.lastIndexOf("?");
-              var pos2 = imgattr.lastIndexOf("&");
-              if(pos2>=0) {
-                imgattr = imgattr.substring(pos2+1);
-              } else 
-              if(pos1>=0) {
-                imgattr = imgattr.substring(pos1+1);
-              }
-              if(imgattr.lastIndexOf(".")<0) {
-                imgattr = null;
-              }
-            } 
-
-            if(imgattr){
-              var clientWidth = element.clientWidth;
-              var clientHeight = element.clientHeight;
-
-              var url = options.host +
-              "?pkey=" + options.pkey +
-              "&akey=" + options.akey +
-              "&lang=" + options.lang +
-              "&target=js" + 
-              "&file=" + imgattr +
-              "&cmd=" + attrs[attrnum];
-
-              if(clientWidth!==null && clientHeight!==null) {
-                url += "&width=" + clientWidth + "&height=" + clientHeight;
-              }
-
-              already = element.getAttribute("appres-already");
-              if(already) {
-                if(already!=true && already!="true") {
-                  if(element.src) {
-                    element.src = url;
-                  } else {
-                    var img = getChild(element, "img");
-                    if(img) img.src = url + "&type=" + already;  
-                  }  
-                }
-              } else {
-                element.setAttribute("appres-already", true);
-                if(element.src) {
-                  element.onload = function() {
-                    element.setAttribute("appres-already", imgattr);
-                    element.setAttribute('style', 'visibility:visible');
-                    if(callback) callback(element, true, false);
-                  };
-                  element.src = url;
-                } else {
-                  var svg = getChild(element, "svg");
-                  if(svg) {  
-                    var image = getChild(svg, "image");
-                    if(image) {
-                      var pe = element.parentElement;
-                      if(pe) {
-                        var img = document.createElement('img');
-                        img.src = url + "&type=" + "svg";
-                        img.className = element.className;
-                        var appres_attr2 = element.getAttribute("appres");
-                        if(appres_attr2) {
-                          img.setAttribute("appres", appres_attr2);
-                          if(element.getAttribute(appres_attr2)) img.setAttribute(appres_attr2, element.getAttribute(appres_attr2));
-                        }
-                        img.onload = function() {
-                          img.setAttribute("appres-already", imgattr+".svg");
-                          img.setAttribute('style', 'visibility:visible');
-                          if(callback) callback(img, true, false);
-                        };
-                        pe.replaceChild(img, element);  
-                      }
-                    }
-                  }  
-                }
-              }
-              return;
-            }
-          }          
-          
-          // innerHTML, innerText
-          if(attrs.indexOf("html")>=0) {
-            elementHTML(element, appHTML(window, element) || elementHTML(element));
-          } else
-          if(attrs.indexOf("text")>=0) {
-            elementText(element, appString(window, element) || elementText(element));
+        }
+        // href attributes
+        if(attrs.indexOf("href")>=0) {
+          attr = 'href';
+          if(attrs.indexOf(attr)>=0 && elementAttr(element, attr)) {
+            elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
           }
-
-          // src attributes
-          if(attrs.indexOf("src")>=0) {
-            attr = 'src';
-            if(attrs.indexOf(attr)>=0 && elementAttr(element, attr)) {
-              element.onload = function() {
-                element.setAttribute('style', 'visibility:visible');
-              };
-              visible = false;
-              elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
-            }
-          }
-          // href attributes
-          if(attrs.indexOf("href")>=0) {
-            attr = 'href';
-            if(attrs.indexOf(attr)>=0 && elementAttr(element, attr)) {
-              elementAttr(element, attr, appAttr(window, element, attr) || elementAttr(element, attr));
-            }
-          }
-
-          if (window.onChangedAppRes) {
-            window.onChangedAppRes(element, true);
-          }          
         }
 
+        if (window.onChangedAppRes) {
+          window.onChangedAppRes(element, true);
+        }          
+      }
+
+      if (callback) {
+        callback(element, true, visible);
+      }
+    } else {
+      if (retry >= options.retry) {
+        if (window.onChangedAppRes) {
+          window.onChangedAppRes(element, false);
+        }
         if (callback) {
-          callback(element, true, visible);
+          callback(element, false, true);
         }
       } else {
-        if (retry >= options.retry) {
-          if (window.onChangedAppRes) {
-            window.onChangedAppRes(element, false);
-          }
-          if (callback) {
-            callback(element, false, true);
-          }
-        } else {
-          setTimeout(function () {
-            appTranslateAsync(window, element, ++retry, callback);
-          }, options.time);
+        setTimeout(function () {
+          appTranslateAsync(window, element, ++retry, callback);
+        }, options.time);
+      }
+    }
+  },
+  setItem = function (window, k, v) {
+    var deno = 0, i, j;
+    while (1) {
+      try {
+        if (!deno) window.localStorage.setItem(k, v);
+        else {
+          window.localStorage.setItem(k, '--' + deno);
+          j = Math.ceil(v / deno);
+          for (i = 0; i < deno; i++)
+            window.localStorage.setItem(k + '::' + i, v.substr(i * j, j));
         }
+        break;
+      } catch (e) {
+        deno++;
       }
-    },
-    setItem = function (window, k, v) {
-      var deno = 0, i, j;
-      while (1) {
-        try {
-          if (!deno) window.localStorage.setItem(k, v);
-          else {
-            window.localStorage.setItem(k, '--' + deno);
-            j = Math.ceil(v / deno);
-            for (i = 0; i < deno; i++)
-              window.localStorage.setItem(k + '::' + i, v.substr(i * j, j));
-          }
-          break;
-        } catch (e) {
-          deno++;
-        }
+    }
+  },
+  getItem = function (window, k) {
+    var data = window.localStorage.getItem(k), temp, i, j;
+    if (data && data.substr(0, 2) == '--') {
+      for (temp = '', i = 0, j = parseInt(data.substr(2)); i < j; i++)
+        temp += window.localStorage.getItem(k + '::' + i);
+      data = temp;
+    }
+    return data;
+  },
+  removeItem = function (window, k) {
+    var data = window.localStorage.getItem(k), i, j;
+    if (data && data.substr(0, 2) == '--') {
+      for (i = 0, j = parseInt(data.substr(2)); i < j; i++)
+        window.localStorage.removeItem(k + '::' + i);
+    }
+    if (data) window.localStorage.removeItem(k);
+  },
+  clearItems = function (window) {
+    if(window==null) window = appWindow;
+    removeItem(window, "appres.ver");
+    removeItem(window, "appres.url");
+    removeItem(window, "appres.langs");
+    removeItem(window, "appres.strings");
+    removeItem(window, "appres.templates");
+    removeItem(window, "appres.hash");
+    removeItem(window, "appres.skey");
+  },
+  equalItem = function (window, k, v) {
+    var data = getItem(window, k);
+    return (v == data);
+  },
+  getVer = function (window) {
+    return getItem(window, "appres.ver");
+  },
+  elementSelectAll = function (window, selector) {
+    if(typeof window === "object" && selector==null) return [window];
+    if(typeof selector === "object") return [selector];
+    if(window==null) return [];
+    return window.document.querySelectorAll(selector);
+  },
+  addClassName = function (element, name) {
+    if(name.startsWith(".")) {
+      name = name.substring(1);
+    }
+    var arr = split(element.className);
+    if (arr.indexOf(name) == -1) {
+      if(element.className!="") {
+        element.className += " ";  
       }
-    },
-    getItem = function (window, k) {
-      var data = window.localStorage.getItem(k), temp, i, j;
-      if (data && data.substr(0, 2) == '--') {
-        for (temp = '', i = 0, j = parseInt(data.substr(2)); i < j; i++)
-          temp += window.localStorage.getItem(k + '::' + i);
-        data = temp;
+      element.className += name;
+    }
+  },    
+  removeClassName = function (element, name) {
+    if(name.startsWith(".")) {
+      name = name.substring(1);
+    }
+    var arr = split(element.className);
+    var index  = arr.indexOf(name);
+    if(index>=0) {
+      arr.splice(index, 1);
+    }
+    element.className = arr.join(" ");
+  },
+  clearClassName = function (element) {
+    element.className = "";
+  },    
+  getSystemLang = function (window) {
+    return window.navigator.language || window.navigator.userLanguage; 
+  },
+  getElementStyleDisplay = function (window, element) {
+    return element.currentStyle ? element.currentStyle.display : window.getComputedStyle(element, null).display;
+  },
+  getLang = function () {
+    return options.lang;
+  },
+  setLang = function (lang) {
+    options.lang = lang;
+  },
+  getLangs = function (window) {
+    var appres_langs = elementSelectAll(window, options.langs_selector.langs);
+    if(appres_langs.length>0) {
+      return appres_langs[0];
+    }
+    return null;
+  },
+  getClassName = function (name) {
+    if(typeof name === "string") {
+      if (name.startsWith(".")) {
+        return name;
       }
-      return data;
-    },
-    removeItem = function (window, k) {
-      var data = window.localStorage.getItem(k), i, j;
-      if (data && data.substr(0, 2) == '--') {
-        for (i = 0, j = parseInt(data.substr(2)); i < j; i++)
-          window.localStorage.removeItem(k + '::' + i);
-      }
-      if (data) window.localStorage.removeItem(k);
-    },
-    clearItems = function (window) {
-      if(window==null) window = appWindow;
-      removeItem(window, "appres.ver");
-      removeItem(window, "appres.url");
-      removeItem(window, "appres.langs");
-      removeItem(window, "appres.strings");
-      removeItem(window, "appres.templates");
-      removeItem(window, "appres.hash");
-      removeItem(window, "appres.skey");
-    },
-    equalItem = function (window, k, v) {
-      var data = getItem(window, k);
-      return (v == data);
-    },
-    getVer = function (window) {
-      return getItem(window, "appres.ver");
-    },
-    elementSelectAll = function (window, selector) {
-      if(typeof window === "object" && selector==null) return [window];
-      if(typeof selector === "object") return [selector];
-      if(window==null) return [];
-      return window.document.querySelectorAll(selector);
-    },
-    addClassName = function (element, name) {
-      if(name.startsWith(".")) {
-        name = name.substring(1);
-      }
-      var arr = split(element.className);
-      if (arr.indexOf(name) == -1) {
-        if(element.className!="") {
-          element.className += " ";  
-        }
-        element.className += name;
-      }
-    },    
-    removeClassName = function (element, name) {
-      if(name.startsWith(".")) {
-        name = name.substring(1);
-      }
-      var arr = split(element.className);
-      var index  = arr.indexOf(name);
-      if(index>=0) {
-        arr.splice(index, 1);
-      }
-      element.className = arr.join(" ");
-    },
-    getSystemLang = function (window) {
-      return window.navigator.language || window.navigator.userLanguage; 
-    },
-    getElementStyleDisplay = function (window, element) {
-      return element.currentStyle ? element.currentStyle.display : window.getComputedStyle(element, null).display;
-    },
-    getLang = function () {
-      return options.lang;
-    },
-    setLang = function (lang) {
-      options.lang = lang;
-    },
-    getLangs = function (window) {
-      var appres_langs = elementSelectAll(window, options.langs_selector.langs);
-      if(appres_langs.length>0) {
-        return appres_langs[0];
-      }
-      return null;
-    },
-    getLangsButton = function (window) {
-      var appres_langs_button = elementSelectAll(window, options.langs_selector.langs_button);
-      if(appres_langs_button.length>0) {
-        return appres_langs_button[0];
-      }
-      return null;
-    },
-    getLangsSelector = function (window) {
-      var appres_langs_items = elementSelectAll(window, options.langs_selector.langs_items);
-      if(appres_langs_items.length>0) {
-        return appres_langs_items[0];
-      }
-      return null;
-    },
-    toggleLangsSelector = function (window) {
-      var items_div = getLangsSelector(window);
-      if(items_div) {
-        if(getElementStyleDisplay(window, items_div)=="none") {
-          clearLangsSelector(window);
+      return "." + name;
+    }
+    var c = $(name).attr('class');
+    if (c != null && c.length > 0) return c[0];
+    return "";
+  },
+  getLangsButton = function (window) {
+    var appres_langs_button = null;
+    if(options.langs_selector.style.button=="auto") {
+      appres_langs_button = elementSelectAll(window, options.langs_selector.langs_button);
+    } else {
+      appres_langs_button = elementSelectAll(window, getClassName(options.langs_selector.style.button) + " button");
+    }
+    if(appres_langs_button.length>0) {
+      return appres_langs_button[0];
+    }
+    return null;
+  },
+  getLangsSelector = function (window) {
+    var appres_langs_items = elementSelectAll(window, options.langs_selector.langs_items);
+    if (appres_langs_items.length > 0) {
+      return appres_langs_items[0];
+    }
+    return null;
+  },
+  toggleLangsSelector = function (window) {
+    var items_div = getLangsSelector(window);
+    if(items_div) {
+      if(getElementStyleDisplay(window, items_div)=="none") {
+        clearLangsSelector(window);
 
-          var appres_langs_button = getLangsButton(window);
-          if(appres_langs_button) {
-            addClassName(appres_langs_button, options.langs_selector.langs_button + "-active");
+        var appres_langs_button = getLangsButton(window);
+        if(appres_langs_button) {
+          addClassName(appres_langs_button, options.langs_selector.langs_button + "-active");
+          
+          if(options.langs_selector.style.button!="auto") {
+            var pos = findPosition(window, $(appres_langs_button).parent()[0]);
+            //var w = $(appres_langs_button).parent().width();
+            var h = $(appres_langs_button).parent().height();
+            //var ww = $(window).width();
+            //var hh = $(window).height();
+            var side = findSide(window,  $(appres_langs_button).parent());
+            if (side == 1) {  // left top
+              $(items_div).css('left', 0 + "px");
+              $(items_div).css('top', (pos[1] + h - 4) + "px");
+            } else
+            if (side == 2) {  // right top
+              $(items_div).css('right', 0 + "px");
+              $(items_div).css('top', (pos[1] + h - 4) + "px");
+            } else
+            if (side == 3) {  // right bottom
+              $(items_div).css('right', 0 + "px");
+              $(items_div).css('bottom', (h + 4) + "px");
+            } else
+            if (side == 4) {  // left bottom
+              $(items_div).css('left', 0 + "px");
+              $(items_div).css('bottom', (h + 4) + "px");
+            }
           }
+        }
 
-          var selected = setLangsSelector(window);
-          items_div.setAttribute('style', "display:block");
-          if(selected) {
-            setTimeout(function(){
-              var items_div = getLangsSelector(window);
-              if(items_div.scrollTo) {
-                items_div.scrollTo(0, selected.offsetTop);
-              } else {
-                items_div.scrollTop = selected.offsetTop;
-              }
-            }, 0);
-          }  
-        } else {
-          clearLangsSelector(window);
+        $(items_div).css('display', "block");
+
+        var selected = setLangsSelector(window);
+        if(selected) {
+          setTimeout(function(){
+            var items_div = getLangsSelector(window);
+            if(items_div.scrollTo) {
+              items_div.scrollTo(0, selected.offsetTop);
+            } else {
+              items_div.scrollTop = selected.offsetTop;
+            }
+          }, 0);
         }  
-      }
-    },
-    clearLangsSelector = function (window) {
-      var langs_button = getLangsButton(window);
-      if(langs_button) {
-        removeClassName(langs_button, options.langs_selector.langs_button + "-active");
-      }
+      } else {
+        clearLangsSelector(window);
+      }  
+    }
+  },
+  clearLangsSelector = function (window) {
+    var langs_button = getLangsButton(window);
+    if(langs_button) {
+      removeClassName(langs_button, options.langs_selector.langs_button + "-active");
+    }
+    var items_div = getLangsSelector(window);
+    if(items_div) {
+      while (items_div.firstChild) {
+        items_div.removeChild(items_div.lastChild);
+      }        
+      items_div.setAttribute('style', "display:none");
+    }
+  },
+  setLangsSelector = function (window) {
+    var selected = null;
+    var items_div = getLangsSelector(window);
+    if(items_div) {
+      var langs = Object.keys(window.APPRES.APPRES_LANGS);
+      var index;
+      for( index=0; index<langs.length; index++ ) {          
+        var lang = langs[index];
+        var lang_name = window.APPRES.APPRES_LANGS[lang];
+        var lang_div = document.createElement('div');
+        lang_div.id = lang;
+        if(options.lang==lang) {
+          lang_div.className = "selected";
+          selected = lang_div;
+        }
 
-      var items_div = getLangsSelector(window);
-      if(items_div) {
-        while (items_div.firstChild) {
-          items_div.removeChild(items_div.lastChild);
-        }        
-        items_div.setAttribute('style', "display:none");
-      }
-    },
-    setLangsSelector = function (window) {
-      var selected = null;
-      var items_div = getLangsSelector(window);
-      if(items_div) {
-        var langs = Object.keys(window.APPRES.APPRES_LANGS);
-        var index;
-        for( index=0; index<langs.length; index++ ) {
-          var lang = langs[index];
-          var lang_name = window.APPRES.APPRES_LANGS[lang];
-          var lang_div = document.createElement('div');
-          lang_div.id = lang;
-          if(options.lang==lang) {
-            lang_div.className = "selected";
-            selected = lang_div;
-          }
-          elementText(lang_div, lang_name);
-          items_div.appendChild(lang_div);
-          lang_div.onclick = function(e) {
-            var lang = e.target.id;
-            if(lang!=options.lang) {
-              items_div.setAttribute('style', "display:none");
-              options.lang = lang;
-              setItem(window, "appres.lang", options.lang);
-              initLangsSelector(window);
-              if(options.langs_all==true) {
+        elementText(lang_div, lang_name);
+
+        items_div.appendChild(lang_div);
+        lang_div.onclick = function(e) {
+          var lang = e.target.id;
+          if(lang!=options.lang) {
+            items_div.setAttribute('style', "display:none");
+            options.lang = lang;
+            setItem(window, "appres.lang", options.lang);
+            initLangsSelector(window);
+            if(options.langs_all==true) {
+              var processed = false;
+              for( var i3 = 0; i3 < appEvents.onTranslate.length; i3++ ) {
+                if (appEvents.onTranslate[i3](self, lang)==true) {
+                  processed = true;
+                }
+              }
+              if (processed==false) {
                 translate(window);
                 if (options.title_trans) title_translate(window);
                 var langs_button = getLangsButton(window);
@@ -1193,245 +1341,269 @@ if(window.globalThis==null) {
                   if(__html && __html.length>0) {
                     __html[0].setAttribute('lang', lang.substring(0,2));
                   }
-                }
-
-                for( var i2 = 0; i2 < appEvents.onTranslate.length; i2++ ) {
-                  appEvents.onTranslate[i2](self, lang);
-                }
-                for( var i3 = 0; i3 < appEvents.onLanguageChange.length; i3++ ) {
-                  appEvents.onLanguageChange[i3](self, lang);
-                }
-              } else {
-                window.location.reload();
-              }
+                }  
+                onLanguageChange(self, lang);
+              }                
+            } else {
+              window.location.reload();
             }
           }
-        };
-      }
-      return selected;
-    },
-    makeLangsSelector = function (window) {
-      var langs = getLangs(window);
-      if(langs) {
-        var _proced = false;
-        for( var i4 = 0; i4 < appEvents.onLangsSelector.length; i4++ ) {
-          _proced = appEvents.onLangsSelector[i4](self, langs, options.lang) || _proced;
         }
-        if(_proced) return langs;
-        
-        var button = window.document.createElement("button");
+      };
+    }
+    return selected;
+  },
+  onLanguageChange = function (sender, lang) {
+    for( var i2 = 0; i2 < appEvents.onLanguageChange.length; i2++ ) {
+      appEvents.onLanguageChange[i2](sender, lang);
+    }
+    var onChangeLangs = appEvents.get("onChangeLangs");
+    if (onChangeLangs) {
+      for (var i3 = 0; i3 < onChangeLangs.length; i3++) {
+        onChangeLangs[i3](sender, lang);
+      }
+    }
+  },
+  makeLangsSelector = function (window) {
+    var langs = getLangs(window);
+    if(langs) {
+      var _proced = false;
+      for( var i4 = 0; i4 < appEvents.onLangsSelector.length; i4++ ) {
+        _proced = appEvents.onLangsSelector[i4](self, langs, options.lang) || _proced;
+      }
+      if(_proced) return langs;
+      
+      var button = window.document.createElement("button");
+      if(options.langs_selector.style.button=="auto") {
         addClassName(button, options.langs_selector.langs_button);
         addClassName(button, options.langs_selector.langs_button + "-" + options.langs_selector.langs_button_color);
         if(options.langs_selector.langs_button_size) {
           addClassName(button, options.langs_selector.langs_button + "-" + options.langs_selector.langs_button_size);
         }
-        langs.appendChild(button);
-
-        var div = window.document.createElement("div");
-        addClassName(div, options.langs_selector.langs_items);  
-        langs.appendChild(div);
-
-        if(options.langs_selector.style.css) {
-          setTimeout(function() {
-            elementStyle(langs, options.langs_selector.style.css);
-          }, 0);
-        }
-      }
-      return langs;  
-    },
-    initLangsSelector = function (window) {
-      var langs_button = getLangsButton(window);
-      if(langs_button==null) {
-        if(getLangs(window)!=null) {
-          makeLangsSelector(window);
-          langs_button = getLangsButton(window);
-        }
-      }
-      if(langs_button) {
-        if(options.langs_selector.style.button!="auto") {
-          addClassName(langs_button, options.langs_selector.langs_button + "-" + options.langs_selector.style.button);
-          var langs_selector = getLangsSelector(window);
-          addClassName(langs_selector, options.langs_selector.langs_items + "-" + options.langs_selector.style.button);
-        }
-
-        var lang = window.APPRES.APPRES_LANGS[options.lang];
-        if(!lang) {
-          options.lang = getSystemLang(window);
-          lang = window.APPRES.APPRES_LANGS[options.lang];
-        }
-        if(!lang) {
-          options.lang = "en-US";
-          lang = window.APPRES.APPRES_LANGS[options.lang];
-          if(!lang) {
-            options.lang = Object.keys(window.APPRES.APPRES_LANGS)[0];
-            lang = window.APPRES.APPRES_LANGS[options.lang];
-          }
-        }          
-        if(lang) {
-          elementText(langs_button, lang);
-        }
-        langs_button.onclick = function(e) {
-          toggleLangsSelector(window);
-        }
-    
-        langs_button.onblur = function(e) {
-          setTimeout(function(){
-            clearLangsSelector(window);
-          }, 300);
-        }
-      }
-    },
-    reset = function (window, sels) {
-      var elements = (sels==null) ? elementSelectAll(window, ".appres") : elementSelectAll(window, ".appres " + sels);
-      for( var i5 = 0; i5 < elements.length; i5++ ) {
-        var element = elements[i5];
-        element.removeAttribute("appres-lang");
-        element.removeAttribute("appres-key");
-        element.removeAttribute("appres-already");
-      }
-    },
-    title_translate = function (window) {
-      if(window.appres_title == null) {
-        window.appres_title = window.document.title;
-      }
-      window.document.title = appString(window.appres_title);
-    },
-    translate = function (window, sels) {
-      var elements = (sels==null) ? elementSelectAll(window, ".appres") : elementSelectAll(window, ".appres " + sels);
-      for( var i5 = 0; i5 < elements.length; i5++ ) {
-        var element = elements[i5];
-        appTranslateAsync(window, element, 0, function (element, success, visible) {
-          var appres_lang = elementAttr(element, "appres-lang");
-          if(success && appres_lang==null) {
-            if (options.visibility == "hidden" && visible===true) {
-              element.setAttribute('style', 'visibility:visible');
-            }  
-            elementAttr(element, "appres-lang", options.lang);
-          } else
-          if(success && appres_lang!=options.lang) {
-            elementAttr(element, "appres-lang", options.lang);
-          }
-        });
-      }
-    },
-    hideTemporarily = function (window) {
-      var elements = elementSelectAll(window, ".appres");
-      for( var i5 = 0; i5 < elements.length; i5++ ) {
-        elements[i5].setAttribute('style', 'visibility:hidden');
-      }
-    },
-    showTemporarily = function (window) {
-      var elements = elementSelectAll(window, ".appres");
-      for( var i5 = 0; i5 < elements.length; i5++ ) {
-        elements[i5].setAttribute('style', 'visibility:visible');
-      }
-    },
-    formatString = function (args) {
-      args = arguments[0];
-      args[0] = appString(args[0]);
-      return args[0].replace(/{(\d+)}/g, 
-        function(match, num) { 
-            num = Number(num) + 1; 
-            return typeof(args[num]) != undefined ? args[num] : match; 
-        }); 
-    },
-    split = function (string, pattern) {
-      if(typeof string !== "string") return [];
-      return string.split(new RegExp((pattern ? pattern : '[ ,]'), 'g')).filter(function(item) {
-        return item !== null && item !== undefined && item !== '';
-      });
-    },
-    langsSelectorSmallButton = function (window, retry) {
-      if(window==null) window = appWindow;
-      if(typeof window === "number") {
-        retry = window;
-        window = appWindow;
-      }
-      var button_name = options.langs_selector.langs_button;
-      var button = elementSelectAll(window, button_name);
-      if(button && button.length>0) {
-        button = button[0];
-        addClassName(button, "appres-langs-button-small");
+        addClassName(langs, "appres-langs-auto");
       } else {
-        if(retry==null) retry = 1;
-        else retry ++;
-        if(retry<50) {
-          setTimeout(function(){
-            langsSelectorSmallButton(window, retry);
-          }, 10);
+        addClassName(langs, options.langs_selector.style.button);
+      }
+      langs.appendChild(button);
+
+      var div = window.document.createElement("div");
+      addClassName(div, options.langs_selector.langs_items);
+      langs.appendChild(div);
+
+      if(options.langs_selector.style.css) {
+        setTimeout(function() {
+          elementStyle(langs, ShowLangSelector === true ? options.langs_selector.style.css : options.langs_selector.style.hide);
+        }, 0);
+      }
+    }
+    return langs;  
+  },
+  initLangsSelector = function (window) {
+    var langs_button = getLangsButton(window);
+    if(langs_button==null) {
+      if(getLangs(window)!=null) {
+        makeLangsSelector(window);
+        langs_button = getLangsButton(window);
+      }
+    }
+
+    if(langs_button) {
+      $(options.langs_selector.langs).css('display', ShowLangSelector === true ? 'block' : 'none');      
+
+      if(options.langs_selector.style.button!="auto") {
+        $(langs_button).parent().css("background-size", "0px");
+        addClassName(langs_button, options.langs_selector.style.button);
+      }
+
+      var lang = window.APPRES.APPRES_LANGS[options.lang];
+      if(!lang) {
+        options.lang = getSystemLang(window);
+        lang = window.APPRES.APPRES_LANGS[options.lang];
+      }
+      if(!lang) {
+        options.lang = "en-US";
+        lang = window.APPRES.APPRES_LANGS[options.lang];
+        if(!lang) {
+          options.lang = Object.keys(window.APPRES.APPRES_LANGS)[0];
+          lang = window.APPRES.APPRES_LANGS[options.lang];
         }
+      }          
+      if(options.langs_selector.style.button=="auto" && lang) {
+        elementText(langs_button, lang);
       }
-    },
-    readFromCache = function (window, name) {
-      if(typeof window === "string") {
-        name = window;
-        window = appWindow;
+
+      langs_button.onclick = function(e) {
+        toggleLangsSelector(window);
       }
-      var appres_values = getItem(window, name);
-      if (appres_values) {
-        try {
-          return JSON.parse(appres_values);
-        } catch (e) {
-          console.log("AppRes: readFromCache error : " + e);
+  
+      langs_button.onblur = function(e) {
+        setTimeout(function(){
+          clearLangsSelector(window);
+        }, 300);
+      }
+    }
+  },
+  reset = function (window, sels) {
+    var elements = (sels==null) ? elementSelectAll(window, ".appres") : elementSelectAll(window, ".appres " + sels);
+    for( var i5 = 0; i5 < elements.length; i5++ ) {
+      var element = elements[i5];
+      element.removeAttribute("appres-lang");
+      element.removeAttribute("appres-key");
+      element.removeAttribute("appres-already");
+    }
+  },
+  title_translate = function (window) {
+    if(window.appres_title == null) {
+      window.appres_title = window.document.title;
+    }
+    window.document.title = appString(window.appres_title);
+  },
+  translate = function (window, sels) {
+    var elements = (sels==null) ? elementSelectAll(window, ".appres") : elementSelectAll(window, ".appres " + sels);
+    for( var i5 = 0; i5 < elements.length; i5++ ) {
+      var element = elements[i5];
+      appTranslateAsync(window, element, 0, function (element, success, visible) {
+        var appres_lang = elementAttr(element, "appres-lang");
+        if(success && appres_lang==null) {
+          if (options.visibility == "hidden" && visible===true) {
+            element.setAttribute('style', 'visibility:visible');
+          }  
+          elementAttr(element, "appres-lang", options.lang);
+        } else
+        if(success && appres_lang!=options.lang) {
+          elementAttr(element, "appres-lang", options.lang);
         }
+      });
+    }
+  },
+  hideTemporarily = function (window) {
+    var elements = elementSelectAll(window, ".appres");
+    for( var i5 = 0; i5 < elements.length; i5++ ) {
+      elements[i5].setAttribute('style', 'visibility:hidden');
+    }
+  },
+  showTemporarily = function (window) {
+    var elements = elementSelectAll(window, ".appres");
+    for( var i5 = 0; i5 < elements.length; i5++ ) {
+      elements[i5].setAttribute('style', 'visibility:visible');
+    }
+  },
+  formatString = function (args) {
+    args = arguments[0];
+    args[0] = appString(args[0]);
+    return args[0].replace(/{(\d+)}/g, 
+      function(match, num) { 
+          num = Number(num) + 1; 
+          return typeof(args[num]) != undefined ? args[num] : match; 
+      }); 
+  },
+  split = function (string, pattern) {
+    if(typeof string !== "string") return [];
+    return string.split(new RegExp((pattern ? pattern : '[ ,]'), 'g')).filter(function(item) {
+      return item !== null && item !== undefined && item !== '';
+    });
+  },
+  langsSelectorSmallButton = function (window, retry) {
+    if(window==null) window = appWindow;
+    if(typeof window === "number") {
+      retry = window;
+      window = appWindow;
+    }
+    var button_name = options.langs_selector.langs_button;
+    var button = elementSelectAll(window, button_name);
+    if(button && button.length>0) {
+      button = button[0];
+      addClassName(button, "appres-langs-button-small");
+    } else {
+      if(retry==null) retry = 1;
+      else retry ++;
+      if(retry<50) {
+        setTimeout(function(){
+          langsSelectorSmallButton(window, retry);
+        }, 10);
       }
-      return null;
-    },
-    loadFromCache = function (window) {
-      window.APPRES.APPRES_LANGS = readFromCache(window, "appres.langs");  
-      window.APPRES.APPRES_STRINGS = readFromCache(window, "appres.strings");
-      window.APPRES.APPRES_TEMPLATES = readFromCache(window, "appres.templates");
-      if(options.datajs) {
-        window.APPRES.APPRES_HASH = readFromCache(window, "appres.hash");
-        window.APPRES.APPRES_SKEY = readFromCache(window, "appres.skey");
+    }
+  },
+  readFromCache = function (window, name) {
+    if(typeof window === "string") {
+      name = window;
+      window = appWindow;
+    }
+    var appres_values = getItem(window, name);
+    if (appres_values) {
+      try {
+        return JSON.parse(appres_values);
+      } catch (e) {
+        console.log("AppRes: readFromCache error : " + e);
       }
-    },
-    loadAppResScript = function (window, url, ver) {
-      let verurl = (ver!=null) ? ("&cver=" + ver) : "";
-      loadScript(window, url + verurl,
-        function (script) {
-          if (options.cache && options.datajs==null) {
-            if(window.APPRES.APPRES_STRINGS==null) {
-              loadFromCache(window);
-              if(window.APPRES.APPRES_STRINGS==null || window.APPRES.APPRES_LANGS==null) {
-                clearItems(window);
-                setTimeout(function() {
-                  loadAppResScript(window, url, 0);
-                },100);
-                return;
-              }        
-              console.log("AppRes: Loaded app string from appres cached ver " + ver);
-            } else {
-              if(window.APPRES.APPRES_DVER>0) {
-                setItem(window, "appres.strings", JSON.stringify(window.APPRES.APPRES_STRINGS));
-                setItem(window, "appres.templates", JSON.stringify(window.APPRES.APPRES_TEMPLATES));
-                setItem(window, "appres.url", url);
-                setItem(window, "appres.ver", JSON.stringify(window.APPRES.APPRES_DVER));  
-              } else {
-                clearItems(window);
-              }
-              console.log("AppRes: Loaded app string from appres url ver " + window.APPRES.APPRES_DVER);
-            }
+    }
+    return null;
+  },
+  loadFromCache = function (window) {
+    window.APPRES.APPRES_LANGS = readFromCache(window, "appres.langs");  
+    window.APPRES.APPRES_STRINGS = readFromCache(window, "appres.strings");
+    window.APPRES.APPRES_TEMPLATES = readFromCache(window, "appres.templates");
+    if(options.datajs) {
+      window.APPRES.APPRES_HASH = readFromCache(window, "appres.hash");
+      window.APPRES.APPRES_SKEY = readFromCache(window, "appres.skey");
+    }
+  },
+  loadAppResScript = function (window, url, ver) {
+    let verurl = (ver!=null) ? ("&cver=" + ver) : "";
+    loadScript(window, url + verurl,
+      function (script) {
+        if (options.cache && options.datajs==null) {
+          if(window.APPRES.APPRES_STRINGS==null) {
+            loadFromCache(window);
+            if(window.APPRES.APPRES_STRINGS==null || window.APPRES.APPRES_LANGS==null) {
+              clearItems(window);
+              setTimeout(function() {
+                loadAppResScript(window, url, 0);
+              },100);
+              return;
+            }        
+            console.log("AppRes: Loaded app string from appres cached ver " + ver);
           } else {
-            clearItems(window);
-            console.log("AppRes: Loaded app string from CDN file ver " + window.APPRES.APPRES_FVER);
+            if(window.APPRES.APPRES_DVER>0) {
+              setItem(window, "appres.strings", JSON.stringify(window.APPRES.APPRES_STRINGS));
+              setItem(window, "appres.templates", JSON.stringify(window.APPRES.APPRES_TEMPLATES));
+              setItem(window, "appres.url", url);
+              setItem(window, "appres.ver", JSON.stringify(window.APPRES.APPRES_DVER));  
+            } else {
+              clearItems(window);
+            }
+            console.log("AppRes: Loaded app string from appres url ver " + window.APPRES.APPRES_DVER);
           }
-
-          if(options.datajs) {
-            options.langs_all = true;
-            if(options.pkey==null) options.pkey = window.APPRES.APPRES_PKEY;
-            if(options.akey==null) options.akey = window.APPRES.APPRES_AKEY;
-            options.hash = window.APPRES.APPRES_HASH;
-            options.skey = window.APPRES.APPRES_SKEY;
+        } else {
+          clearItems(window);
+          if (window.APPRES) {
+            if (window.APPRES.APPRES_FVER == null) window.APPRES.APPRES_FVER = "0";
+            console.log("AppRes: Loaded app string from CDN file ver " + window.APPRES.APPRES_FVER);  
+          } else {
+            console.error("AppRes: APPRES is undefined");  
           }
+        }
 
-          initLangsSelector(window);
+        if(options.datajs) {
+          options.langs_all = true;
+          if(options.pkey==null) options.pkey = window.APPRES.APPRES_PKEY;
+          if(options.akey==null) options.akey = window.APPRES.APPRES_AKEY;
+          options.hash = window.APPRES.APPRES_HASH;
+          options.skey = window.APPRES.APPRES_SKEY;
+        }
+
+        initLangsSelector(window);
+
+        var processed = false;
+        for( var i7 = 0; i7 < appEvents.onTranslate.length; i7++ ) {
+          if (appEvents.onTranslate[i7](self, options.lang)==true) {
+            processed = true;
+          }
+        }
+
+        if (processed==false) {
           translate(window);
-          if (options.title_trans) title_translate(window);
-
-          for( var i6 = 0; i6 < appEvents.onReady.length; i6++ ) {
-            appEvents.onReady[i6](self, options.lang);
-          }
+          if (options.title_trans) title_translate(window);  
 
           if(options.lang_attr==true) {
             var __html = elementSelectAll(window, 'html');
@@ -1440,13 +1612,18 @@ if(window.globalThis==null) {
             }
           }
 
-          for( var i7 = 0; i7 < appEvents.onTranslate.length; i7++ ) {
-            appEvents.onTranslate[i7](self, options.lang);
-          }
+          for( var i2 = 0; i2 < appEvents.onLanguageChange.length; i2++ ) {
+            appEvents.onLanguageChange[i2](self, options.lang);
+          }  
         }
-      );
-    },
-    self = null;
+
+        for( var i6 = 0; i6 < appEvents.onReady.length; i6++ ) {
+          appEvents.onReady[i6](self, options.lang);
+        }
+      }
+    );
+  },
+  self = null;
     
   var appWindow = window;
   var AppRes = function (window, _options, _appEvents) {
@@ -1553,6 +1730,14 @@ if(window.globalThis==null) {
   AppRes.prototype.getLang = function () {
     return getLang();
   };
+  AppRes.prototype.updateLang = function () {
+    const langButton = getLangsButton(window);
+    var lang_name = window.APPRES.APPRES_LANGS[options.lang];
+    elementText(langButton, lang_name);
+
+    onLanguageChange(self, options.lang);
+  };
+    
 
   AppRes.prototype.getScript = function (window, url, onload) {
     return getScript(window, url, onload);
@@ -1622,7 +1807,7 @@ if(window.globalThis==null) {
   AppRes.prototype.ready = function (callback, interval, limit) {
     if(callback) {
       if(window.APPRES.APPRES_STRINGS != null) {
-        callback(true);
+        callback(AppRes, true);
       } else {
         if(interval==null) interval = 100;
         if(interval<10) interval = 10;
@@ -1632,12 +1817,12 @@ if(window.globalThis==null) {
         const timerId = setInterval(function() {
           if((window.APPRES.APPRES_STRINGS != null)) {
             clearInterval(timerId);
-            callback(true);
+            callback(AppRes, true);
           } else {
             count++;
             if(count>limit) {
               clearInterval(timerId);
-              callback(false);  
+              callback(AppRes, false);  
             }
           }
         }, interval);  
@@ -1654,13 +1839,27 @@ if(window.globalThis==null) {
       delay = window;
       window = null;
     }
+
+    if(window!=null && typeof window === 'number') {
+      if (delay==null) {
+        if (delay2==null) delay2 = delay;
+        delay = window;
+        window = null;
+        if (delay2==null) delay2 = delay;
+      }
+      setTimeout(function(){translate(window || appWindow, delay)}, delay2);
+      return;
+    }
+
     if(delay!=null && typeof delay === 'string') {
       if(delay2!=null && typeof delay2 === 'number') {
         if(delay2==-1) {
           reset(window || appWindow, delay);
           translate(window || appWindow, delay);
         } else {
-          setTimeout(function(){translate(window || appWindow, delay)}, delay2);
+          setTimeout(function(){
+            translate(window || appWindow, delay);
+          }, delay2);
         }
         return;
       }
@@ -1773,8 +1972,52 @@ if(window.globalThis==null) {
     appEvents.remove(name, event);
   }
   AppRes.prototype.getEvents = function (name) {
-    appEvents.get(name);
+    return appEvents.get(name);
   }
+
+  AppRes.prototype.showLangSelector = function (value) {
+    if (value == null) return ShowLangSelector;
+    const langs = getLangs(window);
+    if (langs) {
+      $(langs).css('display', value === true ? 'block' : 'none');      
+    }
+    return ShowLangSelector = value;
+  };
+  AppRes.prototype.isReady = function () {
+    return true;
+  };
+  AppRes.prototype.init = function () {
+    init(window);
+    return window.APPRES;
+  };
+  AppRes.prototype.getLangs = function () {
+    return window.APPRES.APPRES_LANGS;
+  };
+
+
+  Event.prototype.currentURL = function () {
+    return window.location.href;
+  };
+  Event.prototype.protocol = function () {
+    return window.location.protocol;
+  };
+  Event.prototype.host = function () {
+    return window.location.host;
+  };
+  Event.prototype.hostname = function () {
+    return window.location.hostname;
+  };
+  Event.prototype.port = function () {
+    return window.location.port;
+  };
+  Event.prototype.path = function () {
+    return window.location.pathname;
+  };
+  Event.prototype.queryString = function () {
+    return window.location.search;
+  };
+
+  
 
   AppRes.prototype.appOptions = function (opt, val) {
     if(opt) {
@@ -1790,6 +2033,22 @@ if(window.globalThis==null) {
   AppRes.prototype.appSplit = function (string, pattern) {
     return split(string, pattern);
   };
+
+
+
+  AppRes.prototype.getFileName = function (filename) {
+    return getFileName(filename);
+  };
+  AppRes.prototype.getFileNameNoExt = function (filename) {
+    return getFileNameNoExt(filename);
+  };
+  AppRes.prototype.getFileExtension = function (filename) {
+    return getFileExtension(filename);
+  };  
+  AppRes.prototype.getImgAttr = function (element) {
+    return getImgAttr(element);
+  };
+
 
     
   AppRes.prototype.$$ = function (a, b, c) {
@@ -1817,11 +2076,13 @@ if(window.globalThis==null) {
   function init(window){
     window.APPRES = new AppRes(window, window.onAppResOptions(), window.APPRES.appEvents);
     window.APPRES.self(window.APPRES);
+    window.APPRES.values = {};
     window.$$ = window.APPRES.$$;
     window.$S = window.$$().$S();
     window.$T = window.$$().$T();
     window.$Q = window.$$().$Q();
     window.$F = window.$$().$F;
+    window.$V = window.APPRES.values;
   }
 
   window.AppRes = AppRes;
@@ -1864,5 +2125,3 @@ if(window.globalThis==null) {
   }
 
 })(window);
-
-

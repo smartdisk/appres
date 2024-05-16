@@ -1,16 +1,16 @@
 /*!
- * AppRes CSS Library v0.0.74
+ * AppRES CSS Library v0.0.96
  * https://appres.org/
  *
- * Copyright 2021 APPRES.ORG and other contributors
+ * Copyright 2023 APPRES.ORG and other contributors
  * Released under the LGPLv3 license
  * https://appres.org/license
  *
  * Create Date: 2021.02.07 KST
- * Last Update: 2021.03.29 KST
+ * Last Update: 2023.03.19 KST
  */
 
-.appres {
+ .appres {
   visibility: hidden;
 }
 
@@ -18,7 +18,7 @@
   visibility: hidden !important;
 }
 
-.appres-langs {
+.appres-langs-auto {
   position: absolute;
   display: none;
   right: 10px;
@@ -33,6 +33,7 @@
   padding-bottom: 5px;
   font-size: 16px;
   min-width: 160px;
+  min-height: 30px;
   cursor: pointer;
   border: none;
   background-color: #4CAF50;  
@@ -82,10 +83,10 @@
     background-color: transparent;
   }
   .appres-langs .appres-langs-button-black {
-    background-image: url('https://storage.googleapis.com/cdn.appres.org/appres-js/language-earth-black.png');
+    background-image: url('https://cdn.appres.org/assets/language-earth-black.png');
   }
   .appres-langs .appres-langs-button-white {
-    background-image: url('https://storage.googleapis.com/cdn.appres.org/appres-js/language-earth-white.png');
+    background-image: url('https://cdn.appres.org/assets/language-earth-white.png');
   }
   .appres-langs .appres-langs-button-small {
     min-width: 27px !important;
@@ -120,6 +121,3 @@
 @media (min-width:1281px) { 
   /* hi-res laptops and desktops */ 
 }
-
-
-
